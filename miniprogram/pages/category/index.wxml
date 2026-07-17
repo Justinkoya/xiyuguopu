@@ -1,0 +1,65 @@
+<!-- 分类页 -->
+<view class="page category-page">
+  <!-- 排序栏 -->
+  <view class="sort-bar">
+    <text class="sort-item {{sortType === 'default' ? 'active' : ''}}" data-type="default" bindtap="onTapSort">默认</text>
+    <text class="sort-item {{sortType === 'price-asc' ? 'active' : ''}}" data-type="price-asc" bindtap="onTapSort">价格↑</text>
+    <text class="sort-item {{sortType === 'price-desc' ? 'active' : ''}}" data-type="price-desc" bindtap="onTapSort">价格↓</text>
+    <text class="sort-item {{sortType === 'sales' ? 'active' : ''}}" data-type="sales" bindtap="onTapSort">销量</text>
+  </view>
+
+  <!-- 分类 tab + 商品列表 -->
+  <view class="category-layout">
+    <!-- 左侧分类 -->
+    <scroll-view scroll-y class="category-sidebar">
+      <view
+        wx:for="{{categories}}"
+        wx:key="_id"
+        class="sidebar-item {{activeCategoryCode === item.code ? 'active' : ''}}"
+        data-code="{{item.code}}"
+        bindtap="onTapCategory"
+      >
+        <view class="sidebar-dot" style="background-color: {{item.color || '#999'}};"></view>
+        <text>{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 右侧商品 -->
+    <scroll-view scroll-y class="category-content" wx:if="{{!loading}}">
+      <view class="product-grid">
+        <view
+          wx:for="{{products}}"
+          wx:key="_id"
+          class="product-item card"
+          data-id="{{item._id}}"
+          bindtap="onTapProduct"
+        >
+          <image src="{{item.images[0]}}" class="product-img" mode="aspectFill" lazy-load />
+          <view class="badge badge-red" wx:if="{{item.priceAdvantage}}">低于1688价</view>
+          <view class="product-body">
+            <text class="product-name">{{item.name}}</text>
+            <view class="product-tags">
+              <text class="tag tag-green" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+            <view class="product-meta">
+              <text class="origin-tag">📍{{item.origin.region}}</text>
+              <text class="score-tag">⭐{{item.scorecard.overall}}</text>
+            </view>
+            <view class="product-price-row">
+              <text class="price">¥<text class="price-num">{{item.price}}</text></text>
+              <text class="unit">/{{item.unit}}</text>
+            </view>
+            <text class="sales-text" wx:if="{{item.sales > 0}}">已售 {{item.sales}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="load-more" wx:if="{{products.length > 0}}">— 共 {{products.length}} 款商品 —</view>
+      <view class="empty-state" wx:if="{{products.length === 0}}">
+        <text class="icon">📭</text>
+        <text class="text">暂无商品</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="safe-bottom" style="height: 16rpx;"></view>
+</view>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>西域果铺 — 一口西域，一份实在 | 新疆干果甄选</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          b: { gold: '#F3C45B', red: '#B64A2E', green: '#1F6F5C', sand: '#D88831', cream: '#F8F1E3', dark: '#2E241C', brown: '#7A4A2A', light: '#FFF8EA', soft: '#F5E6D0', copper: '#C4774A', olive: '#0D4A3E' }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+  body { font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .serif { font-family: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: 0.02em; }
+  .brand { font-family: 'Ma Shan Zheng', 'KaiTi', 'STKaiti', cursive; }
+  .hero-gradient { background: linear-gradient(165deg, #F8F1E3 0%, #FFF8EA 35%, #F5E6D0 70%, #EDD9C0 100%); }
+  .card-hover { transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2); }
+  .card-hover:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(46,36,28,0.13); }
+  .price-badge { position: relative; display: inline-block; }
+  .price-badge::after { content: ''; position: absolute; bottom: 2px; left: -4px; right: -4px; height: 10px; background: #F3C45B; opacity: 0.45; z-index: -1; border-radius: 4px; }
+  .section-divider { height: 1px; background: linear-gradient(90deg, transparent, #D88831, transparent); opacity: 0.25; }
+  .fade-up { animation: fadeUp 0.7s ease-out both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .float-slow { animation: floatSlow 6s ease-in-out infinite; }
+  @keyframes floatSlow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  .float-slower { animation: floatSlower 8s ease-in-out infinite; }
+  @keyframes floatSlower { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .pulse-dot { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  html { scroll-behavior: smooth; }
+  .dot-pattern { background-image: radial-gradient(circle, #D88831 1px, transparent 1px); background-size: 24px 24px; }
+  .stripe-pattern { background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(31,111,92,0.03) 8px, rgba(31,111,92,0.03) 10px); }
+  .testimonial-card { transition: all 0.4s ease; }
+  .testimonial-card:hover { transform: scale(1.03); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+  .faq-open .faq-answer { max-height: 300px; padding-top: 12px; padding-bottom: 4px; }
+  .bounce-in { animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) both; }
+  @keyframes bounceIn { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body class="bg-b-cream text-b-dark">
+
+<!-- 导航 -->
+<nav class="fixed top-0 w-full z-50 bg-b-cream/92 backdrop-blur-xl border-b border-b-sand/15" id="navbar">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <a href="#hero" class="flex items-center gap-2">
+      <svg width="36" height="36" viewBox="0 0 40 40" class="flex-shrink-0"><circle cx="20" cy="20" r="18" fill="#B64A2E"/><circle cx="20" cy="18" r="10" fill="#F3C45B" opacity="0.8"/><circle cx="20" cy="22" r="4" fill="#F8F1E3" opacity="0.6"/></svg>
+      <span class="text-xl font-bold text-b-dark hidden sm:block" style="font-family:'ZCOOL KuaiLe',sans-serif">西域果铺</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-8 text-sm font-medium">
+      <a href="#story" class="hover:text-b-red transition-colors relative group">品牌故事<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-b-red group-hover:w-full transition-all"></span></a>
+      <a href="#products" class="hover:text-b-red transition-colors relative group">产品系列<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-b-red group-hover:w-full transition-all"></span></a>
+      <a href="#standard" class="hover:text-b-red transition-colors relative group">品质标准<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-b-red group-hover:w-full transition-all"></span></a>
+      <a href="#journey" class="hover:text-b-red transition-colors relative group">产地溯源<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-b-red group-hover:w-full transition-all"></span></a>
+      <a href="#price" class="hover:text-b-red transition-colors relative group">价格透明<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-b-red group-hover:w-full transition-all"></span></a>
+      <a href="#people" class="hover:text-b-red transition-colors relative group">适合人群<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-b-red group-hover:w-full transition-all"></span></a>
+    </div>
+    <a href="#contact" class="bg-b-red text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-red-800 transition-all shadow-lg shadow-b-red/20 hover:shadow-b-red/30">立即尝鲜</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero" class="min-h-screen flex items-center hero-gradient pt-16 relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none dot-pattern opacity-30"></div>
+  <div class="absolute top-20 left-10 w-3 h-3 bg-b-gold rounded-full float-slow opacity-60"></div>
+  <div class="absolute top-40 right-32 w-4 h-4 bg-b-red rounded-full float-slower opacity-40"></div>
+  <div class="max-w-7xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+    <div>
+      <div class="inline-flex items-center gap-2 bg-b-green/10 text-b-green text-sm px-4 py-1.5 rounded-full mb-6 font-medium border border-b-green/20">
+        <span class="w-2 h-2 bg-b-green rounded-full pulse-dot"></span> 新疆干果甄选 · 产地直发
+      </div>
+      <h1 class="brand text-7xl md:text-8xl lg:text-9xl text-b-dark mb-4 leading-none">西域果铺</h1>
+      <p class="text-3xl md:text-4xl font-bold text-b-red mb-6">一口西域，一份实在</p>
+      <p class="text-xl text-b-brown mb-2">敢给你看产地底牌的新疆干果品牌</p>
+      <p class="text-lg text-b-brown/60 mb-8 max-w-lg">每批次标注产地到县城 · 公开价格构成<br>不用猜、不用比、吃得明明白白</p>
+      <div class="flex flex-wrap gap-4 mb-8">
+        <a href="#products" class="bg-b-red text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-red-800 transition-all shadow-xl shadow-b-red/25">探索产品 <i class="fa fa-arrow-right ml-2"></i></a>
+        <a href="#story" class="border-2 border-b-sand/60 text-b-dark px-8 py-4 rounded-full text-lg font-bold hover:bg-white/60 transition-all">了解我们</a>
+      </div>
+      <div class="flex flex-wrap gap-5 text-sm text-b-brown/60">
+        <span class="flex items-center gap-1.5 bg-white/50 px-3 py-1.5 rounded-full"><span class="text-b-green text-base">✔</span> 产地透明</span>
+        <span class="flex items-center gap-1.5 bg-white/50 px-3 py-1.5 rounded-full"><span class="text-b-green text-base">✔</span> 品质可视</span>
+        <span class="flex items-center gap-1.5 bg-white/50 px-3 py-1.5 rounded-full"><span class="text-b-green text-base">✔</span> 价格实在</span>
+      </div>
+    </div>
+    <div class="hidden lg:block relative">
+      <div class="relative w-full aspect-square max-w-lg mx-auto">
+        <img src="images/assortment.png" alt="新疆干果组合" class="w-full h-full object-cover rounded-3xl shadow-2xl" loading="eager">
+        <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-b-dark/30 to-transparent"></div>
+        <div class="absolute bottom-6 left-6 right-6 text-white"><p class="text-sm opacity-80">颗颗精选，产地直发</p><p class="text-lg font-bold">新疆直发 · 品质看得见</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="absolute bottom-0 w-full"><svg viewBox="0 0 1200 80" preserveAspectRatio="none" class="w-full h-16 md:h-20"><path d="M0 40C200 0 400 60 600 40C800 20 1000 60 1200 40V80H0V40Z" fill="#fff" opacity="0.3"/><path d="M0 50C200 20 400 70 600 50C800 30 1000 70 1200 50V80H0V50Z" fill="#fff" opacity="0.5"/></svg></div>
+</section>
+
+<!-- 品牌故事 -->
+<section id="story" class="py-24 bg-white relative overflow-hidden">
+  <div class="absolute inset-0 stripe-pattern pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-20">
+      <span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">Our Story</span>
+      <h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">为什么选择西域果铺？</h2>
+      <p class="text-b-brown/60 text-lg max-w-2xl mx-auto">新疆不缺好干果，缺的是一个<strong class="text-b-dark">敢把底牌亮给你看</strong>的品牌</p>
+    </div>
+    <!-- 品牌缘起 -->
+    <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+      <div>
+        <span class="text-b-red font-bold text-xs tracking-widest uppercase">Chapter 01</span>
+        <h3 class="serif text-3xl font-bold mt-2 mb-5">从一次失望开始的品牌</h3>
+        <div class="space-y-4 text-b-brown/70 leading-relaxed">
+          <p>几年前，我们在网上买了一包"新疆纸皮核桃"，到手后发现壳厚得要用钳子，果仁干瘪发苦——这根本不是新疆核桃该有的样子。</p>
+          <p>后来我们跑了一趟新疆，从乌鲁木齐到喀什，从阿克苏到吐鲁番，走访了<strong class="text-b-dark">几十家果园和干果市场</strong>。发现了一个真相：<strong class="text-b-red">新疆不缺好干果，但好干果很少能直接到消费者手里。</strong></p>
+          <p>中间商层层加价、产地信息模糊、品质全靠运气——这就是行业常态。于是我们决定自己来做这件事：<strong class="text-b-dark">替消费者去新疆选干果</strong>。</p>
+        </div>
+        <div class="flex items-center gap-4 mt-6 pt-6 border-t border-gray-100">
+          <div class="text-center"><div class="text-2xl font-black text-b-red">4</div><div class="text-xs text-gray-400">核心产区</div></div>
+          <div class="text-gray-300">|</div>
+          <div class="text-center"><div class="text-2xl font-black text-b-red">30+</div><div class="text-xs text-gray-400">合作果园</div></div>
+          <div class="text-gray-300">|</div>
+          <div class="text-center"><div class="text-2xl font-black text-b-red">6道</div><div class="text-xs text-gray-400">筛选工序</div></div>
+        </div>
+      </div>
+      <div class="relative">
+        <img src="images/market.png" alt="新疆干果集市" class="w-full h-80 object-cover rounded-3xl shadow-xl" loading="lazy">
+        <div class="absolute -bottom-4 -left-4 bg-b-red text-white rounded-2xl px-5 py-3 shadow-lg"><div class="text-xs opacity-70">始于</div><div class="text-xl font-black">新疆产地</div></div>
+      </div>
+    </div>
+
+    <div class="text-center mb-12">
+      <span class="text-b-red font-bold text-xs tracking-widest uppercase">Chapter 02</span>
+      <h3 class="serif text-3xl font-bold mt-2 mb-3">我们的三根支柱</h3>
+      <p class="text-b-brown/60">支撑"一口西域，一份实在"的不是口号，是这三件事</p>
+    </div>
+
+    <!-- 支柱一 -->
+    <div class="bg-b-cream rounded-3xl overflow-hidden grid md:grid-cols-5 card-hover mb-8">
+      <div class="md:col-span-2 h-64 md:h-auto"><img src="images/selecting.png" alt="手工精选" class="w-full h-full object-cover" loading="lazy"></div>
+      <div class="md:col-span-3 p-8 md:p-10 flex flex-col justify-center">
+        <span class="text-xs text-b-gold font-bold tracking-widest">支柱一</span>
+        <h3 class="text-2xl font-bold mt-1 mb-3">透明溯源 —— 每一颗都知根知底</h3>
+        <p class="text-b-brown/60 leading-relaxed mb-3">市面上绝大多数干果的产地信息只有"新疆"两个字。我们要求供应商把产地标注到<strong>县城甚至合作社级别</strong>。包装上印着：产自哪个县、哪个果园、什么时候采摘的。</p>
+        <p class="text-b-brown/60 leading-relaxed">扫包装上的二维码，能看到这批货的采购记录和品控照片——<strong>"给干果办身份证"</strong>。</p>
+        <div class="flex flex-wrap gap-2 mt-4"><span class="text-xs bg-white px-3 py-1 rounded-full">产地到县</span><span class="text-xs bg-white px-3 py-1 rounded-full">批次可查</span></div>
+      </div>
+    </div>
+
+    <!-- 支柱二 -->
+    <div class="bg-b-cream rounded-3xl overflow-hidden grid md:grid-cols-5 card-hover mb-8">
+      <div class="md:col-span-3 p-8 md:p-10 flex flex-col justify-center md:order-1 order-2">
+        <span class="text-xs text-b-green font-bold tracking-widest">支柱二</span>
+        <h3 class="text-2xl font-bold mt-1 mb-3">6星标准 —— 品质不再靠"感觉"</h3>
+        <p class="text-b-brown/60 leading-relaxed mb-3">我们建立了<strong>6个维度的量化评分体系</strong>：产地透明度、颗粒均匀度、干湿度、清洁度、口感、配料纯净度。每款产品到货后逐项打分。</p>
+        <p class="text-b-brown/60 leading-relaxed">只有综合评分达到<strong>5星以上</strong>才能上架。这个标准不是认证机构给的，是我们给自己定的规矩。</p>
+        <div class="flex flex-wrap gap-2 mt-4"><span class="text-xs bg-white px-3 py-1 rounded-full">6维评分</span><span class="text-xs bg-white px-3 py-1 rounded-full">5星底线</span></div>
+      </div>
+      <div class="md:col-span-2 h-64 md:h-auto md:order-2 order-1"><img src="images/drying.png" alt="传统晾晒" class="w-full h-full object-cover" loading="lazy"></div>
+    </div>
+
+    <!-- 支柱三 -->
+    <div class="bg-b-cream rounded-3xl overflow-hidden grid md:grid-cols-5 card-hover">
+      <div class="md:col-span-2 h-64 md:h-auto"><img src="images/packaging.png" alt="手工包装" class="w-full h-full object-cover" loading="lazy"></div>
+      <div class="md:col-span-3 p-8 md:p-10 flex flex-col justify-center">
+        <span class="text-xs text-b-red font-bold tracking-widest">支柱三</span>
+        <h3 class="text-2xl font-bold mt-1 mb-3">价格公开 —— 每一分钱，都花得清楚</h3>
+        <p class="text-b-brown/60 leading-relaxed mb-3">我们甚至把每款产品的成本构成公开了：产地收购价多少钱、物流多少钱、包装多少钱、快递多少钱、我们赚多少钱——全都列出来。</p>
+        <p class="text-b-brown/60 leading-relaxed"><strong>敢公开利润的品牌，才值得你长期信任。</strong></p>
+        <div class="flex flex-wrap gap-2 mt-4"><span class="text-xs bg-white px-3 py-1 rounded-full">利润透明</span><span class="text-xs bg-white px-3 py-1 rounded-full">成本公开</span></div>
+      </div>
+    </div>
+
+    <!-- 价值观 -->
+    <div class="text-center mt-16 mb-12">
+      <span class="text-b-red font-bold text-xs tracking-widest uppercase">Chapter 03</span>
+      <h3 class="serif text-3xl font-bold mt-2 mb-3">我们相信的事</h3>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+      <div class="bg-b-cream rounded-2xl p-6 text-center card-hover"><div class="text-3xl mb-3">信</div><h4 class="font-bold text-sm mb-2">信任比流量重要</h4><p class="text-xs text-gray-400">不做一次性的冲动消费<br>做让你放心复购的品牌</p></div>
+      <div class="bg-b-cream rounded-2xl p-6 text-center card-hover"><div class="text-3xl mb-3">透</div><h4 class="font-bold text-sm mb-2">透明比营销重要</h4><p class="text-xs text-gray-400">不堆砌空洞的形容词<br>标注到具体的县和果园</p></div>
+      <div class="bg-b-cream rounded-2xl p-6 text-center card-hover"><div class="text-3xl mb-3">久</div><h4 class="font-bold text-sm mb-2">长期比暴利重要</h4><p class="text-xs text-gray-400">不追求单次高利润<br>赚合理的钱做长久的生意</p></div>
+      <div class="bg-b-cream rounded-2xl p-6 text-center card-hover"><div class="text-3xl mb-3">实</div><h4 class="font-bold text-sm mb-2">实在比花哨重要</h4><p class="text-xs text-gray-400">不过度包装、不编故事<br>把省下的包装费让利给你</p></div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="text-center p-6 bg-b-cream rounded-2xl card-hover"><div class="text-4xl font-black text-b-red serif">22<span class="text-xl">款</span></div><p class="text-sm text-b-brown/60 mt-1">精选干果品类</p></div>
+      <div class="text-center p-6 bg-b-cream rounded-2xl card-hover"><div class="text-4xl font-black text-b-green serif">6<span class="text-xl">星</span></div><p class="text-sm text-b-brown/60 mt-1">品质评分标准</p></div>
+      <div class="text-center p-6 bg-b-cream rounded-2xl card-hover"><div class="text-4xl font-black text-b-sand serif">15<span class="text-xl">款</span></div><p class="text-sm text-b-brown/60 mt-1">全网价格优势</p></div>
+      <div class="text-center p-6 bg-b-cream rounded-2xl card-hover"><div class="text-4xl font-black text-b-gold serif">100<span class="text-xl">%</span></div><p class="text-sm text-b-brown/60 mt-1">不满意包退换</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider max-w-3xl mx-auto"></div>
+
+<!-- 产品系列 -->
+<section id="products" class="py-24">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">Products</span>
+      <h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">产品系列</h2>
+      <p class="text-b-brown/60 text-lg">经过全网价格对比和供应商筛选，为你精选三大系列</p>
+    </div>
+
+    <!-- 尝鲜精选 -->
+    <div class="mb-20">
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">新</div>
+        <div><h3 class="text-2xl font-bold text-blue-700">尝鲜精选 · 初次见面，从这里认识我们</h3><p class="text-gray-500 text-sm mt-1">精选人人爱吃、价格一眼就觉得划算的品类，降低你的首次尝试成本</p></div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border border-gray-100 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/walnut.png" alt="纸皮核桃" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">初次尝鲜</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">阿克苏185品种</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">手捏即开</span></div>
+          <h4 class="font-bold text-lg">纸皮核桃</h4><p class="text-sm text-gray-400 mb-2">壳薄如纸，果仁饱满不空壳</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-blue-600 price-badge">19.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border border-gray-100 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/lovers-plum.png" alt="情人梅" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">零嘴必备</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full">酸甜解腻</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">无糖精</span></div>
+          <h4 class="font-bold text-lg">情人梅</h4><p class="text-sm text-gray-400 mb-2">果肉厚实，酸甜恰到好处</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-blue-600 price-badge">19.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border border-gray-100 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/prune.png" alt="西梅干" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">网红人气</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">自然晾晒</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">糯香酸甜</span></div>
+          <h4 class="font-bold text-lg">喀什西梅干</h4><p class="text-sm text-gray-400 mb-2">女生最爱，办公室零食人气王</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-blue-600 price-badge">25.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 西域珍品 -->
+    <div class="mb-20">
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">珍</div>
+        <div><h3 class="text-2xl font-bold text-amber-700">西域珍品 · 产地限定，难得一遇</h3><p class="text-gray-500 text-sm mt-1">新疆独有品种 + 进价低于全网，别人想模仿都找不到货源</p></div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-t-4 border-amber-400 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/fig.png" alt="无花果干" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">全网好价</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">小品种稀缺</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">低于1688价</span></div>
+          <h4 class="font-bold text-lg">大无花果干</h4><p class="text-sm text-gray-400 mb-2">新疆小无花果，全网没几家有货</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-amber-600 price-badge">49.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-t-4 border-amber-400 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/brazil.png" alt="沙漠果" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">新奇体验</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">99%人没吃过</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">社交话题</span></div>
+          <h4 class="font-bold text-lg">沙漠果</h4><p class="text-sm text-gray-400 mb-2">名字自带新疆画面感的神秘坚果</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-amber-600 price-badge">49.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-t-4 border-amber-400 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/rosecake.png" alt="玫瑰切糕" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">手工点心</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">纯手工制作</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">差异化极强</span></div>
+          <h4 class="font-bold text-lg">玫瑰切糕</h4><p class="text-sm text-gray-400 mb-2">玫瑰花+核桃仁，传统新疆手工点心</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-amber-600 price-badge">45.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-t-4 border-amber-400 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/dates.png" alt="椰枣" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">异域珍品</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">新疆少数民族特产</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">市面少见</span></div>
+          <h4 class="font-bold text-lg">椰枣</h4><p class="text-sm text-gray-400 mb-2">比巧克力还好吃的天然甜糯珍果</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-amber-600 price-badge">55.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-t-4 border-amber-400 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/apricot.png" alt="库车小白杏" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">库车产地</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">一杏两吃</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">产地标签</span></div>
+          <h4 class="font-bold text-lg">库车小白杏</h4><p class="text-sm text-gray-400 mb-2">新疆独有品种，杏肉软糯杏仁酥脆</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-amber-600 price-badge">39.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-t-4 border-amber-400 group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-48"><img src="images/date-almond.png" alt="奶枣巴旦木" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"><div class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">网红爆款</div></div>
+          <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">红枣+巴旦木</span><span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">进价优势</span></div>
+          <h4 class="font-bold text-lg">奶枣巴旦木</h4><p class="text-sm text-gray-400 mb-2">网红零食，年轻人疯狂回购</p>
+          <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-amber-600 price-badge">45.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 口碑好物 -->
+    <div>
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">赞</div>
+        <div><h3 class="text-2xl font-bold text-green-700">口碑好物 · 买过都说好，回购率最高</h3><p class="text-gray-500 text-sm mt-1">利润空间足 + 进价全网有优势 + 家家必囤的高频消费品</p></div>
+      </div>
+      <div class="grid md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm border-2 border-green-300 group relative overflow-hidden">
+          <div class="absolute -top-1 right-6 bg-green-500 text-white text-xs px-3 py-1 rounded-b-lg font-bold">回购首选</div>
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-44 mt-2"><img src="images/pistachio.png" alt="开心果" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"></div>
+          <h4 class="font-bold text-lg text-center">开心果</h4><p class="text-sm text-gray-400 text-center mb-1">颗颗自然开口，不漂白</p>
+          <div class="text-center"><span class="text-3xl font-black text-green-600 price-badge">59.9</span><span class="text-sm text-gray-400">/500g</span></div>
+          <p class="text-xs text-green-600 text-center mt-2 font-medium bg-green-50 rounded-full py-1">进价低于1688批发价</p>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-44"><img src="images/yogurt-almond.png" alt="酸奶巴旦木" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"></div>
+          <h4 class="font-bold text-lg text-center">酸奶巴旦木</h4><p class="text-sm text-gray-400 text-center mb-1">酸奶包裹，酸甜酥脆口感</p>
+          <div class="text-center"><span class="text-3xl font-black text-green-600 price-badge">52.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-44"><img src="images/apricot.png" alt="小白杏" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"></div>
+          <h4 class="font-bold text-lg text-center">小白杏</h4><p class="text-sm text-gray-400 text-center mb-1">配料只有杏肉，0添加</p>
+          <div class="text-center"><span class="text-3xl font-black text-green-600 price-badge">39.9</span><span class="text-sm text-gray-400">/500g</span></div>
+          <p class="text-xs text-green-600 text-center mt-2 font-medium bg-green-50 rounded-full py-1">进价低于1688批发价</p>
+        </div>
+        <div class="bg-white rounded-3xl p-6 card-hover shadow-sm group">
+          <div class="relative mb-4 overflow-hidden rounded-2xl h-44"><img src="images/macadamia.png" alt="夏威夷果" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"></div>
+          <h4 class="font-bold text-lg text-center">夏威夷果</h4><p class="text-sm text-gray-400 text-center mb-1">奶香浓郁，圆润饱满</p>
+          <div class="text-center"><span class="text-3xl font-black text-green-600 price-badge">49.9</span><span class="text-sm text-gray-400">/500g</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider max-w-3xl mx-auto"></div>
+
+<!-- 品质标准 -->
+<section id="standard" class="py-24 bg-white relative overflow-hidden">
+  <div class="absolute inset-0 dot-pattern opacity-25 pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-16">
+      <span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">Quality Standard</span>
+      <h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">6星干果标准</h2>
+      <p class="text-b-brown/60 text-lg max-w-2xl mx-auto">不是认证机构的标准，而是<strong class="text-b-dark">西域果铺自己的承诺</strong></p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+      <div class="bg-b-cream rounded-3xl overflow-hidden card-hover group">
+        <div class="h-44 overflow-hidden"><img src="images/origin-map.png" alt="产地透明" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"></div>
+        <div class="p-6"><div class="flex items-center gap-2 mb-2"><h4 class="font-bold text-lg">产地透明</h4><span class="text-b-gold text-sm ml-auto">✦✦✦✦✦✦</span></div>
+          <p class="text-xs text-gray-500 mb-3">标注到县城级别，扫码可查果园信息</p>
+          <div class="bg-white/70 rounded-xl p-3 text-xs space-y-1"><div class="flex justify-between"><span>及格线</span><span class="text-gray-400">标注到地级市</span></div><div class="flex justify-between"><span class="font-bold text-b-green">我们要求</span><span class="font-bold text-b-green">标注到县/合作社</span></div><div class="flex justify-between"><span class="text-red-500">不合格</span><span class="text-red-500">只写"新疆"</span></div></div>
+        </div>
+      </div>
+      <div class="bg-b-cream rounded-3xl overflow-hidden card-hover group">
+        <div class="h-44 overflow-hidden"><img src="images/grading.png" alt="颗粒均匀" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"></div>
+        <div class="p-6"><div class="flex items-center gap-2 mb-2"><h4 class="font-bold text-lg">颗粒均匀</h4><span class="text-b-gold text-sm ml-auto">✦✦✦✦✦</span></div>
+          <p class="text-xs text-gray-500 mb-3">大小一致，空壳率<3%，碎粒率<5%</p>
+          <div class="bg-white/70 rounded-xl p-3 text-xs space-y-1"><div class="flex justify-between"><span>及格线</span><span class="text-gray-400">空壳率<8%</span></div><div class="flex justify-between"><span class="font-bold text-b-green">我们要求</span><span class="font-bold text-b-green">空壳率<3%</span></div><div class="flex justify-between"><span class="text-red-500">不合格</span><span class="text-red-500">大小不一，多碎粒</span></div></div>
+        </div>
+      </div>
+      <div class="bg-b-cream rounded-3xl overflow-hidden card-hover group">
+        <div class="h-44 overflow-hidden"><img src="images/moisture.png" alt="干湿适口" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"></div>
+        <div class="p-6"><div class="flex items-center gap-2 mb-2"><h4 class="font-bold text-lg">干湿适口</h4><span class="text-b-gold text-sm ml-auto">✦✦✦✦✦</span></div>
+          <p class="text-xs text-gray-500 mb-3">水分含量控制在最佳区间，不过干不潮</p>
+          <div class="bg-white/70 rounded-xl p-3 text-xs space-y-1"><div class="flex justify-between"><span>及格线</span><span class="text-gray-400">水分<15%</span></div><div class="flex justify-between"><span class="font-bold text-b-green">我们要求</span><span class="font-bold text-b-green">坚果<5%，果干<12%</span></div><div class="flex justify-between"><span class="text-red-500">不合格</span><span class="text-red-500">咬不动或受潮发软</span></div></div>
+        </div>
+      </div>
+      <div class="bg-b-cream rounded-3xl overflow-hidden card-hover group">
+        <div class="h-44 overflow-hidden"><img src="images/cleanliness.png" alt="洁净免洗" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"></div>
+        <div class="p-6"><div class="flex items-center gap-2 mb-2"><h4 class="font-bold text-lg">洁净免洗</h4><span class="text-b-gold text-sm ml-auto">✦✦✦✦✦✦</span></div>
+          <p class="text-xs text-gray-500 mb-3">无沙土、无杂质、无虫蛀，开袋即食</p>
+          <div class="bg-white/70 rounded-xl p-3 text-xs space-y-1"><div class="flex justify-between"><span>及格线</span><span class="text-gray-400">无明显异物</span></div><div class="flex justify-between"><span class="font-bold text-b-green">我们要求</span><span class="font-bold text-b-green">逐颗人工筛选</span></div><div class="flex justify-between"><span class="text-red-500">不合格</span><span class="text-red-500">有沙土、杂质、虫眼</span></div></div>
+        </div>
+      </div>
+      <div class="bg-b-cream rounded-3xl overflow-hidden card-hover group">
+        <div class="h-44 overflow-hidden"><img src="images/taste-test.png" alt="口感稳定" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"></div>
+        <div class="p-6"><div class="flex items-center gap-2 mb-2"><h4 class="font-bold text-lg">口感稳定</h4><span class="text-b-gold text-sm ml-auto">✦✦✦✦✦</span></div>
+          <p class="text-xs text-gray-500 mb-3">每批次盲测对比，确保口感不漂移</p>
+          <div class="bg-white/70 rounded-xl p-3 text-xs space-y-1"><div class="flex justify-between"><span>及格线</span><span class="text-gray-400">同一品种即可</span></div><div class="flex justify-between"><span class="font-bold text-b-green">我们要求</span><span class="font-bold text-b-green">3人盲测一致性>90%</span></div><div class="flex justify-between"><span class="text-red-500">不合格</span><span class="text-red-500">跟上一批味道明显不同</span></div></div>
+        </div>
+      </div>
+      <div class="bg-b-cream rounded-3xl overflow-hidden card-hover group">
+        <div class="h-44 overflow-hidden"><img src="images/pure-ingredient.png" alt="配料纯净" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"></div>
+        <div class="p-6"><div class="flex items-center gap-2 mb-2"><h4 class="font-bold text-lg">配料纯净</h4><span class="text-b-gold text-sm ml-auto">✦✦✦✦✦✦</span></div>
+          <p class="text-xs text-gray-500 mb-3">只有果实本身，无添加剂、无糖精、无硫熏</p>
+          <div class="bg-white/70 rounded-xl p-3 text-xs space-y-1"><div class="flex justify-between"><span>及格线</span><span class="text-gray-400">符合国标</span></div><div class="flex justify-between"><span class="font-bold text-b-green">我们要求</span><span class="font-bold text-b-green">配料表≤3样，0添加剂</span></div><div class="flex justify-between"><span class="text-red-500">不合格</span><span class="text-red-500">含山梨酸钾、糖精、硫磺</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 三款评分卡 -->
+    <div class="text-center mb-10"><h3 class="serif text-2xl font-bold mb-2">三款明星产品 · 6星评分卡</h3><p class="text-sm text-gray-400">同一标准，不同产品，品质一目了然</p></div>
+    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+      <div class="bg-b-cream rounded-3xl p-6 card-hover">
+        <div class="flex items-center gap-3 mb-4"><img src="images/pistachio.png" alt="开心果" class="w-16 h-16 rounded-xl object-cover" loading="lazy"><div><h4 class="font-bold">开心果</h4><p class="text-xs text-gray-400">喀什疏附县 · 自然开口</p></div><div class="ml-auto text-xl font-black text-b-red serif">5.7<span class="text-sm font-normal text-gray-400">/6</span></div></div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between"><span>产地透明</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>颗粒均匀</span><span class="font-bold">5.5</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:92%"></div></div>
+          <div class="flex justify-between"><span>干湿适口</span><span class="font-bold">5.8</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:96%"></div></div>
+          <div class="flex justify-between"><span>洁净免洗</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>口感稳定</span><span class="font-bold">5.4</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:90%"></div></div>
+          <div class="flex justify-between"><span>配料纯净</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-3 text-center">配料：开心果，食用盐</p>
+      </div>
+      <div class="bg-b-cream rounded-3xl p-6 card-hover">
+        <div class="flex items-center gap-3 mb-4"><img src="images/apricot.png" alt="小白杏" class="w-16 h-16 rounded-xl object-cover" loading="lazy"><div><h4 class="font-bold">小白杏干</h4><p class="text-xs text-gray-400">库车 · 自然晾晒</p></div><div class="ml-auto text-xl font-black text-b-red serif">5.8<span class="text-sm font-normal text-gray-400">/6</span></div></div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between"><span>产地透明</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>颗粒均匀</span><span class="font-bold">5.5</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:92%"></div></div>
+          <div class="flex justify-between"><span>干湿适口</span><span class="font-bold">5.8</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:96%"></div></div>
+          <div class="flex justify-between"><span>洁净免洗</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>口感稳定</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>配料纯净</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-3 text-center">配料：杏肉（只有这一个）</p>
+      </div>
+      <div class="bg-b-cream rounded-3xl p-6 card-hover">
+        <div class="flex items-center gap-3 mb-4"><img src="images/fig.png" alt="无花果干" class="w-16 h-16 rounded-xl object-cover" loading="lazy"><div><h4 class="font-bold">无花果干</h4><p class="text-xs text-gray-400">喀什 · 传统晒制</p></div><div class="ml-auto text-xl font-black text-b-red serif">5.5<span class="text-sm font-normal text-gray-400">/6</span></div></div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between"><span>产地透明</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>颗粒均匀</span><span class="font-bold">5.2</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:87%"></div></div>
+          <div class="flex justify-between"><span>干湿适口</span><span class="font-bold">5.5</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:92%"></div></div>
+          <div class="flex justify-between"><span>洁净免洗</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+          <div class="flex justify-between"><span>口感稳定</span><span class="font-bold">5.3</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full" style="width:88%"></div></div>
+          <div class="flex justify-between"><span>配料纯净</span><span class="font-bold text-b-green">6.0</span></div><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-b-gold rounded-full w-full"></div></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-3 text-center">配料：无花果（只有这一个）</p>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-b-red/5 to-b-red/10 rounded-3xl p-8 max-w-3xl mx-auto border border-b-red/20">
+      <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 bg-b-red/15 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">拒</div><div><h3 class="font-bold text-xl">不达标的产品去哪了？</h3><p class="text-sm text-gray-500">我们对品质有底线，没达到5星的产品不会出现在你的订单里</p></div></div>
+      <div class="grid md:grid-cols-3 gap-4 text-sm"><div class="bg-white rounded-xl p-4 text-center"><div class="text-2xl mb-2">退</div><div class="font-bold mb-1">退回供应商</div><p class="text-xs text-gray-400">品质不达标直接拒收</p></div><div class="bg-white rounded-xl p-4 text-center"><div class="text-2xl mb-2">降</div><div class="font-bold mb-1">降级处理</div><p class="text-xs text-gray-400">轻微瑕疵降为B级，搭配使用</p></div><div class="bg-white rounded-xl p-4 text-center"><div class="text-2xl mb-2">告</div><div class="font-bold mb-1">公开说明</div><p class="text-xs text-gray-400">批次因不达标下架，社群公开说明</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 产地溯源旅程 -->
+<section id="journey" class="py-24 relative overflow-hidden">
+  <div class="absolute inset-0"><img src="images/orchard.png" alt="新疆果园" class="w-full h-full object-cover opacity-15"><div class="absolute inset-0 bg-b-cream/85"></div></div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-16"><span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">From Xinjiang</span><h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">从新疆到你手中</h2><p class="text-b-brown/60 text-lg">每一颗干果，都走过了几千公里的旅程</p></div>
+    <div class="grid md:grid-cols-5 gap-4 max-w-5xl mx-auto">
+      <div class="text-center p-6 card-hover"><div class="w-16 h-16 bg-b-red/10 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bounce-in">园</div><div class="font-bold text-sm mb-1">产地果园</div><p class="text-xs text-gray-400">喀什、阿克苏<br>吐鲁番、库车<br>核心产区直采</p></div>
+      <div class="flex items-center justify-center text-b-sand/40 text-2xl md:pt-8">→</div>
+      <div class="text-center p-6 card-hover"><div class="w-16 h-16 bg-b-gold/10 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bounce-in" style="animation-delay: 0.2s;">筛</div><div class="font-bold text-sm mb-1">6星筛选</div><p class="text-xs text-gray-400">6个维度逐一<br>打分评级<br>不达标不下单</p></div>
+      <div class="flex items-center justify-center text-b-sand/40 text-2xl md:pt-8">→</div>
+      <div class="text-center p-6 card-hover"><div class="w-16 h-16 bg-b-green/10 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bounce-in" style="animation-delay: 0.4s;">装</div><div class="font-bold text-sm mb-1">分拣包装</div><p class="text-xs text-gray-400">人工逐颗分拣<br>独立锁鲜包装<br>批次信息标注</p></div>
+      <div class="flex items-center justify-center text-b-sand/40 text-2xl md:pt-8">→</div>
+      <div class="text-center p-6 card-hover"><div class="w-16 h-16 bg-b-sand/10 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bounce-in" style="animation-delay: 0.6s;">运</div><div class="font-bold text-sm mb-1">产地直发</div><p class="text-xs text-gray-400">新疆直发全国<br>48h内出库<br>包邮到家</p></div>
+      <div class="flex items-center justify-center text-b-sand/40 text-2xl md:pt-8">→</div>
+      <div class="text-center p-6 card-hover"><div class="w-16 h-16 bg-b-red/10 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bounce-in" style="animation-delay: 0.8s;">家</div><div class="font-bold text-sm mb-1">到你手上</div><p class="text-xs text-gray-400">开袋即食<br>不满意包退<br>品质看得见</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 价格透明 -->
+<section id="price" class="py-24">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16"><span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">Price Transparency</span><h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">每一分钱，都花得清楚</h2><p class="text-b-brown/60 text-lg">不是让你知道我们赚多少，是让你知道<strong class="text-b-dark">好品质值在哪里</strong></p></div>
+    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <div class="bg-white rounded-3xl p-8 shadow-sm card-hover"><div class="flex items-center gap-3 mb-6"><span class="text-3xl">果</span><h3 class="text-xl font-bold">开心果 · 500g 售价 59.9</h3></div><div class="space-y-4"><div class="flex justify-between py-3 border-b border-gray-50"><span>喀什产地收购价</span><span class="font-bold">35.0 <span class="text-xs text-gray-400">58.4%</span></span></div><div class="flex justify-between py-3 border-b border-gray-50"><span>新疆→内地冷链物流</span><span class="font-bold">5.0 <span class="text-xs text-gray-400">8.3%</span></span></div><div class="flex justify-between py-3 border-b border-gray-50"><span>独立包装+人工分拣</span><span class="font-bold">4.0 <span class="text-xs text-gray-400">6.7%</span></span></div><div class="flex justify-between py-3 border-b border-gray-50"><span>快递包邮费</span><span class="font-bold">3.0 <span class="text-xs text-gray-400">5.0%</span></span></div><div class="flex justify-between py-3"><span class="text-b-red font-bold">我们的利润</span><span class="font-bold text-xl text-b-red">12.9 <span class="text-xs text-gray-400">21.5%</span></span></div></div></div>
+      <div class="bg-white rounded-3xl p-8 shadow-sm card-hover"><div class="flex items-center gap-3 mb-6"><span class="text-3xl">杏</span><h3 class="text-xl font-bold">小白杏 · 500g 售价 39.9</h3></div><div class="space-y-4"><div class="flex justify-between py-3 border-b border-gray-50"><span>库车产地收购价</span><span class="font-bold">17.5 <span class="text-xs text-gray-400">43.9%</span></span></div><div class="flex justify-between py-3 border-b border-gray-50"><span>新疆→内地物流</span><span class="font-bold">5.0 <span class="text-xs text-gray-400">12.5%</span></span></div><div class="flex justify-between py-3 border-b border-gray-50"><span>独立包装+人工分拣</span><span class="font-bold">4.0 <span class="text-xs text-gray-400">10.0%</span></span></div><div class="flex justify-between py-3 border-b border-gray-50"><span>快递包邮费</span><span class="font-bold">3.0 <span class="text-xs text-gray-400">7.5%</span></span></div><div class="flex justify-between py-3"><span class="text-b-red font-bold">我们的利润</span><span class="font-bold text-xl text-b-red">10.4 <span class="text-xs text-gray-400">26.1%</span></span></div></div></div>
+    </div>
+    <p class="text-center text-sm text-gray-400 mt-8">同品质产品，市场普遍加价 <strong class="text-b-dark">40-60%</strong>，我们把利润控制在 <strong class="text-b-red">20-26%</strong>。不是我们不想多赚，而是相信——<strong class="text-b-dark">让你买得放心，才会一直买。</strong></p>
+  </div>
+</section>
+
+<!-- 产地风光 -->
+<section class="py-16 relative overflow-hidden">
+  <div class="absolute inset-0"><img src="images/orchard.png" alt="新疆果园风光" class="w-full h-full object-cover"><div class="absolute inset-0 bg-b-dark/60"></div></div>
+  <div class="max-w-4xl mx-auto px-6 relative z-10 text-center text-white py-12">
+    <h2 class="serif text-3xl md:text-5xl font-bold mb-4">来自天山脚下的自然馈赠</h2>
+    <p class="text-lg text-white/70 mb-6 max-w-2xl mx-auto">新疆充足的日照、巨大的昼夜温差、纯净的雪水灌溉，造就了全世界最好的干果。每一颗都经过 180 天以上自然生长，再经传统晾晒工艺，锁住阳光的味道。</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"><div class="bg-white/10 backdrop-blur rounded-2xl p-4"><div class="text-2xl font-black">15°C</div><div class="text-xs text-white/60">昼夜温差</div></div><div class="bg-white/10 backdrop-blur rounded-2xl p-4"><div class="text-2xl font-black">2800h</div><div class="text-xs text-white/60">年日照时数</div></div><div class="bg-white/10 backdrop-blur rounded-2xl p-4"><div class="text-2xl font-black">180天</div><div class="text-xs text-white/60">自然生长周期</div></div><div class="bg-white/10 backdrop-blur rounded-2xl p-4"><div class="text-2xl font-black">4县</div><div class="text-xs text-white/60">核心产区直采</div></div></div>
+  </div>
+</section>
+
+<div class="section-divider max-w-3xl mx-auto"></div>
+
+<!-- 适合人群 -->
+<section id="people" class="py-24 bg-white relative overflow-hidden">
+  <div class="absolute inset-0 stripe-pattern pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="text-center mb-16"><span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">For Everyone</span><h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">适合每一个认真生活的人</h2></div>
+    <!-- 办公室白领 -->
+    <div class="grid md:grid-cols-2 gap-10 items-center mb-20">
+      <div class="relative"><img src="images/office-snack.png" alt="办公室零食" class="w-full h-96 object-cover rounded-3xl shadow-xl" loading="lazy"><div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded-2xl px-5 py-3 shadow-lg"><div class="text-xs text-gray-400">核心人群</div><div class="font-bold text-b-red">办公室白领</div></div></div>
+      <div><span class="text-b-red font-bold text-xs tracking-widest uppercase">Persona 01</span><h3 class="serif text-3xl font-bold mt-2 mb-4">办公室里的健康狙击手</h3><p class="text-b-brown/70 leading-relaxed mb-4">下午3点，抽屉拉开。同事在吃薯片喝奶茶，你拿出一袋<strong>酸奶巴旦木</strong>——酸奶奶香裹着脆脆的巴旦木，一颗接一颗不过瘾，但配料表干干净净。这就是陈思怡的日常，28岁，上海产品经理。</p><div class="bg-b-cream rounded-2xl p-5 mb-4"><p class="font-bold text-sm mb-2">她选择西域果铺的原因：</p><ul class="text-xs text-gray-600 space-y-1.5"><li>✔ 独立小包装，抽屉里放一周不会受潮</li><li>✔ 配料表只有果实本身，没有看不懂的化学名词</li><li>✔ 包装设计好看，同事路过都会问"哪买的"</li></ul></div><div class="flex flex-wrap gap-2"><span class="text-xs bg-b-red/10 text-b-red px-3 py-1 rounded-full font-bold">首选：酸奶巴旦木</span><span class="text-xs bg-gray-100 px-3 py-1 rounded-full">西梅干</span><span class="text-xs bg-gray-100 px-3 py-1 rounded-full">开心果</span></div></div>
+    </div>
+    <!-- 家庭日常 -->
+    <div class="grid md:grid-cols-2 gap-10 items-center mb-20">
+      <div class="md:order-2 relative"><img src="images/family-table.png" alt="家庭干果时光" class="w-full h-96 object-cover rounded-3xl shadow-xl" loading="lazy"><div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur rounded-2xl px-5 py-3 shadow-lg"><div class="text-xs text-gray-400">核心人群</div><div class="font-bold text-b-green">家庭日常</div></div></div>
+      <div class="md:order-1"><span class="text-b-green font-bold text-xs tracking-widest uppercase">Persona 02</span><h3 class="serif text-3xl font-bold mt-2 mb-4">全家人的零食守护者</h3><p class="text-b-brown/70 leading-relaxed mb-4">王丽娜是成都的一位全职妈妈，孩子4岁。每次去超市零食区，她都要翻过包装看配料表——<strong>"儿童零食"四个字后面，往往藏着山梨酸钾和香精</strong>。她需要的不是"看起来健康"的零食，而是敢给4岁孩子吃的。</p><div class="bg-b-cream rounded-2xl p-5 mb-4"><p class="font-bold text-sm mb-2">她选择西域果铺的原因：</p><ul class="text-xs text-gray-600 space-y-1.5"><li>✔ 配料表只有果实，没有防腐剂、糖精、硫磺</li><li>✔ 纸皮核桃不用夹子，4岁的孩子都能自己剥</li><li>✔ 宝妈群已经团购了3轮，每次都被抢光</li></ul></div><div class="flex flex-wrap gap-2"><span class="text-xs bg-b-green/10 text-b-green px-3 py-1 rounded-full font-bold">首选：小白杏干</span><span class="text-xs bg-gray-100 px-3 py-1 rounded-full">纸皮核桃</span><span class="text-xs bg-gray-100 px-3 py-1 rounded-full">无花果干</span></div></div>
+    </div>
+    <!-- 节礼团购 + Z世代 -->
+    <div class="grid md:grid-cols-2 gap-10">
+      <div><div class="relative mb-6"><img src="images/gift-scene.png" alt="干果礼盒" class="w-full h-64 object-cover rounded-3xl shadow-lg" loading="lazy"><div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur rounded-xl px-4 py-2 shadow"><div class="text-xs text-gray-400">高客单人群</div><div class="font-bold text-b-sand text-sm">节礼团购</div></div></div><span class="text-b-sand font-bold text-xs tracking-widest uppercase">Persona 03</span><h3 class="serif text-2xl font-bold mt-2 mb-3">会用礼物说话的人</h3><p class="text-sm text-b-brown/70 leading-relaxed mb-3">张强在洛阳开建材店，每年春节前要解决一个难题：送客户什么既有面子又不贵？直到他看到西域果铺的尊享礼盒——包装体面大方，产地标注得清清楚楚。送给老丈人觉得"会买东西"，送给客户觉得"有品位"。</p><div class="bg-b-cream rounded-xl p-4"><p class="font-bold text-xs mb-1">首选推荐：</p><div class="flex flex-wrap gap-1.5 text-xs"><span class="bg-b-sand/10 text-b-sand px-2 py-0.5 rounded-full font-bold">尊享礼盒</span><span class="bg-gray-100 px-2 py-0.5 rounded-full">企业定制装</span></div></div></div>
+      <div><div class="relative mb-6"><img src="images/elderly-tea.png" alt="银发养生下午茶" class="w-full h-64 object-cover rounded-3xl shadow-lg" loading="lazy"><div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur rounded-xl px-4 py-2 shadow"><div class="text-xs text-gray-400">品质人群</div><div class="font-bold text-b-green text-sm">银发养生族</div></div></div><span class="text-b-green font-bold text-xs tracking-widest uppercase">Persona 04</span><h3 class="serif text-2xl font-bold mt-2 mb-3">退休后的品质慢生活</h3><p class="text-sm text-b-brown/70 leading-relaxed mb-3">李建国58岁，北京退休干部。每天早上用核桃仁配燕麦粥，下午泡一壶普洱，配两颗无花果干。他不赶时间，但对品质极其挑剔——吃得出来是不是新疆的，骗不了他。</p><div class="bg-b-cream rounded-xl p-4"><p class="font-bold text-xs mb-1">首选推荐：</p><div class="flex flex-wrap gap-1.5 text-xs"><span class="bg-b-green/10 text-b-green px-2 py-0.5 rounded-full font-bold">无花果干</span><span class="bg-gray-100 px-2 py-0.5 rounded-full">纸皮核桃</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 客户证言 -->
+<section class="py-24">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16"><span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">Testimonials</span><h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">他们已经在吃了</h2></div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-3xl p-6 shadow-sm testimonial-card"><div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-b-red/10 rounded-full flex items-center justify-center text-lg font-bold text-b-red">陈</div><div><div class="font-bold text-sm">陈思怡</div><div class="text-xs text-gray-400">上海 · 产品经理 · 28岁</div></div></div><div class="text-b-gold mb-3">✦✦✦✦✦</div><p class="text-sm text-gray-600 leading-relaxed">"以前在便利店买干果，要么太甜要么受潮。西域果铺的无花果干一打开就有天然的果香，配料表真的只有'无花果'三个字。办公室放了三包，一周就被同事瓜分完了。"</p><div class="mt-4 pt-3 border-t border-gray-50 text-xs text-gray-400">复购 3 次 · 最爱：无花果干 + 西梅干</div></div>
+      <div class="bg-white rounded-3xl p-6 shadow-sm testimonial-card"><div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-b-green/10 rounded-full flex items-center justify-center text-lg font-bold text-b-green">王</div><div><div class="font-bold text-sm">王丽娜</div><div class="text-xs text-gray-400">成都 · 全职妈妈 · 34岁</div></div></div><div class="text-b-gold mb-3">✦✦✦✦✦</div><p class="text-sm text-gray-600 leading-relaxed">"给4岁儿子选零食最看重配料表，很多品牌写着'儿童零食'结果加了山梨酸钾。西域果铺的小白杏配料只有杏肉，孩子爱吃我也放心。现在宝妈群每个月团购一次。"</p><div class="mt-4 pt-3 border-t border-gray-50 text-xs text-gray-400">复购 5 次 · 最爱：小白杏 + 纸皮核桃</div></div>
+      <div class="bg-white rounded-3xl p-6 shadow-sm testimonial-card"><div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-b-gold/10 rounded-full flex items-center justify-center text-lg font-bold text-b-sand">张</div><div><div class="font-bold text-sm">张强</div><div class="text-xs text-gray-400">洛阳 · 建材店老板 · 31岁</div></div></div><div class="text-b-gold mb-3">✦✦✦✦✦</div><p class="text-sm text-gray-600 leading-relaxed">"过年给老丈人买了一份尊享礼盒，包装大方，里面的开心果颗颗饱满。老丈人觉得我会买东西，倍有面子。今年中秋已经预定了5盒送客户。"</p><div class="mt-4 pt-3 border-t border-gray-50 text-xs text-gray-400">复购 2 次 · 最爱：开心果 + 礼盒装</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 食用场景 -->
+<section class="py-24 bg-white"><div class="max-w-7xl mx-auto px-6"><div class="text-center mb-16"><span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">How to Enjoy</span><h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">怎么吃都好吃</h2><p class="text-b-brown/60 text-lg">不只能直接吃，搭配起来更美味</p></div><div class="grid md:grid-cols-4 gap-6"><div class="bg-b-cream rounded-3xl p-6 card-hover text-center group"><div class="text-5xl mb-4 group-hover:scale-110 transition-transform">茶</div><h4 class="font-bold mb-2">下午茶搭配</h4><p class="text-xs text-gray-500">无花果干 + 玫瑰切糕<br>配一杯红茶</p></div><div class="bg-b-cream rounded-3xl p-6 card-hover text-center group"><div class="text-5xl mb-4 group-hover:scale-110 transition-transform">粥</div><h4 class="font-bold mb-2">早餐燕麦碗</h4><p class="text-xs text-gray-500">核桃碎 + 杏干丁<br>撒在燕麦粥上</p></div><div class="bg-b-cream rounded-3xl p-6 card-hover text-center group"><div class="text-5xl mb-4 group-hover:scale-110 transition-transform">练</div><h4 class="font-bold mb-2">运动后加餐</h4><p class="text-xs text-gray-500">开心果 + 巴旦木<br>高蛋白健康补给</p></div><div class="bg-b-cream rounded-3xl p-6 card-hover text-center group"><div class="text-5xl mb-4 group-hover:scale-110 transition-transform">剧</div><h4 class="font-bold mb-2">追剧小食盒</h4><p class="text-xs text-gray-500">西梅干 + 沙漠果<br>新奇解馋不腻</p></div></div></div></section>
+
+<!-- 套餐推荐 -->
+<section class="py-24"><div class="max-w-7xl mx-auto px-6"><div class="text-center mb-16"><h2 class="serif text-4xl md:text-5xl font-bold mb-4">精选套餐</h2><p class="text-b-brown/60 text-lg">选好了直接买，不用纠结搭配</p></div><div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto"><div class="bg-b-cream rounded-3xl p-8 card-hover text-center"><div class="text-5xl mb-4">新</div><h3 class="font-bold text-2xl mb-2">尝鲜包</h3><p class="text-gray-400 text-sm mb-2">3款经典搭配 · 首次体验</p><div class="text-4xl font-black text-b-dark mb-6">92.7</div><div class="text-sm text-gray-500 space-y-2 mb-6 bg-white/50 rounded-2xl py-4"><p>纸皮核桃 500g</p><p>小白杏 500g</p><p>西梅干 500g</p></div><a href="#contact" class="block w-full bg-b-dark text-white py-3.5 rounded-full font-bold hover:bg-gray-800 transition-all">立即购买</a></div><div class="bg-b-cream rounded-3xl p-8 card-hover text-center border-2 border-b-gold relative transform md:scale-105 z-10"><div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-b-red text-white text-sm font-bold px-6 py-1.5 rounded-full pulse-dot">最受欢迎</div><div class="text-5xl mb-4 mt-2">礼</div><h3 class="font-bold text-2xl mb-2">尊享礼盒</h3><p class="text-gray-400 text-sm mb-2">6款精选 · 送礼自用</p><div class="text-4xl font-black text-b-red mb-6">281.4</div><div class="text-sm text-gray-500 space-y-2 mb-6 bg-white/50 rounded-2xl py-4"><p>开心果 500g</p><p>无花果干 500g</p><p>酸奶巴旦木 500g</p><p>小白杏 500g</p><p>西梅干 500g</p><p>玫瑰切糕 500g</p></div><a href="#contact" class="block w-full bg-b-red text-white py-3.5 rounded-full font-bold hover:bg-red-800 transition-all shadow-xl shadow-b-red/20">立即购买</a></div><div class="bg-b-cream rounded-3xl p-8 card-hover text-center"><div class="text-5xl mb-4">家</div><h3 class="font-bold text-2xl mb-2">家庭囤货装</h3><p class="text-gray-400 text-sm mb-2">8款全包 · 够吃一个月</p><div class="text-4xl font-black text-b-dark mb-6">327.2</div><div class="text-sm text-gray-500 space-y-2 mb-6 bg-white/50 rounded-2xl py-4"><p>尝鲜2款 + 口碑4款</p><p>+ 凑单2款</p><p class="text-green-600 font-medium pt-1">月均仅需327元</p></div><a href="#contact" class="block w-full bg-b-dark text-white py-3.5 rounded-full font-bold hover:bg-gray-800 transition-all">立即购买</a></div></div></div></section>
+
+<!-- 存储指南 + 冷知识 -->
+<section class="py-24"><div class="max-w-7xl mx-auto px-6"><div class="grid md:grid-cols-2 gap-8"><div class="bg-white rounded-3xl p-8 shadow-sm"><div class="flex items-center gap-3 mb-6"><span class="text-3xl">存</span><h3 class="text-xl font-bold">干果保存指南</h3></div><div class="space-y-4 text-sm"><div class="flex items-start gap-3"><span class="text-b-green font-bold mt-0.5">✔</span><div><strong>密封保存</strong>：开封后务必密封，建议用密封罐或原袋挤出空气后封口</div></div><div class="flex items-start gap-3"><span class="text-b-green font-bold mt-0.5">✔</span><div><strong>阴凉干燥</strong>：放在远离阳光直射、远离灶台的地方，理想温度 15-25°C</div></div><div class="flex items-start gap-3"><span class="text-b-green font-bold mt-0.5">✔</span><div><strong>夏季冷藏</strong>：气温超过 30°C 时建议放冰箱，吃之前取出回温 10 分钟口感最佳</div></div><div class="flex items-start gap-3"><span class="text-b-green font-bold mt-0.5">✔</span><div><strong>分批购买</strong>：建议一次买够 1 个月的量，吃完再买更新鲜</div></div><div class="flex items-start gap-3"><span class="text-b-red font-bold mt-0.5">✕</span><div><strong>不要</strong>：湿手取果、暴晒、放在有异味的地方（干果易吸味）</div></div></div></div><div class="bg-b-cream rounded-3xl p-8"><div class="flex items-center gap-3 mb-6"><span class="text-3xl">知</span><h3 class="text-xl font-bold">新疆干果冷知识</h3></div><div class="space-y-4 text-sm"><div class="bg-white/70 rounded-xl p-3"><span class="text-b-red font-bold">你知道吗？</span> 纸皮核桃的"185"品种名，意思是壳厚度只有 <strong>1.85mm</strong>，手指一捏就开。</div><div class="bg-white/70 rounded-xl p-3"><span class="text-b-red font-bold">你知道吗？</span> 新疆小白杏晒成杏干后，杏仁也可以敲开吃——<strong>一杏两吃</strong>，肉甜仁香。</div><div class="bg-white/70 rounded-xl p-3"><span class="text-b-red font-bold">你知道吗？</span> 无花果干表面的白色粉末不是发霉，是自然析出的<strong>果糖霜</strong>，越白越甜。</div><div class="bg-white/70 rounded-xl p-3"><span class="text-b-red font-bold">你知道吗？</span> 自然晾晒的杏干颜色偏深褐，如果杏干颜色特别均匀鲜艳，可能是<strong>硫磺熏过</strong>。</div><div class="bg-white/70 rounded-xl p-3"><span class="text-b-red font-bold">你知道吗？</span> 开心果天然就是开口的——成熟后果壳会自动裂开。如果全部闭合，说明没熟或经过人工处理。</div></div></div></div></div></section>
+
+<!-- FAQ -->
+<section class="py-24 bg-b-cream relative overflow-hidden"><div class="absolute inset-0 dot-pattern opacity-20"></div><div class="max-w-3xl mx-auto px-6 relative z-10"><div class="text-center mb-16"><span class="text-b-red font-bold text-sm tracking-widest uppercase bg-b-red/5 px-4 py-1.5 rounded-full">FAQ</span><h2 class="serif text-4xl md:text-5xl font-bold mt-4 mb-4">常见问题</h2></div><div class="space-y-3"><div class="bg-white rounded-2xl overflow-hidden card-hover" onclick="this.classList.toggle('faq-open')"><div class="p-5 flex items-center justify-between cursor-pointer"><span class="font-bold">干果怎么保存？能放多久？</span><span class="text-b-sand text-xl transition-transform duration-300">&#8964;</span></div><div class="faq-answer px-5 text-sm text-gray-600"><p>未开封情况下保质期6-12个月。开封后建议密封保存，放在阴凉干燥处。夏天建议放冰箱冷藏。每包含独立干燥剂，不用担心受潮。我们建议一次买够1个月的量，吃完再买更新鲜。</p></div></div><div class="bg-white rounded-2xl overflow-hidden card-hover" onclick="this.classList.toggle('faq-open')"><div class="p-5 flex items-center justify-between cursor-pointer"><span class="font-bold">多久能收到？运费怎么算？</span><span class="text-b-sand text-xl transition-transform duration-300">&#8964;</span></div><div class="faq-answer px-5 text-sm text-gray-600"><p>新疆直发全国，下单后48小时内出库。省会城市5-7天，偏远地区7-10天。<strong>全场包邮</strong>（新疆、西藏除外）。急单可联系客服升级顺丰。</p></div></div><div class="bg-white rounded-2xl overflow-hidden card-hover" onclick="this.classList.toggle('faq-open')"><div class="p-5 flex items-center justify-between cursor-pointer"><span class="font-bold">不满意可以退换吗？</span><span class="text-b-sand text-xl transition-transform duration-300">&#8964;</span></div><div class="faq-answer px-5 text-sm text-gray-600"><p><strong>可以，而且不用退货。</strong>如果你收到后觉得品质不满意，直接联系客服，我们退款或补发。干果是食品，退回来的我们也无法再销售，所以你不用寄回来——这是我们对你信任的回馈。</p></div></div><div class="bg-white rounded-2xl overflow-hidden card-hover" onclick="this.classList.toggle('faq-open')"><div class="p-5 flex items-center justify-between cursor-pointer"><span class="font-bold">小孩子可以吃吗？</span><span class="text-b-sand text-xl transition-transform duration-300">&#8964;</span></div><div class="faq-answer px-5 text-sm text-gray-600"><p>大部分品类适合3岁以上儿童食用。我们的配料只有果实本身，无添加剂、无糖精、无硫熏。但坚果类建议家长在旁边看护，避免整颗吞咽。果干类软糯易咀嚼，小朋友很喜欢。</p></div></div><div class="bg-white rounded-2xl overflow-hidden card-hover" onclick="this.classList.toggle('faq-open')"><div class="p-5 flex items-center justify-between cursor-pointer"><span class="font-bold">可以定制企业礼盒吗？</span><span class="text-b-sand text-xl transition-transform duration-300">&#8964;</span></div><div class="faq-answer px-5 text-sm text-gray-600"><p>支持！企业团购50份起可定制礼盒内容，100份起可加印企业LOGO。春节、中秋前45天开放预订。具体联系微信：xiyuguopu，我们会给你发团购方案和报价。</p></div></div></div></div></section>
+
+<!-- CTA -->
+<section id="contact" class="py-24 bg-b-dark text-white relative overflow-hidden"><div class="absolute inset-0 dot-pattern opacity-10"></div><div class="absolute top-10 right-10 w-32 h-32 bg-b-gold rounded-full opacity-10 float-slow"></div><div class="absolute bottom-10 left-20 w-24 h-24 bg-b-red rounded-full opacity-10 float-slower"></div><div class="max-w-4xl mx-auto px-6 text-center relative z-10"><h2 class="serif text-4xl md:text-5xl lg:text-6xl font-bold mb-4">首批 200 份尝鲜装开放中</h2><p class="text-xl text-white/50 mb-10">添加微信，锁定尝鲜名额</p><div class="flex flex-wrap justify-center gap-6 mb-10"><div class="bg-white/8 backdrop-blur rounded-3xl px-10 py-6 text-left border border-white/10"><div class="text-sm text-white/40 mb-1">微信号</div><div class="text-3xl font-bold font-mono tracking-widest text-b-gold">xiyuguopu</div></div></div><div class="flex flex-wrap justify-center gap-3 mb-10"><span class="bg-white/8 backdrop-blur rounded-full px-6 py-2.5 text-sm border border-white/10">产地透明可查</span><span class="bg-white/8 backdrop-blur rounded-full px-6 py-2.5 text-sm border border-white/10">6星品质标准</span><span class="bg-white/8 backdrop-blur rounded-full px-6 py-2.5 text-sm border border-white/10">价格构成公开</span><span class="bg-white/8 backdrop-blur rounded-full px-6 py-2.5 text-sm border border-white/10">不满意包退</span></div><p class="text-white/30 text-sm">工作日 48h 内发货 · 全场包邮 · 新疆直发</p></div></section>
+
+<!-- Footer -->
+<footer class="bg-b-dark border-t border-white/8 py-16"><div class="max-w-7xl mx-auto px-6"><div class="grid md:grid-cols-5 gap-8 text-white/50 text-sm"><div class="md:col-span-2"><div class="flex items-center gap-2 mb-4"><svg width="32" height="32" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#B64A2E"/><circle cx="20" cy="18" r="10" fill="#F3C45B" opacity="0.8"/></svg><span class="serif text-white text-xl font-bold">西域果铺</span></div><p class="text-lg text-white/70 font-medium mb-2">一口西域，一份实在</p><p class="mb-4">敢给你看产地底牌的新疆干果品牌<br>产地透明 · 品质可视 · 价格实在</p></div><div><h4 class="text-white font-bold mb-4">产品系列</h4><ul class="space-y-2"><li>尝鲜精选 · 初次见面</li><li>西域珍品 · 产地限定</li><li>口碑好物 · 回购首选</li><li>礼盒款 · 送礼体面</li></ul></div><div><h4 class="text-white font-bold mb-4">品质承诺</h4><ul class="space-y-2"><li>6星干果标准</li><li>产地标注到县城</li><li>价格构成全公开</li><li>不满意包退换</li><li>配料只有果实本身</li></ul></div><div><h4 class="text-white font-bold mb-4">联系我们</h4><ul class="space-y-2"><li>微信：xiyuguopu</li><li>新疆直发 · 全国包邮</li><li>工作日48h内发货</li><li>企业团购 50份起订</li></ul></div></div><div class="border-t border-white/8 mt-10 pt-8 text-center text-white/25 text-xs leading-relaxed"> 2025 西域果铺 · 一口西域，一份实在<br>产地透明 · 品质可视 · 不过度包装 · 适合长期复购</div></div></footer>
+
+<script>
+document.querySelectorAll('.faq-open').forEach(el => { el.addEventListener('click', function() { const arrow = this.querySelector('.transition-transform'); if (this.classList.contains('faq-open')) { arrow.style.transform = 'rotate(180deg)'; } else { arrow.style.transform = 'rotate(0deg)'; } }); });
+window.addEventListener('scroll', () => { document.getElementById('navbar').classList.toggle('shadow-md', window.scrollY > 40); });
+const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('fade-up'); }); }, { threshold: 0.1 });
+document.querySelectorAll('section > div > div').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

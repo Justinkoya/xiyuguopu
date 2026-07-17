@@ -1,0 +1,26 @@
+Loading project all files...
+Loading project all files success
+编译 app.json
+app.json: ["tabBar"]["list"][0]["iconPath"]: "images/tab-home.png" 未找到
+["tabBar"]["list"][0]["selectedIconPath"]: "images/tab-home-active.png" 未找到
+["tabBar"]["list"][1]["iconPath"]: "images/tab-category.png" 未找到
+["tabBar"]["list"][1]["selectedIconPath"]: "images/tab-category-active.png" 未找到
+["tabBar"]["list"][2]["iconPath"]: "images/tab-cart.png" 未找到
+["tabBar"]["list"][2]["selectedIconPath"]: "images/tab-cart-active.png" 未找到
+["tabBar"]["list"][3]["iconPath"]: "images/tab-user.png" 未找到
+["tabBar"]["list"][3]["selectedIconPath"]: "images/tab-user-active.png" 未找到
+Loading project all files...
+Loading project all files...
+Loading project all files success
+Loading project all files success
+Loading project all files...
+Loading project all files success
+编译 app.json
+app.json: ["tabBar"]["list"][0]["iconPath"]: "images/tab-home.png" 未找到
+["tabBar"]["list"][0]["selectedIconPath"]: "images/tab-home-active.png" 未找到
+["tabBar"]["list"][1]["iconPath"]: "images/tab-category.png" 未找到
+["tabBar"]["list"][1]["selectedIconPath"]: "images/tab-category-active.png" 未找到
+["tabBar"]["list"][2]["iconPath"]: "images/tab-cart.png" 未找到
+["tabBar"]["list"][2]["selectedIconPath"]: "images/tab-cart-active.png" 未找到
+["tabBar"]["list"][3]["iconPath"]: "images/tab-user.png" 未找到
+["tabBar"]["list"][3]["selectedIconPath"]: "images/tab-user-active.png" 未找到

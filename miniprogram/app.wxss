@@ -1,0 +1,264 @@
+/* ========================================
+   西域果脯 · 全局样式
+   品牌色板：
+   金 #F3C45B  红 #B64A2E  绿 #1F6F5C
+   沙 #D88831  奶油 #F8F1E3  深棕 #2E241C
+   浅色 #FFF8EA  软色 #F5E6D0  铜色 #C4774A
+   ======================================== */
+
+/* 自定义 CSS 变量 */
+page {
+  --color-gold: #F3C45B;
+  --color-red: #B64A2E;
+  --color-green: #1F6F5C;
+  --color-sand: #D88831;
+  --color-cream: #F8F1E3;
+  --color-dark: #2E241C;
+  --color-brown: #7A4A2A;
+  --color-light: #FFF8EA;
+  --color-soft: #F5E6D0;
+  --color-copper: #C4774A;
+  --color-olive: #0D4A3E;
+
+  --font-brand: 'STKaiti', 'KaiTi', cursive;
+  --font-heading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --radius-sm: 8rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  --radius-xl: 32rpx;
+
+  background-color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 28rpx;
+  color: var(--color-dark);
+  line-height: 1.6;
+}
+
+/* ========== 工具类 ========== */
+
+/* 颜色 */
+.text-gold   { color: var(--color-gold); }
+.text-red    { color: var(--color-red); }
+.text-green  { color: var(--color-green); }
+.text-sand   { color: var(--color-sand); }
+.text-cream  { color: var(--color-cream); }
+.text-dark   { color: var(--color-dark); }
+.text-brown  { color: var(--color-brown); }
+.text-gray   { color: #999999; }
+
+.bg-gold     { background-color: var(--color-gold); }
+.bg-red      { background-color: var(--color-red); }
+.bg-green    { background-color: var(--color-green); }
+.bg-cream    { background-color: var(--color-cream); }
+.bg-dark     { background-color: var(--color-dark); }
+.bg-light    { background-color: var(--color-light); }
+.bg-white    { background-color: #FFFFFF; }
+
+/* 字体 */
+.font-brand   { font-family: var(--font-brand); }
+.font-heading { font-family: var(--font-heading); }
+
+/* 圆角 */
+.radius-sm  { border-radius: var(--radius-sm); }
+.radius-md  { border-radius: var(--radius-md); }
+.radius-lg  { border-radius: var(--radius-lg); }
+.radius-xl  { border-radius: var(--radius-xl); }
+.radius-full { border-radius: 9999rpx; }
+
+/* 阴影 */
+.shadow-sm  { box-shadow: 0 2rpx 8rpx rgba(46, 36, 28, 0.06); }
+.shadow-md  { box-shadow: 0 8rpx 24rpx rgba(46, 36, 28, 0.10); }
+.shadow-lg  { box-shadow: 0 16rpx 48rpx rgba(46, 36, 28, 0.13); }
+
+/* 间距 */
+.mt-8  { margin-top: 8rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mt-32 { margin-top: 32rpx; }
+.mb-8  { margin-bottom: 8rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+.mb-32 { margin-bottom: 32rpx; }
+.ml-8  { margin-left: 8rpx; }
+.mr-8  { margin-right: 8rpx; }
+
+.p-16 { padding: 16rpx; }
+.p-24 { padding: 24rpx; }
+.p-32 { padding: 32rpx; }
+
+/* 布局 */
+.flex       { display: flex; }
+.flex-col   { display: flex; flex-direction: column; }
+.flex-wrap  { flex-wrap: wrap; }
+.flex-1     { flex: 1; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+
+/* ========== 通用组件样式 ========== */
+
+/* 卡片 */
+.card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4rpx 16rpx rgba(46, 36, 28, 0.06);
+  overflow: hidden;
+}
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-full);
+  margin-right: 8rpx;
+  margin-bottom: 8rpx;
+}
+.tag-blue   { background-color: #EFF6FF; color: #2563EB; }
+.tag-green  { background-color: #ECFDF5; color: #059669; }
+.tag-red    { background-color: #FEF2F2; color: #DC2626; }
+.tag-gold   { background-color: #FFFBEB; color: #D97706; }
+.tag-purple { background-color: #F5F3FF; color: #7C3AED; }
+
+/* 徽章 */
+.badge {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  padding: 6rpx 20rpx;
+  border-radius: var(--radius-full);
+  z-index: 1;
+}
+.badge-red  { background-color: var(--color-red); }
+.badge-gold { background-color: var(--color-gold); color: var(--color-dark); }
+.badge-blue { background-color: #3B82F6; }
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, var(--color-sand), transparent);
+  opacity: 0.25;
+}
+
+/* 价格 */
+.price {
+  font-weight: 900;
+  color: var(--color-red);
+}
+.price-large {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: var(--color-red);
+}
+.price-yuan {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+/* 按钮 */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-red);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  padding: 24rpx;
+  border: none;
+}
+.btn-primary:active {
+  background-color: #9B3D25;
+}
+
+.btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--color-dark);
+  font-size: 30rpx;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  padding: 24rpx;
+  border: 2rpx solid #DDDDDD;
+}
+
+.btn-dark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-dark);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  padding: 24rpx;
+  border: none;
+}
+
+/* 评分星星 */
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+.star {
+  width: 28rpx;
+  height: 28rpx;
+}
+.star-on  { color: var(--color-gold); }
+.star-off { color: #DDDDDD; }
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+.empty-state .icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.3;
+}
+.empty-state .text {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 32rpx;
+}
+
+/* 安全区 */
+.safe-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 固定底部栏 */
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  z-index: 100;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 32rpx;
+  font-size: 24rpx;
+  color: #CCCCCC;
+}

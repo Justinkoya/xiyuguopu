@@ -1,0 +1,129 @@
+<!-- 品牌故事 -->
+<view class="page">
+  <!-- Tab -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{activeTab === item.key ? 'active' : ''}}"
+      data-tab="{{item.key}}"
+      bindtap="onTabChange"
+    >{{item.label}}</view>
+  </view>
+
+  <!-- 品牌故事 -->
+  <view class="content" wx:if="{{activeTab === 'story'}}">
+    <view class="hero-bg">
+      <text class="brand-title">西域果脯</text>
+      <text class="brand-slogan">一口西域，一份实在</text>
+      <text class="brand-subtitle">敢给你看产地底牌的新疆干果品牌</text>
+    </view>
+
+    <view class="section-block">
+      <text class="section-num">Chapter 01</text>
+      <text class="section-heading">从一次失望开始的品牌</text>
+      <text class="section-body">几年前，我们在网上买了一包"新疆纸皮核桃"，到手后发现壳厚得要用钳子，果仁干瘪发苦——这根本不是新疆核桃该有的样子。后来我们跑了一趟新疆，从乌鲁木齐到喀什，从阿克苏到吐鲁番，走访了几十家果园和干果市场。发现了一个真相：新疆不缺好干果，但好干果很少能直接到消费者手里。中间商层层加价、产地信息模糊、品质全靠运气——这就是行业常态。于是我们决定自己来做这件事：替消费者去新疆选干果。</text>
+    </view>
+
+    <view class="section-block">
+      <text class="section-num">Chapter 02</text>
+      <text class="section-heading">我们的三根支柱</text>
+      <view class="pillar">
+        <text class="pillar-title">🔍 透明溯源 — 每一颗都知根知底</text>
+        <text class="pillar-desc">市面上绝大多数干果的产地信息只有"新疆"两个字。我们要求供应商把产地标注到县城甚至合作社级别。包装上印着：产自哪个县、哪个果园、什么时候采摘的。扫包装上的二维码，能看到这批货的采购记录和品控照片——"给干果办身份证"。</text>
+      </view>
+      <view class="pillar">
+        <text class="pillar-title">⭐ 6星标准 — 品质不再靠"感觉"</text>
+        <text class="pillar-desc">我们建立了6个维度的量化评分体系：产地透明度、颗粒均匀度、干湿度、洁净度、口感、配料纯净度。每款产品到货后逐项打分。只有综合评分达到5星以上才能上架。这个标准不是认证机构给的，是我们给自己定的规矩。</text>
+      </view>
+      <view class="pillar">
+        <text class="pillar-title">💰 价格公开 — 每一分钱，都花得清楚</text>
+        <text class="pillar-desc">我们甚至把每款产品的成本构成公开了：产地收购价多少钱、物流多少钱、包装多少钱、快递多少钱、我们赚多少钱——全都列出来。敢公开利润的品牌，才值得你长期信任。</text>
+      </view>
+    </view>
+
+    <view class="section-block">
+      <text class="section-num">Chapter 03</text>
+      <text class="section-heading">我们相信的事</text>
+      <view class="values-grid">
+        <view class="value-card">
+          <text class="value-icon">信</text>
+          <text class="value-title">信任比流量重要</text>
+          <text class="value-desc">不做一次性的冲动消费，做让你放心复购的品牌</text>
+        </view>
+        <view class="value-card">
+          <text class="value-icon">透</text>
+          <text class="value-title">透明比营销重要</text>
+          <text class="value-desc">不堆砌空洞的形容词，标注到具体的县和果园</text>
+        </view>
+        <view class="value-card">
+          <text class="value-icon">久</text>
+          <text class="value-title">长期比暴利重要</text>
+          <text class="value-desc">不追求单次高利润，赚合理的钱做长久的生意</text>
+        </view>
+        <view class="value-card">
+          <text class="value-icon">实</text>
+          <text class="value-title">实在比花哨重要</text>
+          <text class="value-desc">不过度包装、不编故事，把省下的包装费让利给你</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 6星标准 -->
+  <view class="content" wx:if="{{activeTab === 'standard'}}">
+    <view class="section-block">
+      <text class="section-heading">6星干果标准</text>
+      <text class="section-subtitle">不是认证机构的标准，而是西域果脯自己的承诺</text>
+    </view>
+    <view class="standard-list">
+      <view class="standard-item" wx:for="{{standards}}" wx:key="name">
+        <view class="std-header">
+          <text class="std-name">{{item.name}}</text>
+          <text class="std-stars">{{item.stars}}</text>
+        </view>
+        <text class="std-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 产地溯源 -->
+  <view class="content" wx:if="{{activeTab === 'origin'}}">
+    <view class="origin-hero">
+      <text class="section-heading">从新疆到你手中</text>
+      <text class="section-subtitle">每一颗干果，都走过了几千公里的旅程</text>
+    </view>
+    <view class="origin-stats">
+      <view class="origin-stat">
+        <text class="stat-num">15°C</text>
+        <text class="stat-label">昼夜温差</text>
+      </view>
+      <view class="origin-stat">
+        <text class="stat-num">2800h</text>
+        <text class="stat-label">年日照时数</text>
+      </view>
+      <view class="origin-stat">
+        <text class="stat-num">180天</text>
+        <text class="stat-label">自然生长周期</text>
+      </view>
+      <view class="origin-stat">
+        <text class="stat-num">4县</text>
+        <text class="stat-label">核心产区直采</text>
+      </view>
+    </view>
+    <view class="section-body">
+      <text>新疆充足的日照、巨大的昼夜温差、纯净的雪水灌溉，造就了全世界最好的干果。每一颗都经过180天以上自然生长，再经传统晾晒工艺，锁住阳光的味道。</text>
+    </view>
+  </view>
+
+  <!-- 价格透明 -->
+  <view class="content" wx:if="{{activeTab === 'price'}}">
+    <view class="section-block">
+      <text class="section-heading">每一分钱，都花得清楚</text>
+      <text class="section-subtitle">不是让你知道我们赚多少，是让你知道好品质值在哪里</text>
+    </view>
+    <view class="section-body" style="text-align:center;">
+      <text>同品质产品，市场普遍加价40-60%，我们把利润控制在20-26%。不是我们不想多赚，而是相信——让你买得放心，才会一直买。</text>
+    </view>
+  </view>
+</view>

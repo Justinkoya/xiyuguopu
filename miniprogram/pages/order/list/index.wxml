@@ -1,0 +1,48 @@
+<!-- 订单列表 -->
+<view class="page">
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{currentTab === item.key ? 'active' : ''}}"
+      data-tab="{{item.key}}"
+      bindtap="onTabChange"
+    >{{item.label}}</view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list" wx:if="{{!loading}}">
+    <view class="order-card" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapOrder">
+      <view class="order-header">
+        <text class="order-no">{{item.orderNo}}</text>
+        <text class="order-status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
+      </view>
+      <view class="order-items">
+        <view class="order-item-row" wx:for="{{item.items}}" wx:for-item="oi" wx:key="productId">
+          <image src="{{oi.image}}" class="order-item-thumb" mode="aspectFill" />
+          <text class="order-item-name">{{oi.name}}</text>
+          <text class="order-item-price">¥{{oi.price}} ×{{oi.quantity}}</text>
+        </view>
+      </view>
+      <view class="order-footer">
+        <text>共 {{item.totalCount}} 件</text>
+        <text class="order-total">合计：<text class="price">¥{{item.total}}</text></text>
+      </view>
+      <view class="order-time">
+        <text class="order-time-text">下单：{{item.createdAtText}}</text>
+        <text class="order-time-text" wx:if="{{item.paidAt}}">付款：{{item.paidAtText}}</text>
+      </view>
+      <view class="order-actions" wx:if="{{item.status === 'UNPAID' || item.status === 'SHIPPED'}}">
+        <button class="btn-outline action-btn" wx:if="{{item.status === 'UNPAID'}}" data-id="{{item.id}}" catchtap="onPay">立即支付</button>
+        <button class="btn-outline action-btn" wx:if="{{item.status === 'UNPAID'}}" data-id="{{item.id}}" catchtap="onCancel">取消订单</button>
+      </view>
+    </view>
+    <view class="empty-state" wx:if="{{orders.length === 0}}">
+      <text class="icon">📋</text>
+      <text class="text">暂无订单</text>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">加载中...</view>
+</view>

@@ -1,0 +1,277 @@
+西域果铺 — 后端架构设计
+=======================
+
+技术栈
+------
+| 层        | 选型                  | 理由                                       |
+|-----------|----------------------|--------------------------------------------|
+| 框架      | Spring Boot 2.7.x/3.x | Java 生态最主流                             |
+| ORM       | MyBatis-Plus          | CRUD 基本不用写 SQL，复杂查询写 XML          |
+| 数据库    | MySQL 8.0             | 订单、用户、商品都是关系型数据，事务刚需     |
+| 缓存      | Redis                 | 微信 access_token 缓存、热门商品缓存、限流   |
+| 认证      | Spring Security + JWT | 后台用账号密码登录；小程序用微信 openid      |
+| 支付      | 微信支付 API V3       | 小程序支付、退款                            |
+| 文件存储  | 腾讯云 COS            | 商品图片、用户头像                          |
+| 接口文档  | Knife4j (Swagger)     | 前端对接不用猜字段                          |
+| 部署      | 腾讯云轻量应用服务器    | 2核4G 跑 Spring Boot + MySQL，≈70元/月      |
+| 数据库管理 | Navicat               | 本地 localhost:3306                         |
+| CI/CD     | 暂不需要               | 单人项目，手动部署即可                       |
+
+
+数据库设计（8张表）
+==================
+11 张表，已从 products.js 全部导入初始数据：
+
+表	说明	初始数据
+category	商品分类	3 条（尝鲜/珍品/好物）
+product	商品	13 款产品全部入库
+cost_breakdown + cost_breakdown_item	成本透明	开心果 + 小白杏（主表+明细）
+scorecard + scorecard_dim	6星评分卡	开心果 + 小白杏干 + 无花果干（主表+维度）
+package_def + package_product	套餐	尝鲜包 / 尊享礼盒 / 家庭囤货装
+user	用户	空（注册时写入）
+address	收货地址	空
+order_head + order_item	订单	空
+sys_user	后台管理员	admin / admin123
+site_config	站点配置	品牌名、微信、统计数字等 11 项
+
+
+核心表：
+
+  user                   订单表里关联的用户
+  ├── id (bigint PK)
+  ├── openid (微信唯一标识)
+  ├── nickname / avatar
+  ├── phone
+  └── created_at
+
+  address                收货地址
+  ├── id
+  ├── user_id (FK → user)
+  ├── name / phone / province / city / district
+  ├── detail (详细地址)
+  └── is_default (是否默认)
+
+  category               商品分类
+  ├── id
+  ├── name (尝鲜精选/西域珍品/口碑好物)
+  ├── code (trial/premium/bestseller)
+  ├── theme_color (blue/amber/green → 前端对应色系)
+  └── sort_order
+
+  product                商品
+  ├── id
+  ├── category_id (FK)
+  ├── name / price / unit / image
+  ├── badge / tags (JSON)
+  ├── desc / highlight / extra
+  ├── stock (库存)
+  ├── is_on_sale / sort_order
+  └── cost_detail (成本明细 JSON → 前端透明展示用)
+
+  order_head             订单主表
+  ├── id + order_no (唯一订单号)
+  ├── user_id (FK) + address_id
+  ├── total_amount (实付金额)
+  ├── status (UNPAID/PAID/SHIPPED/COMPLETED/CANCELLED)
+  ├── wx_transaction_id (微信支付流水号)
+  ├── remark (用户备注)
+  ├── paid_at / shipped_at / completed_at
+  └── created_at
+
+  order_item             订单明细
+  ├── id
+  ├── order_id (FK) + product_id (FK)
+  ├── product_name (冗余，防止商品改名后历史订单混乱)
+  ├── price (下单时单价)
+  ├── quantity
+  └── subtotal
+
+辅助表：
+
+  sys_user               后台管理员
+  ├── id / username / password (BCrypt)
+  └── role (ADMIN / OPERATOR)
+
+  scorecard              商品评分卡(6星)
+  ├── id / product_id
+  └── 6个维度分数字段
+
+
+API 设计
+========
+
+公开接口（网页 + 小程序调用）：
+  GET    /api/products              商品列表（分页+按分类筛选）
+  GET    /api/products/{id}         商品详情
+  GET    /api/cost-breakdown        成本透明数据
+  GET    /api/scorecards            6星评分卡
+  GET    /api/packages              套餐数据
+
+小程序端（需微信登录）：
+  POST   /api/wx/login              微信登录（code → openid → JWT）
+  GET    /api/user/addresses        我的地址列表
+  POST   /api/user/addresses        新增地址
+  PUT    /api/user/addresses/{id}   编辑地址
+  DELETE /api/user/addresses/{id}   删除地址
+  POST   /api/orders                创建订单
+  GET    /api/orders                我的订单列表
+  GET    /api/orders/{id}           订单详情
+  POST   /api/orders/{id}/cancel    取消订单
+  POST   /api/wx/pay                发起微信支付
+  POST   /api/wx/pay-callback       微信支付回调（更新订单状态）
+
+管理后台（JWT 账号密码登录）：
+  POST   /api/admin/login           管理员登录
+  GET    /api/admin/orders          订单管理（分页、按状态筛选）
+  PUT    /api/admin/orders/{id}/status  改状态（发货/完成）
+  GET    /api/admin/products        商品管理
+  POST   /api/admin/products        新增商品
+  PUT    /api/admin/products/{id}   编辑商品
+  PUT    /api/admin/stock/{id}      改库存
+
+
+下单流程
+========
+
+  小程序端                          后端                            微信
+     │                               │                               │
+     │──① 选品加购──────────────────▶│                               │
+     │──② 提交订单──────────────────▶│                               │
+     │   (商品+地址+备注)              │──③ 生成订单(状态=UNPAID)       │
+     │                               │──④ 调用微信统一下单──────────▶│
+     │                               │◀─── 返回 prepay_id ──────────│
+     │◀─⑤ 返回支付参数──────────────│                               │
+     │──⑥ 调起微信支付─────────────────────────────────────────────▶│
+     │◀─⑦ 支付结果─────────────────────────────────────────────────│
+     │                               │◀──⑧ 支付回调通知─────────────│
+     │                               │──⑨ 更新订单状态=PAID          │
+     │                               │──⑩ 减库存                     │
+     │◀─⑪ 推送模板消息（已支付）────│                               │
+
+
+项目结构
+========
+
+xiyuguopu/
+├── web/                    # 静态官网（已有）
+├── miniprogram/            # 小程序（已有）
+├── server/                 # ★ 新建：Spring Boot
+│   ├── pom.xml
+│   └── src/main/java/com/xiyuguopu/
+│       ├── XiyuGuopuApplication.java
+│       ├── config/         # Security、MyBatis-Plus、跨域、Redis 配置
+│       ├── controller/     # 接口层
+│       │   ├── ProductController.java        (公开)
+│       │   ├── WxLoginController.java        (微信登录)
+│       │   ├── OrderController.java          (用户端订单)
+│       │   ├── AddressController.java        (收货地址)
+│       │   ├── WxPayController.java          (微信支付)
+│       │   └── admin/
+│       │       ├── AdminAuthController.java
+│       │       ├── AdminOrderController.java
+│       │       └── AdminProductController.java
+│       ├── service/        # 业务层
+│       ├── mapper/         # MyBatis 接口
+│       ├── entity/         # 实体类
+│       ├── dto/            # 请求/响应对象
+│       ├── common/         # 统一返回、异常处理、JWT工具类
+│       └── resources/
+│           ├── application.yml
+│           ├── application-dev.yml
+│           └── mapper/*.xml    # 复杂SQL
+└── sql/
+    └── init.sql            # 建表 + 初始数据
+
+
+products.js 的归属
+==================
+
+选项 A：保留本地 JS — 网页继续读 products.js，手改数据部署时覆盖
+选项 B：网页调 API — main.js 从 /api/products 拉数据渲染
+
+建议前期用 A，小程序走 API。
+
+
+部署环境
+========
+
+服务器：腾讯云轻量应用服务器 2核4G
+数据库：MySQL 8.0 (localhost:3306)
+Java：JDK 17
+月费：≈75元（服务器70 + 域名5，COS免费额度够用）
+
+创建 Mapper 接口 + XML
+
+创建 Service 层
+
+创建 Controller 层 (6个公开接口)
+
+
+服务端结构总览
+
+server/
+├── pom.xml                                          # Maven 构建
+└── src/main/
+    ├── java/com/xiyuguopu/
+    │   ├── XiyuGuopuApplication.java                # 启动入口
+    │   ├── common/         (3 个)
+    │   │   ├── Result.java                          # 统一响应 {code, message, data}
+    │   │   ├── GlobalExceptionHandler.java          # 全局异常捕获
+    │   │   └── JwtUtils.java                        # JWT 签发/校验
+    │   ├── config/         (6 个)
+    │   │   ├── CorsConfig.java                      # 跨域
+    │   │   ├── MyBatisPlusConfig.java               # 分页插件
+    │   │   ├── MyMetaObjectHandler.java             # 自动填充时间戳
+    │   │   ├── JwtInterceptor.java                  # 管理后台鉴权
+    │   │   ├── UserJwtInterceptor.java              # 小程序用户鉴权
+    │   │   └── WebMvcConfig.java                    # 拦截器注册
+    │   ├── entity/         (14 个) → 数据库表映射
+    │   ├── mapper/         (13 个) → MyBatis-Plus BaseMapper
+    │   ├── dto/            (15 个) → 请求/响应对象
+    │   ├── service/        (12 个) → 业务逻辑
+    │   └── controller/     (13 个) → REST 接口
+    └── resources/
+        ├── application.yml                          # 主配置 (active: dev)
+        └── application-dev.yml                      # 开发环境 (MySQL, 端口)
+部署清单
+打包出来就是一个 fat JAR（内嵌 Tomcat），上传到服务器直接跑。需要额外带上的：
+
+需要部署的	说明
+xiyuguopu-server-1.0.0.jar	mvn package 产物
+application-prod.yml	需要新建，配生产数据库连接
+images/	图片目录，放在 JAR 同级的 /var/www/xiyuguopu/images/
+MySQL 数据库	14 张表，MyBatis-Plus 会自动建表
+API 一览（小程序侧）
+
+公开接口（无需登录）
+  GET  /api/categories          分类列表
+  GET  /api/products            商品列表 (?categoryCode=)
+  GET  /api/products/{id}       商品详情
+  GET  /api/packages            套餐列表
+  GET  /api/cost-breakdown      价格透明
+  GET  /api/scorecards          6星评分
+
+需要登录（Bearer Token）
+  POST /api/wx/login            微信登录
+  POST /api/wx/pay              发起支付
+  POST /api/wx/pay-callback     支付回调
+  
+  GET    /api/orders            订单列表
+  POST   /api/orders            创建订单
+  GET    /api/orders/{id}       订单详情
+  POST   /api/orders/{id}/cancel  取消订单
+  
+  GET    /api/user/addresses        地址列表
+  GET    /api/user/addresses/{id}   地址详情
+  POST   /api/user/addresses        新增地址
+  PUT    /api/user/addresses/{id}   修改地址
+  DELETE /api/user/addresses/{id}   删除地址
+  
+管理后台（Admin Token）
+  /api/admin/login|products|orders|dashboard
+关键设计
+无 XML SQL：纯 MyBatis-Plus code-first，所有查询用 LambdaQueryWrapper
+统一响应：所有接口返回 {code: 200, message: "success", data: ...}
+地址快照：下单时存 JSON 副本，后续地址修改不影响历史订单
+JWT 双域：管理后台和小程序用户两套 token，按 URL 前缀隔离
+支付 mock：本地开发不走真实微信支付，直接调 callback 就变 PAID

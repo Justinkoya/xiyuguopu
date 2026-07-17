@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+**/target/
+**/node_modules/
+uniapp-test/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

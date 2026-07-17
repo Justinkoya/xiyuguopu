@@ -1,0 +1,43 @@
+<view class="page" wx:if="{{!loading && order}}">
+  <view class="pay-status">
+    <text class="pay-icon">{{order.status === 'UNPAID' ? '¥' : '✓'}}</text>
+    <text class="pay-title">{{order.status === 'UNPAID' ? '订单待支付' : order.statusText}}</text>
+    <text class="pay-desc">{{order.status === 'UNPAID' ? '提交成功，请确认金额后完成支付' : '该订单当前无需支付'}}</text>
+  </view>
+
+  <view class="pay-card">
+    <view class="pay-row">
+      <text class="pay-label">订单编号</text>
+      <text class="pay-value">{{order.orderNo}}</text>
+    </view>
+    <view class="pay-row">
+      <text class="pay-label">下单时间</text>
+      <text class="pay-value">{{order.createdAtText}}</text>
+    </view>
+    <view class="pay-row">
+      <text class="pay-label">商品件数</text>
+      <text class="pay-value">共 {{order.totalCount}} 件</text>
+    </view>
+    <view class="pay-row total">
+      <text>应付金额</text>
+      <text class="price">¥<text class="price-large">{{order.total}}</text></text>
+    </view>
+  </view>
+
+  <view class="pay-card">
+    <text class="section-title">商品信息</text>
+    <view class="pay-item" wx:for="{{order.items}}" wx:key="productId">
+      <text class="pay-item-name">{{item.name}}</text>
+      <text class="pay-item-meta">¥{{item.price}} × {{item.quantity}}</text>
+    </view>
+  </view>
+
+  <view style="height: 180rpx;"></view>
+
+  <view class="fixed-bottom safe-bottom pay-actions">
+    <button class="btn-outline later-btn" bindtap="onPayLater">稍后支付</button>
+    <button class="btn-primary pay-btn" bindtap="onPay" loading="{{paying}}" disabled="{{paying || order.status !== 'UNPAID'}}">立即支付</button>
+  </view>
+</view>
+
+<view class="loading" wx:if="{{loading}}">加载中...</view>

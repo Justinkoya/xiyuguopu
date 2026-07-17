@@ -1,0 +1,235 @@
+/* ========== 图片轮播 ========== */
+.image-swiper {
+  width: 100%;
+  height: 600rpx;
+  background-color: #FFFFFF;
+}
+.detail-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== 基本信息 ========== */
+.info-section {
+  padding: 32rpx;
+  background-color: #FFFFFF;
+}
+.detail-name {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 900;
+  color: var(--color-dark);
+  margin-bottom: 8rpx;
+}
+.detail-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #999999;
+  margin-bottom: 16rpx;
+}
+.detail-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  margin-bottom: 16rpx;
+}
+.detail-tags {
+  margin-bottom: 16rpx;
+}
+.origin-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  padding: 16rpx;
+  background-color: #FFFEF5;
+  border-radius: var(--radius-md);
+  font-size: 24rpx;
+  color: var(--color-sand);
+}
+.origin-season {
+  font-size: 22rpx;
+  color: #AAAAAA;
+}
+
+/* ========== 6星评分 ========== */
+.scorecard-section {
+  padding: 32rpx;
+  background-color: #FFFFFF;
+}
+.section-label {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 20rpx;
+}
+.score-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.score-bar-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+.score-bar-label {
+  font-size: 26rpx;
+  color: #555555;
+}
+.score-bar-value {
+  font-size: 26rpx;
+  font-weight: 800;
+  color: var(--color-gold);
+}
+.score-bar-track {
+  height: 10rpx;
+  background-color: #EEEEEE;
+  border-radius: 5rpx;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  background-color: var(--color-gold);
+  border-radius: 5rpx;
+  transition: width 0.6s ease;
+}
+
+/* ========== 价格透明 ========== */
+.price-breakdown {
+  padding: 32rpx;
+  background-color: #FFFFFF;
+}
+.cost-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+.cost-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.cost-label {
+  width: 160rpx;
+  font-size: 24rpx;
+  color: #666666;
+  flex-shrink: 0;
+}
+.cost-bar-wrap {
+  flex: 1;
+  height: 24rpx;
+  background-color: #F5F5F5;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+.cost-bar {
+  height: 100%;
+  border-radius: 12rpx;
+  min-width: 40rpx;
+  transition: width 0.8s ease;
+}
+.cost-value {
+  width: 80rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  text-align: right;
+  flex-shrink: 0;
+}
+.cost-note {
+  display: block;
+  font-size: 22rpx;
+  color: #AAAAAA;
+  text-align: center;
+}
+
+/* ========== 配料 ========== */
+.ingredients-section {
+  padding: 32rpx;
+  background-color: #FFFFFF;
+}
+.ingredients-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+.ingredients-text {
+  font-size: 26rpx;
+  padding: 10rpx 24rpx;
+  background-color: #F0FDF4;
+  color: #059669;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+.ingredients-note {
+  display: block;
+  font-size: 24rpx;
+  color: #059669;
+}
+
+/* ========== 底部操作栏 ========== */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 24rpx;
+  border-top: 1rpx solid #F0F0F0;
+  background-color: #FFFFFF;
+}
+.action-left {
+  flex-shrink: 0;
+}
+.action-cart-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 20rpx;
+  color: #999999;
+  padding: 8rpx 12rpx;
+}
+.action-cart-icon {
+  font-size: 36rpx;
+  margin-bottom: 2rpx;
+}
+.action-right {
+  flex: 1;
+  display: flex;
+  gap: 16rpx;
+}
+.add-cart-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+}
+.buy-now-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+}
+
+/* ========== 购物车提示 ========== */
+.cart-tip {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background-color: rgba(0,0,0,0.75);
+  color: #FFFFFF;
+  padding: 24rpx 48rpx;
+  border-radius: var(--radius-full);
+  font-size: 28rpx;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+.cart-tip.show {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 200rpx 0;
+  color: #999999;
+}

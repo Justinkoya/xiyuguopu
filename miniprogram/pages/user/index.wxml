@@ -1,0 +1,73 @@
+<!-- 用户中心 -->
+<view class="page">
+  <!-- 用户信息 -->
+  <view class="user-header">
+    <view class="avatar">
+      <text class="avatar-text">👤</text>
+    </view>
+    <text class="user-greeting">欢迎来到西域果脯</text>
+  </view>
+
+  <!-- 订单入口 -->
+  <view class="order-entries">
+    <view class="order-entry" data-status="UNPAID" bindtap="onTapOrders">
+      <text class="entry-icon">💳</text>
+      <text class="entry-label">待付款</text>
+      <view class="entry-badge" wx:if="{{orderCounts.UNPAID > 0}}">{{orderCounts.UNPAID}}</view>
+    </view>
+    <view class="order-entry" data-status="PAID" bindtap="onTapOrders">
+      <text class="entry-icon">📦</text>
+      <text class="entry-label">待发货</text>
+      <view class="entry-badge" wx:if="{{orderCounts.PAID > 0}}">{{orderCounts.PAID}}</view>
+    </view>
+    <view class="order-entry" data-status="SHIPPED" bindtap="onTapOrders">
+      <text class="entry-icon">🚛</text>
+      <text class="entry-label">待收货</text>
+      <view class="entry-badge" wx:if="{{orderCounts.SHIPPED > 0}}">{{orderCounts.SHIPPED}}</view>
+    </view>
+    <view class="order-entry" bindtap="onTapOrders">
+      <text class="entry-icon">📋</text>
+      <text class="entry-label">全部订单</text>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onTapAddress">
+      <text class="menu-icon">📍</text>
+      <text class="menu-text">收货地址</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" data-tab="story" bindtap="onTapStory">
+      <text class="menu-icon">📖</text>
+      <text class="menu-text">品牌故事</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" data-tab="standard" bindtap="onTapStory">
+      <text class="menu-icon">⭐</text>
+      <text class="menu-text">6星品质标准</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" data-tab="price" bindtap="onTapStory">
+      <text class="menu-icon">💰</text>
+      <text class="menu-text">价格透明</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onContact">
+      <text class="menu-icon">💬</text>
+      <text class="menu-text">联系客服</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 分享 -->
+  <view class="share-section">
+    <button class="btn-primary share-btn" open-type="share">📤 分享给朋友</button>
+  </view>
+
+  <!-- 品牌 footer -->
+  <view class="brand-footer">
+    <text class="footer-brand">西域果脯</text>
+    <text class="footer-slogan">一口西��，一份实在</text>
+  </view>
+</view>

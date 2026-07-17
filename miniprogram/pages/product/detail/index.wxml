@@ -1,0 +1,99 @@
+<!-- 商品详情 -->
+<view class="page" wx:if="{{!loading && product}}">
+  <!-- 图片轮播 -->
+  <swiper class="image-swiper" indicator-dots current="{{currentImageIndex}}" bindchange="onSwiperChange">
+    <swiper-item wx:for="{{product.images}}" wx:key="*this">
+      <image src="{{item}}" class="detail-image" mode="aspectFill" />
+    </swiper-item>
+  </swiper>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <text class="detail-name">{{product.name}}</text>
+    <text class="detail-subtitle">{{product.subtitle}}</text>
+    <view class="detail-price-row">
+      <text class="price">¥<text class="price-large">{{product.price}}</text></text>
+      <text class="unit">/{{product.unit}}</text>
+    </view>
+    <view class="detail-tags">
+      <text class="tag tag-gold" wx:for="{{product.tags}}" wx:key="*this">{{item}}</text>
+    </view>
+    <view class="origin-info">
+      <text>📍 {{product.origin.region}} · {{product.origin.orchard}}</text>
+      <text class="origin-season">采摘季：{{product.origin.harvestSeason}}</text>
+    </view>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 6星评分卡 -->
+  <view class="scorecard-section" wx:if="{{product.scorecard}}">
+    <text class="section-label">⭐ 6星干果标准 · 综合 {{product.scorecard.overall || '5.5'}}/6</text>
+    <view class="score-bars">
+      <view class="score-bar" wx:for="{{dimensions}}" wx:key="key">
+        <view class="score-bar-header">
+          <text class="score-bar-label">{{item.label}}</text>
+          <text class="score-bar-value">{{product.scorecard[item.key]}}</text>
+        </view>
+        <view class="score-bar-track">
+          <view class="score-bar-fill" style="width: {{product.scorecard[item.key] / 6 * 100}}%;"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 价格透明 -->
+  <view class="price-breakdown" wx:if="{{product.costBreakdown}}">
+    <text class="section-label">💰 价格构成公开（每{{product.unit}}）</text>
+    <view class="cost-list">
+      <view class="cost-item" wx:for="{{costItems}}" wx:key="key">
+        <text class="cost-label">{{item.label}}</text>
+        <view class="cost-bar-wrap">
+          <view class="cost-bar" style="width: {{product.costBreakdown[item.key] / product.price * 100}}%; background-color: {{item.key === 'profit' ? '#B64A2E' : '#D88831'}};"></view>
+        </view>
+        <text class="cost-value {{item.key === 'profit' ? 'text-red' : ''}}">¥{{product.costBreakdown[item.key]}}</text>
+      </view>
+    </view>
+    <text class="cost-note">💡 同行普遍加价40-60%，我们控制在20-26%</text>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 配料信息 -->
+  <view class="ingredients-section" wx:if="{{product.ingredients}}">
+    <text class="section-label">📋 配料表</text>
+    <view class="ingredients-box">
+      <text class="ingredients-text" wx:for="{{product.ingredients}}" wx:key="*this">{{item}}</text>
+    </view>
+    <text class="ingredients-note" wx:if="{{product.ingredients.length === 1}}">✅ 配料只有果实本身，0添加剂、0糖精、0硫熏</text>
+  </view>
+
+  <!-- 安全底距（给底部操作栏留空） -->
+  <view style="height: 140rpx;"></view>
+
+  <!-- 底部操作栏 -->
+  <view class="fixed-bottom action-bar safe-bottom">
+    <view class="action-left">
+      <view class="action-cart-btn" bindtap="onGoCart">
+        <text class="action-cart-icon">🛒</text>
+        <text>购物车</text>
+      </view>
+    </view>
+    <view class="action-right">
+      <button class="btn-outline add-cart-btn" bindtap="onAddToCart">加入购物车</button>
+      <button class="btn-primary buy-now-btn" bindtap="onBuyNow">立即购买</button>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>
+
+<!-- 加入购物车提示 -->
+<view class="cart-tip {{showCartTip ? 'show' : ''}}">
+  <text>✅ 已加入购物车</text>
+</view>

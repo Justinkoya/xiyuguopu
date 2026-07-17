@@ -1,0 +1,140 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+/* Base */
+body {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.serif {
+  font-family: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.brand {
+  font-family: 'Ma Shan Zheng', 'KaiTi', 'STKaiti', cursive;
+}
+
+/* Hero Gradient */
+.hero-gradient {
+  background: linear-gradient(165deg, #F8F1E3 0%, #FFF8EA 35%, #F5E6D0 70%, #EDD9C0 100%);
+}
+
+/* Card Hover Effect */
+.card-hover {
+  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+}
+
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(46,36,28,0.13);
+}
+
+/* Price Badge */
+.price-badge {
+  position: relative;
+  display: inline-block;
+}
+
+.price-badge::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: -4px;
+  right: -4px;
+  height: 10px;
+  background: #F3C45B;
+  opacity: 0.45;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+/* Section Divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D88831, transparent);
+  opacity: 0.25;
+}
+
+/* Animations */
+.fade-up {
+  animation: fadeUp 0.7s ease-out both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.float-slower {
+  animation: floatSlower 8s ease-in-out infinite;
+}
+
+@keyframes floatSlower {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.pulse-dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
+}
+
+@keyframes bounceIn {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Patterns */
+.dot-pattern {
+  background-image: radial-gradient(circle, #D88831 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.stripe-pattern {
+  background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(31,111,92,0.03) 8px, rgba(31,111,92,0.03) 10px);
+}
+
+/* Testimonial Card */
+.testimonial-card {
+  transition: all 0.4s ease;
+}
+
+.testimonial-card:hover {
+  transform: scale(1.03);
+}
+
+/* FAQ */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+}
+
+.faq-open .faq-answer {
+  max-height: 300px;
+  padding-top: 12px;
+  padding-bottom: 4px;
+}

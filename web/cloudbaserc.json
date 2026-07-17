@@ -1,0 +1,17 @@
+{
+  "envId": "{{your-env-id}}",
+  "version": "2.0",
+  "framework": {
+    "name": "static",
+    "plugins": {
+      "static": {
+        "use": "@cloudbase/framework-plugin-website",
+        "inputs": {
+          "outputPath": ".",
+          "cloudPath": "/",
+          "ignore": ["cloudbaserc.json", "README.md"]
+        }
+      }
+    }
+  }
+}

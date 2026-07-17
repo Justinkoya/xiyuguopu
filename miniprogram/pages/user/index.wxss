@@ -1,0 +1,113 @@
+/* ========== 用户头部 ========== */
+.user-header {
+  background: linear-gradient(165deg, #B64A2E, #8B3722);
+  padding: 60rpx 32rpx 40rpx;
+  text-align: center;
+}
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16rpx;
+}
+.avatar-text {
+  font-size: 48rpx;
+}
+.user-greeting {
+  font-size: 30rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+/* ========== 订单入口 ========== */
+.order-entries {
+  display: flex;
+  background-color: #FFFFFF;
+  padding: 24rpx 0;
+  margin-bottom: 16rpx;
+}
+.order-entry {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  position: relative;
+}
+.entry-icon {
+  font-size: 44rpx;
+}
+.entry-label {
+  font-size: 24rpx;
+  color: #666666;
+}
+.entry-badge {
+  position: absolute;
+  top: 0;
+  right: 25%;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  background-color: var(--color-red);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  border-radius: 50%;
+  text-align: center;
+  padding: 0 8rpx;
+}
+
+/* ========== 功能列表 ========== */
+.menu-list {
+  background-color: #FFFFFF;
+  margin-bottom: 16rpx;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid #F8F8F8;
+}
+.menu-icon {
+  font-size: 36rpx;
+}
+.menu-text {
+  flex: 1;
+  font-size: 28rpx;
+}
+.menu-arrow {
+  font-size: 32rpx;
+  color: #CCCCCC;
+}
+
+/* ========== 分享 ========== */
+.share-section {
+  padding: 32rpx;
+}
+.share-btn {
+  width: 100%;
+  background-color: #FFFFFF;
+  color: var(--color-dark);
+  border: 2rpx solid #EEEEEE;
+}
+
+/* ========== 品牌 footer ========== */
+.brand-footer {
+  text-align: center;
+  padding: 40rpx;
+}
+.footer-brand {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin-bottom: 4rpx;
+}
+.footer-slogan {
+  font-size: 24rpx;
+  color: #AAAAAA;
+}

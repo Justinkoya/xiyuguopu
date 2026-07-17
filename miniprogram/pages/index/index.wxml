@@ -1,0 +1,196 @@
+<!-- 首页 -->
+<view class="page">
+  <!-- 品牌 Header -->
+  <view class="brand-header">
+    <view class="brand-logo">
+      <view class="logo-circle">
+        <view class="logo-inner"></view>
+      </view>
+      <text class="brand-name">西域果脯</text>
+    </view>
+    <text class="brand-slogan">一口西域，一份实在</text>
+  </view>
+
+  <!-- Banner 轮播 -->
+  <swiper class="banner" indicator-dots autoplay interval="4000" duration="500" circular>
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <view class="banner-slide">
+        <image src="{{item.image}}" class="banner-image" mode="aspectFill" lazy-load />
+        <view class="banner-overlay">
+          <text class="banner-title">{{item.title}}</text>
+          <text class="banner-subtitle">{{item.subtitle}}</text>
+        </view>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 快速入口 -->
+  <view class="quick-entry">
+    <view
+      wx:for="{{quickEntries}}"
+      wx:key="text"
+      class="quick-entry-item"
+      data-path="{{item.path}}"
+      bindtap="onTapQuickEntry"
+    >
+      <text class="quick-entry-icon">{{item.icon}}</text>
+      <text class="quick-entry-text">{{item.text}}</text>
+    </view>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 产品系列 -->
+  <view class="section" wx:for="{{series}}" wx:key="_id">
+    <view class="section-header">
+      <view class="section-title-row">
+        <text class="section-icon">{{item.icon || '🥜'}}</text>
+        <view>
+          <text class="section-title">{{item.name}}</text>
+          <text class="section-desc">{{item.description}}</text>
+        </view>
+      </view>
+      <text class="section-more" data-code="{{item.code}}" bindtap="onTapCategory">查看更多 ›</text>
+    </view>
+
+    <scroll-view scroll-x class="product-scroll" wx:if="{{item.products.length > 0}}">
+      <view class="product-scroll-inner">
+        <view
+          wx:for="{{item.products}}"
+          wx:for-item="product"
+          wx:key="_id"
+          class="product-card card"
+          data-id="{{product._id}}"
+          bindtap="onTapProduct"
+        >
+          <image src="{{product.images[0]}}" class="product-image" mode="aspectFill" lazy-load />
+          <view class="product-info">
+            <text class="product-name">{{product.name}}</text>
+            <view class="product-tags">
+              <text class="tag tag-blue" wx:for="{{product.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+            <view class="product-price-row">
+              <text class="price">¥<text class="price-large">{{product.price}}</text></text>
+              <text class="product-unit">/{{product.unit}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 礼盒套餐 -->
+  <view class="section" wx:if="{{giftSets.length > 0}}">
+    <view class="section-header">
+      <view class="section-title-row">
+        <text class="section-icon">🎁</text>
+        <view>
+          <text class="section-title">精选套餐</text>
+          <text class="section-desc">选好了直接买，不用纠结搭配</text>
+        </view>
+      </view>
+    </view>
+
+    <scroll-view scroll-x class="gift-scroll">
+      <view class="gift-scroll-inner">
+        <view
+          wx:for="{{giftSets}}"
+          wx:key="_id"
+          class="gift-card card {{item.isHot ? 'gift-hot' : ''}}"
+          data-id="{{item._id}}"
+          bindtap="onTapGiftSet"
+        >
+          <view class="badge badge-red" wx:if="{{item.isHot}}">最受欢迎</view>
+          <image src="{{item.image}}" class="gift-image" mode="aspectFill" lazy-load />
+          <view class="gift-info">
+            <text class="gift-name">{{item.name}}</text>
+            <text class="gift-desc">{{item.description}}</text>
+            <text class="price">¥<text class="price-large">{{item.price}}</text></text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 产地溯源旅程 -->
+  <view class="journey-section">
+    <view class="section-header">
+      <view class="section-title-row">
+        <text class="section-icon">🚚</text>
+        <view>
+          <text class="section-title">从新疆到你手中</text>
+          <text class="section-desc">每一颗干果，都走过了几千公里的旅程</text>
+        </view>
+      </view>
+    </view>
+    <view class="journey-steps">
+      <view class="journey-step">
+        <view class="step-dot">🌳</view>
+        <text class="step-label">产地果园</text>
+      </view>
+      <text class="step-arrow">→</text>
+      <view class="journey-step">
+        <view class="step-dot">🔍</view>
+        <text class="step-label">6星筛选</text>
+      </view>
+      <text class="step-arrow">→</text>
+      <view class="journey-step">
+        <view class="step-dot">📦</view>
+        <text class="step-label">分拣包装</text>
+      </view>
+      <text class="step-arrow">→</text>
+      <view class="journey-step">
+        <view class="step-dot">🚛</view>
+        <text class="step-label">产地直发</text>
+      </view>
+      <text class="step-arrow">→</text>
+      <view class="journey-step">
+        <view class="step-dot">🏠</view>
+        <text class="step-label">到你手上</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="divider"></view>
+
+  <!-- 适合人群 -->
+  <view class="persona-section">
+    <view class="section-header">
+      <view class="section-title-row">
+        <text class="section-icon">👥</text>
+        <view>
+          <text class="section-title">适合每一个认真生活的人</text>
+        </view>
+      </view>
+    </view>
+    <view class="persona-grid">
+      <view class="persona-card card" wx:for="{{personas}}" wx:key="name">
+        <text class="persona-icon">{{item.icon}}</text>
+        <text class="persona-name">{{item.name}}</text>
+        <text class="persona-desc">{{item.desc}}</text>
+        <text class="persona-rec text-{{item.color}}">首选：{{item.rec}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部品牌承诺 -->
+  <view class="brand-footer">
+    <view class="footer-tagline">
+      <text class="font-brand footer-brand-name">西域果脯</text>
+      <text class="footer-slogan">一口西域，一份实在</text>
+    </view>
+    <view class="footer-promises">
+      <text class="footer-promise">✅ 产地透明可查</text>
+      <text class="footer-promise">✅ 6星品质标准</text>
+      <text class="footer-promise">✅ 价格构成公开</text>
+      <text class="footer-promise">✅ 不满意包退</text>
+    </view>
+  </view>
+
+  <!-- 底部安全距离 -->
+  <view class="safe-bottom" style="height: 32rpx;"></view>
+</view>

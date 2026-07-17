@@ -1,0 +1,61 @@
+.address-list {
+  padding: 16rpx 24rpx;
+}
+.address-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 28rpx;
+  margin-bottom: 16rpx;
+  position: relative;
+}
+.address-card.default {
+  border: 2rpx solid var(--color-gold);
+}
+.addr-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+.addr-name {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+.addr-phone {
+  font-size: 26rpx;
+  color: #999999;
+}
+.addr-default-tag {
+  font-size: 20rpx;
+  color: var(--color-red);
+  border: 1rpx solid var(--color-red);
+  padding: 2rpx 12rpx;
+  border-radius: var(--radius-full);
+  margin-left: auto;
+}
+.addr-detail {
+  display: block;
+  font-size: 26rpx;
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+}
+.addr-actions {
+  display: flex;
+  gap: 32rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #F5F5F5;
+}
+.addr-action {
+  font-size: 24rpx;
+  color: var(--color-sand);
+}
+.addr-action.delete {
+  color: #CC0000;
+}
+.add-btn-wrap {
+  padding: 32rpx 24rpx;
+}
+.add-btn {
+  width: 100%;
+}

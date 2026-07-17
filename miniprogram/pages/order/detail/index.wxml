@@ -1,0 +1,76 @@
+<!-- 订单详情 -->
+<view class="page" wx:if="{{!loading && order}}">
+  <!-- 状态 -->
+  <view class="status-bar">
+    <text class="status-icon">{{order.status === 'UNPAID' ? '⏳' : order.status === 'PAID' ? '✅' : order.status === 'SHIPPED' ? '📦' : order.status === 'COMPLETED' ? '🎉' : '❌'}}</text>
+    <text class="status-text" style="color: {{order.statusColor}}">{{order.statusText}}</text>
+    <text class="status-desc" wx:if="{{order.status === 'UNPAID'}}">请尽快付款，超时订单将自动取消</text>
+    <text class="status-desc" wx:if="{{order.status === 'SHIPPED'}}">商品正在飞奔向你</text>
+    <text class="status-desc" wx:if="{{order.status === 'COMPLETED'}}">感谢你的支持！欢迎再次购买</text>
+  </view>
+
+  <!-- 地址 -->
+  <view class="detail-section">
+    <text class="detail-section-title">📍 收货地址</text>
+    <text class="detail-text">{{order.address.name}} {{order.address.phone}}</text>
+    <text class="detail-text detail-address">{{order.address.province}} {{order.address.city}} {{order.address.district}} {{order.address.detail}}</text>
+  </view>
+
+  <!-- 商品 -->
+  <view class="detail-section">
+    <text class="detail-section-title">📦 商品信息</text>
+    <view class="detail-item" wx:for="{{order.items}}" wx:key="productId">
+      <image src="{{item.image}}" class="detail-item-img" mode="aspectFill" />
+      <view class="detail-item-info">
+        <text>{{item.name}}</text>
+        <text class="detail-item-meta">¥{{item.price}} × {{item.quantity}}{{item.unit}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订单信息 -->
+  <view class="detail-section">
+    <text class="detail-section-title">📋 订单信息</text>
+    <view class="detail-info-row">
+      <text class="detail-info-label">订单编号</text>
+      <text class="detail-info-value" bindtap="onCopyOrderNo">{{order.orderNo}} 📋</text>
+    </view>
+    <view class="detail-info-row">
+      <text class="detail-info-label">下单时间</text>
+      <text class="detail-info-value">{{order.createdAtText}}</text>
+    </view>
+    <view class="detail-info-row" wx:if="{{order.paidAtText && order.paidAtText !== '--'}}">
+      <text class="detail-info-label">付款时间</text>
+      <text class="detail-info-value">{{order.paidAtText}}</text>
+    </view>
+    <view class="detail-info-row" wx:if="{{order.remark}}">
+      <text class="detail-info-label">备注</text>
+      <text class="detail-info-value">{{order.remark}}</text>
+    </view>
+  </view>
+
+  <!-- 价格 -->
+  <view class="detail-section">
+    <view class="detail-info-row">
+      <text>商品小计</text>
+      <text>¥{{order.subtotal}}</text>
+    </view>
+    <view class="detail-info-row">
+      <text>运费</text>
+      <text class="text-green">{{order.shipping === 0 ? '全场包邮' : '¥' + order.shipping}}</text>
+    </view>
+    <view class="detail-info-row total">
+      <text>实付金额</text>
+      <text class="price">¥<text class="price-large">{{order.total}}</text></text>
+    </view>
+  </view>
+
+  <!-- 客服 -->
+  <view class="detail-section">
+    <text class="detail-section-title">💬 有问题？</text>
+    <text class="detail-text">联系客服微信：xiyuguopu</text>
+    <button class="btn-outline" style="margin-top: 16rpx;" bindtap="onCopyWechat">复制微信号</button>
+  </view>
+</view>
+
+<view class="loading" wx:if="{{loading}}">加载中...</view>
