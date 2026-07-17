@@ -1,7 +1,7 @@
 package com.xiyuguopu.controller;
 
 import com.xiyuguopu.common.Result;
-import com.xiyuguopu.dto.ProductVO;
+import com.xiyuguopu.entity.Product;
 import com.xiyuguopu.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +23,7 @@ public class ProductController {
      * 不传 categoryCode 时返回全部上架商品
      */
     @GetMapping("/products")
-    public Result<List<ProductVO>> listAll(@RequestParam(required = false) String categoryCode) {
+    public Result<List<Product>> listAll(@RequestParam(required = false) String categoryCode) {
         return Result.ok(productService.getByCategoryCode(categoryCode));
     }
 
@@ -31,7 +31,7 @@ public class ProductController {
      * GET /api/products/{id} — 商品详情
      */
     @GetMapping("/products/{id}")
-    public Result<ProductVO> detail(@PathVariable Long id) {
+    public Result<Product> detail(@PathVariable Long id) {
         return Result.ok(productService.getById(id));
     }
 }

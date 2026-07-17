@@ -32,6 +32,7 @@ public class Product {
     private String highlightText;
     private String extra;
     private Integer stock;
+    private Integer sale;
     private Boolean isOnSale;
     private Integer sortOrder;
 

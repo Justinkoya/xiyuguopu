@@ -33,6 +33,7 @@ public class AdminProductSaveDTO {
     private String highlightText;
     private String extra;
     private Integer stock = 999;
+    private Integer sale = 0;
     private Boolean isOnSale = true;
     private Integer sortOrder = 0;
 

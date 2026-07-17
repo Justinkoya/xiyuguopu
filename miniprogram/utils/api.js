@@ -129,7 +129,7 @@ function toProductItem(raw) {
     scorecard: null,                                // 6星评分 — mergeProductExtras() 填充
     costBreakdown: null,                            // 价格透明 — mergeProductExtras() 填充
     ingredients: null,                              // 配料表 — mergeProductExtras() 填充
-    sales: raw.sales || raw.salesVolume || raw.saleCount || 0
+    sales: raw.sale || raw.sales || raw.salesVolume || raw.saleCount || 0
   }
 }
 

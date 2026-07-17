@@ -46,6 +46,7 @@ CREATE TABLE product (
   highlight_text VARCHAR(32) DEFAULT '' COMMENT '高亮角标文字',
   extra       VARCHAR(255)  DEFAULT '' COMMENT '额外信息',
   stock       INT           DEFAULT 0 COMMENT '库存',
+  sale        INT           DEFAULT 0 COMMENT '销量',
   is_on_sale  TINYINT(1)    DEFAULT 1 COMMENT '是否上架',
   sort_order  INT           DEFAULT 0 COMMENT '排序',
   cost_detail JSON          COMMENT '成本明细(JSON → 前端透明展示)',
@@ -55,26 +56,26 @@ CREATE TABLE product (
 ) ENGINE=InnoDB COMMENT='商品';
 
 -- ===== 尝鲜精选（trial, category_id=1）=====
-INSERT INTO product (category_id, name, price, unit, image, badge, tags, description, highlight, highlight_text, extra, stock, sort_order) VALUES
-(1, '纸皮核桃',  29.9, '500g', 'images/walnut.png',      '初次尝鲜', '["阿克苏185品种","手捏即开"]',                 '壳薄如纸，果仁饱满不空壳',           0, '', '', 999, 1),
-(1, '情人梅',    19.9, '500g', 'images/lovers-plum.png',  '零嘴必备', '["酸甜解腻","无糖精"]',                         '果肉厚实，酸甜恰到好处',             0, '', '', 999, 2),
-(1, '喀什西梅干', 25.9, '500g', 'images/prune.png',       '网红人气', '["自然晾晒","糯香酸甜"]',                       '女生最爱，办公室零食人气王',         0, '', '', 999, 3);
+INSERT INTO product (category_id, name, price, unit, image, badge, tags, description, highlight, highlight_text, extra, stock, sale, sort_order) VALUES
+(1, '纸皮核桃',  29.9, '500g', 'images/walnut.png',      '初次尝鲜', '["阿克苏185品种","手捏即开"]',                 '壳薄如纸，果仁饱满不空壳',           0, '', '', 999, 128, 1),
+(1, '情人梅',    19.9, '500g', 'images/lovers-plum.png',  '零嘴必备', '["酸甜解腻","无糖精"]',                         '果肉厚实，酸甜恰到好处',             0, '', '', 999, 96, 2),
+(1, '喀什西梅干', 25.9, '500g', 'images/prune.png',       '网红人气', '["自然晾晒","糯香酸甜"]',                       '女生最爱，办公室零食人气王',         0, '', '', 999, 158, 3);
 
 -- ===== 西域珍品（premium, category_id=2）=====
-INSERT INTO product (category_id, name, price, unit, image, badge, tags, description, highlight, highlight_text, extra, stock, sort_order) VALUES
-(2, '大无花果干', 49.9, '500g', 'images/fig.png',          '全网好价', '["小品种稀缺","低于1688价"]',                   '新疆小无花果，全网没几家有货',       0, '', '', 999, 1),
-(2, '沙漠果',     49.9, '500g', 'images/brazil.png',       '新奇体验', '["99%人没吃过","社交话题"]',                    '名字自带新疆画面感的神秘坚果',       0, '', '', 999, 2),
-(2, '玫瑰切糕',   45.9, '500g', 'images/rosecake.png',     '手工点心', '["纯手工制作","差异化极强"]',                    '玫瑰花+核桃仁，传统新疆手工点心',    0, '', '', 999, 3),
-(2, '椰枣',       55.9, '500g', 'images/dates.png',        '异域珍品', '["新疆少数民族特产","市面少见"]',                '比巧克力还好吃的天然甜糯珍果',       0, '', '', 999, 4),
-(2, '库车小白杏', 39.9, '500g', 'images/apricot.png',      '库车产地', '["一杏两吃","产地标签"]',                       '新疆独有品种，杏肉软糯杏仁酥脆',     0, '', '', 999, 5),
-(2, '奶枣巴旦木', 45.9, '500g', 'images/date-almond.png',  '网红爆款', '["红枣+巴旦木","进价优势"]',                    '网红零食，年轻人疯狂回购',           0, '', '', 999, 6);
+INSERT INTO product (category_id, name, price, unit, image, badge, tags, description, highlight, highlight_text, extra, stock, sale, sort_order) VALUES
+(2, '大无花果干', 49.9, '500g', 'images/fig.png',          '全网好价', '["小品种稀缺","低于1688价"]',                   '新疆小无花果，全网没几家有货',       0, '', '', 999, 82, 1),
+(2, '沙漠果',     49.9, '500g', 'images/brazil.png',       '新奇体验', '["99%人没吃过","社交话题"]',                    '名字自带新疆画面感的神秘坚果',       0, '', '', 999, 45, 2),
+(2, '玫瑰切糕',   45.9, '500g', 'images/rosecake.png',     '手工点心', '["纯手工制作","差异化极强"]',                    '玫瑰花+核桃仁，传统新疆手工点心',    0, '', '', 999, 76, 3),
+(2, '椰枣',       55.9, '500g', 'images/dates.png',        '异域珍品', '["新疆少数民族特产","市面少见"]',                '比巧克力还好吃的天然甜糯珍果',       0, '', '', 999, 64, 4),
+(2, '库车小白杏', 39.9, '500g', 'images/apricot.png',      '库车产地', '["一杏两吃","产地标签"]',                       '新疆独有品种，杏肉软糯杏仁酥脆',     0, '', '', 999, 112, 5),
+(2, '奶枣巴旦木', 45.9, '500g', 'images/date-almond.png',  '网红爆款', '["红枣+巴旦木","进价优势"]',                    '网红零食，年轻人疯狂回购',           0, '', '', 999, 139, 6);
 
 -- ===== 口碑好物（bestseller, category_id=3）=====
-INSERT INTO product (category_id, name, price, unit, image, badge, tags, description, highlight, highlight_text, extra, stock, sort_order) VALUES
-(3, '开心果',     59.9, '500g', 'images/pistachio.png',    '',         '[]',                                            '颗颗自然开口，不漂白',               1, '回购首选', '进价低于1688批发价', 999, 1),
-(3, '酸奶巴旦木', 52.9, '500g', 'images/yogurt-almond.png','',         '[]',                                            '酸奶包裹，酸甜酥脆口感',             0, '',         '',                   999, 2),
-(3, '小白杏',     39.9, '500g', 'images/apricot.png',      '',         '[]',                                            '配料只有杏肉，0添加',                0, '',         '进价低于1688批发价', 999, 3),
-(3, '夏威夷果',   49.9, '500g', 'images/macadamia.png',    '',         '[]',                                            '奶香浓郁，圆润饱满',                 0, '',         '',                   999, 4);
+INSERT INTO product (category_id, name, price, unit, image, badge, tags, description, highlight, highlight_text, extra, stock, sale, sort_order) VALUES
+(3, '开心果',     59.9, '500g', 'images/pistachio.png',    '',         '[]',                                            '颗颗自然开口，不漂白',               1, '回购首选', '进价低于1688批发价', 999, 231, 1),
+(3, '酸奶巴旦木', 52.9, '500g', 'images/yogurt-almond.png','',         '[]',                                            '酸奶包裹，酸甜酥脆口感',             0, '',         '',                   999, 174, 2),
+(3, '小白杏',     39.9, '500g', 'images/apricot.png',      '',         '[]',                                            '配料只有杏肉，0添加',                0, '',         '进价低于1688批发价', 999, 146, 3),
+(3, '夏威夷果',   49.9, '500g', 'images/macadamia.png',    '',         '[]',                                            '奶香浓郁，圆润饱满',                 0, '',         '',                   999, 119, 4);
 
 -- ================================================================
 -- 3. 成本透明明细

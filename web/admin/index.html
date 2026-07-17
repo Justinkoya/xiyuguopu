@@ -168,7 +168,7 @@
   function renderProductTable(page) {
     const tbody = document.getElementById('prod-tbody');
     if (!page.records.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-400 py-8">暂无商品</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-8">暂无商品</td></tr>';
     } else {
       tbody.innerHTML = page.records.map(p => `
         <tr class="border-b border-gray-100 hover:bg-gray-50">
@@ -184,6 +184,7 @@
               class="w-16 border rounded px-1 py-0.5 text-xs text-center"
               onchange="updateStock(${p.id}, this.value)" title="改库存">
           </td>
+          <td class="py-3 px-2 text-xs text-gray-500">${p.sale || 0}</td>
           <td class="py-3 px-2">${p.isOnSale ? '<span class="text-green-600 text-xs">✓</span>' : '<span class="text-gray-300 text-xs">-</span>'}</td>
           <td class="py-3 px-2">
             <button onclick="editProduct(${p.id})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fa fa-edit"></i></button>
@@ -244,6 +245,7 @@
       document.getElementById('prod-highlightText').value = p.highlightText || '';
       document.getElementById('prod-extra').value = p.extra || '';
       document.getElementById('prod-stock').value = p.stock || 999;
+      document.getElementById('prod-sale').value = p.sale || 0;
       document.getElementById('prod-onSale').checked = p.isOnSale !== false;
       document.getElementById('prod-sortOrder').value = p.sortOrder || 0;
       document.getElementById('prod-tags').value = (p.tags || []).join(', ');
@@ -267,6 +269,7 @@
       highlightText: document.getElementById('prod-highlightText').value.trim(),
       extra: document.getElementById('prod-extra').value.trim(),
       stock: parseInt(document.getElementById('prod-stock').value) || 0,
+      sale: parseInt(document.getElementById('prod-sale').value) || 0,
       isOnSale: document.getElementById('prod-onSale').checked,
       sortOrder: parseInt(document.getElementById('prod-sortOrder').value) || 0,
       tags: document.getElementById('prod-tags').value.split(/[,，]/).map(s => s.trim()).filter(Boolean)
@@ -513,7 +516,7 @@
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <table class="w-full text-sm">
           <thead><tr class="bg-gray-50 text-gray-400 text-xs uppercase">
-            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">图片</th><th class="py-3 px-2 text-left">商品名</th><th class="py-3 px-2 text-left">分类</th><th class="py-3 px-2 text-left">价格</th><th class="py-3 px-2 text-left">库存</th><th class="py-3 px-2 text-left">上架</th><th class="py-3 px-2 text-left">操作</th>
+            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">图片</th><th class="py-3 px-2 text-left">商品名</th><th class="py-3 px-2 text-left">分类</th><th class="py-3 px-2 text-left">价格</th><th class="py-3 px-2 text-left">库存</th><th class="py-3 px-2 text-left">销量</th><th class="py-3 px-2 text-left">上架</th><th class="py-3 px-2 text-left">操作</th>
           </tr></thead>
           <tbody id="prod-tbody"></tbody>
         </table>
@@ -575,8 +578,9 @@
       <div><label class="text-gray-500 text-xs">角标</label><input id="prod-badge" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="初次尝鲜"></div>
       <div class="col-span-2"><label class="text-gray-500 text-xs">描述</label><input id="prod-desc" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
       <div class="col-span-2"><label class="text-gray-500 text-xs">标签（逗号分隔）</label><textarea id="prod-tags" rows="2" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="阿克苏185品种, 手捏即开"></textarea></div>
-      <div class="col-span-2 grid grid-cols-3 gap-3 border-t pt-3">
+      <div class="col-span-2 grid grid-cols-4 gap-3 border-t pt-3">
         <div><label class="text-gray-500 text-xs">库存</label><input id="prod-stock" type="number" value="999" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+        <div><label class="text-gray-500 text-xs">销量</label><input id="prod-sale" type="number" value="0" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
         <div><label class="text-gray-500 text-xs">排序</label><input id="prod-sortOrder" type="number" value="0" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
         <div class="flex items-end gap-4 pb-2">
           <label class="flex items-center gap-1 text-xs"><input id="prod-onSale" type="checkbox" checked> 上架</label>

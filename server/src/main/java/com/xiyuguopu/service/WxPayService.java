@@ -80,6 +80,7 @@ public class WxPayService {
                 int newStock = p.getStock() - item.getQuantity();
                 if (newStock < 0) newStock = 0;
                 p.setStock(newStock);
+                p.setSale((p.getSale() == null ? 0 : p.getSale()) + item.getQuantity());
                 productMapper.updateById(p);
             }
         }
