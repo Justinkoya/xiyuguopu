@@ -2,9 +2,11 @@ package com.xiyuguopu.service;
 
 import com.xiyuguopu.entity.OrderHead;
 import com.xiyuguopu.entity.OrderItem;
+import com.xiyuguopu.entity.PackageDef;
 import com.xiyuguopu.entity.Product;
 import com.xiyuguopu.mapper.OrderHeadMapper;
 import com.xiyuguopu.mapper.OrderItemMapper;
+import com.xiyuguopu.mapper.PackageDefMapper;
 import com.xiyuguopu.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class WxPayService {
     private final OrderHeadMapper orderHeadMapper;
     private final OrderItemMapper orderItemMapper;
     private final ProductMapper productMapper;
+    private final PackageDefMapper packageDefMapper;
 
     /**
      * 发起支付 — 返回 mock 支付参数
@@ -75,13 +78,26 @@ public class WxPayService {
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderItem>()
                         .eq(OrderItem::getOrderId, orderId));
         for (OrderItem item : items) {
-            Product p = productMapper.selectById(item.getProductId());
-            if (p != null) {
-                int newStock = p.getStock() - item.getQuantity();
-                if (newStock < 0) newStock = 0;
-                p.setStock(newStock);
-                p.setSale((p.getSale() == null ? 0 : p.getSale()) + item.getQuantity());
-                productMapper.updateById(p);
+            if ("PACKAGE".equals(item.getItemType())) {
+                PackageDef pkg = packageDefMapper.selectOne(
+                        new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<PackageDef>()
+                                .eq(PackageDef::getCode, item.getPackageCode()));
+                if (pkg != null) {
+                    int newStock = pkg.getStock() - item.getQuantity();
+                    if (newStock < 0) newStock = 0;
+                    pkg.setStock(newStock);
+                    pkg.setSale((pkg.getSale() == null ? 0 : pkg.getSale()) + item.getQuantity());
+                    packageDefMapper.updateById(pkg);
+                }
+            } else {
+                Product p = productMapper.selectById(item.getProductId());
+                if (p != null) {
+                    int newStock = p.getStock() - item.getQuantity();
+                    if (newStock < 0) newStock = 0;
+                    p.setStock(newStock);
+                    p.setSale((p.getSale() == null ? 0 : p.getSale()) + item.getQuantity());
+                    productMapper.updateById(p);
+                }
             }
         }
     }

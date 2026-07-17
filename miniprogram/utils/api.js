@@ -201,8 +201,11 @@ function toOrderItem(raw) {
     subtotal: raw.totalAmount,
     shipping: 0,
     totalCount: (raw.items || []).reduce((sum, i) => sum + (i.quantity || 0), 0),
-    items: (raw.items || []).map(i => ({
+    items: (raw.items || []).map((i, index) => ({
+      itemType: i.itemType || 'PRODUCT',
       productId: i.productId,
+      packageCode: i.packageCode,
+      orderItemKey: `${i.itemType || 'PRODUCT'}:${i.packageCode || i.productId || index}`,
       name: i.productName,                      // 模板用 name
       productName: i.productName,
       price: i.price,
@@ -239,12 +242,17 @@ function toPackageItem(raw) {
   return {
     _id: raw.code,
     id: raw.code,
+    productId: null,
+    itemType: 'PACKAGE',
+    packageCode: raw.code,
     code: raw.code,
     name: raw.name,
     subtitle: raw.subtitle || '',
     description: raw.subtitle || '',
     price: raw.price,
     unit: '500g',
+    stock: raw.stock,
+    sales: raw.sale || raw.sales || 0,
     image: img,
     images: [img],                               // 详情页轮播用
     tags: [],
@@ -361,7 +369,7 @@ function getPackages() {
 }
 
 function getPackageDetail(code) {
-  return getPackages().then(list => list.find(p => p.code === code) || null)
+  return get('/packages/' + code).then(toPackageItem)
 }
 
 // --- 评分卡 & 成本透明 ---
@@ -415,7 +423,9 @@ function createOrder(data) {
   return post('/orders', {
     addressId: data.addressId,
     items: (data.items || []).map(i => ({
-      productId: i.productId || i.id,
+      itemType: i.itemType || 'PRODUCT',
+      productId: (i.itemType || 'PRODUCT') === 'PACKAGE' ? null : (i.productId || i.id),
+      packageCode: i.packageCode,
       quantity: i.quantity
     })),
     remark: data.remark || ''
@@ -491,23 +501,39 @@ function updateCartBadge(items) {
   }
 }
 
+function cartKey(item) {
+  return (item.itemType || 'PRODUCT') + ':' + (item.packageCode || item.productId || item.id)
+}
+
 /** 加入购物车（已存在则累加数量） */
-function addToCart(productId, name, price, unit, image, quantity) {
+function addToCart(productId, name, price, unit, image, quantity, options) {
   const cart = getCart()
-  const existing = cart.find(i => i.productId === productId)
+  const item = {
+    itemType: (options && options.itemType) || 'PRODUCT',
+    productId,
+    packageCode: options && options.packageCode,
+    name,
+    price: price || 0,
+    unit: unit || '500g',
+    image: image || '',
+    quantity,
+    checked: true
+  }
+  item.cartKey = cartKey(item)
+  const existing = cart.find(i => (i.cartKey || cartKey(i)) === item.cartKey)
   if (existing) {
     existing.quantity += quantity
   } else {
-    cart.push({ productId, name, price: price || 0, unit: unit || '500g', image: image || '', quantity, checked: true })
+    cart.push(item)
   }
   saveCart(cart)
 }
 
 /** 结算后移除已购商品 */
-function removeCartItems(productIds) {
-  if (!productIds || productIds.length === 0) return
-  const idSet = new Set(productIds)
-  saveCart(getCart().filter(i => !idSet.has(i.productId)))
+function removeCartItems(items) {
+  if (!items || items.length === 0) return
+  const keySet = new Set(items.map(i => i.cartKey || cartKey(i)))
+  saveCart(getCart().filter(i => !keySet.has(i.cartKey || cartKey(i))))
 }
 
 module.exports = {

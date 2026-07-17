@@ -50,7 +50,9 @@ public class AdminOrderService {
 
         List<AdminOrderVO.OrderItemVO> itemVOs = items.stream()
                 .map(i -> AdminOrderVO.OrderItemVO.builder()
+                        .itemType(i.getItemType())
                         .productId(i.getProductId())
+                        .packageCode(i.getPackageCode())
                         .productName(i.getProductName())
                         .price(i.getPrice())
                         .quantity(i.getQuantity())

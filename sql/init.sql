@@ -192,6 +192,8 @@ CREATE TABLE package_def (
   name        VARCHAR(32)   NOT NULL COMMENT '套餐名',
   subtitle    VARCHAR(128)  DEFAULT '' COMMENT '副标题',
   price       DECIMAL(8,2)  NOT NULL COMMENT '套餐价',
+  stock       INT           DEFAULT 999 COMMENT '库存',
+  sale        INT           DEFAULT 0 COMMENT '销量',
   featured    TINYINT(1)    DEFAULT 0 COMMENT '是否推荐(高亮展示)',
   badge       VARCHAR(32)   DEFAULT '' COMMENT '推荐角标文字',
   extra       VARCHAR(255)  DEFAULT '' COMMENT '额外信息',
@@ -200,10 +202,10 @@ CREATE TABLE package_def (
   updated_at  DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB COMMENT='套餐定义';
 
-INSERT INTO package_def (code, icon, name, subtitle, price, featured, badge, extra, sort_order) VALUES
-('trial',  '新', '尝鲜包',   '3款经典搭配 · 首次体验',              92.7,  0, '',       '',                      1),
-('gift',   '礼', '尊享礼盒', '6款精选 · 送礼自用',                  281.4, 1, '最受欢迎', '',                   2),
-('family', '家', '家庭囤货装', '8款全包 · 够吃一个月',              327.2, 0, '',       '月均仅需327元',         3);
+INSERT INTO package_def (code, icon, name, subtitle, price, stock, sale, featured, badge, extra, sort_order) VALUES
+('trial',  '新', '尝鲜包',   '3款经典搭配 · 首次体验',              92.7,  999, 88,  0, '',       '',                      1),
+('gift',   '礼', '尊享礼盒', '6款精选 · 送礼自用',                  281.4, 999, 156, 1, '最受欢迎', '',                   2),
+('family', '家', '家庭囤货装', '8款全包 · 够吃一个月',              327.2, 999, 73,  0, '',       '月均仅需327元',         3);
 
 DROP TABLE IF EXISTS package_product;
 CREATE TABLE package_product (
@@ -219,15 +221,15 @@ CREATE TABLE package_product (
 INSERT INTO package_product (package_id, product_name, quantity, sort_order) VALUES
 (1, '纸皮核桃',   '500g', 1),
 (1, '小白杏',     '500g', 2),
-(1, '西梅干',     '500g', 3);
+(1, '喀什西梅干', '500g', 3);
 
 -- 尊享礼盒
 INSERT INTO package_product (package_id, product_name, quantity, sort_order) VALUES
 (2, '开心果',     '500g', 1),
-(2, '无花果干',   '500g', 2),
+(2, '大无花果干', '500g', 2),
 (2, '酸奶巴旦木', '500g', 3),
 (2, '小白杏',     '500g', 4),
-(2, '西梅干',     '500g', 5),
+(2, '喀什西梅干', '500g', 5),
 (2, '玫瑰切糕',   '500g', 6);
 
 -- 家庭囤货装（模糊描述）
@@ -303,13 +305,14 @@ DROP TABLE IF EXISTS order_item;
 CREATE TABLE order_item (
   id            BIGINT        AUTO_INCREMENT PRIMARY KEY,
   order_id      BIGINT        NOT NULL COMMENT '订单ID',
-  product_id    BIGINT        NOT NULL COMMENT '商品ID',
+  item_type     VARCHAR(16)   NOT NULL DEFAULT 'PRODUCT' COMMENT 'PRODUCT/PACKAGE',
+  product_id    BIGINT        COMMENT '商品ID',
+  package_code  VARCHAR(32)   DEFAULT '' COMMENT '套餐编码',
   product_name  VARCHAR(64)   NOT NULL COMMENT '商品名(冗余快照)',
   price         DECIMAL(8,2)  NOT NULL COMMENT '下单时单价',
   quantity      INT           NOT NULL DEFAULT 1 COMMENT '数量',
   subtotal      DECIMAL(8,2)  NOT NULL COMMENT '小计',
   FOREIGN KEY (order_id)   REFERENCES order_head(id),
-  FOREIGN KEY (product_id) REFERENCES product(id),
   INDEX idx_order_id (order_id)
 ) ENGINE=InnoDB COMMENT='订单明细';
 

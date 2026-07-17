@@ -19,10 +19,10 @@
   <!-- 商品 -->
   <view class="detail-section">
     <text class="detail-section-title">📦 商品信息</text>
-    <view class="detail-item" wx:for="{{order.items}}" wx:key="productId">
+    <view class="detail-item" wx:for="{{order.items}}" wx:key="orderItemKey">
       <image src="{{item.image}}" class="detail-item-img" mode="aspectFill" />
       <view class="detail-item-info">
-        <text>{{item.name}}</text>
+        <text>{{item.itemType === 'PACKAGE' ? '[套餐] ' : ''}}{{item.name}}</text>
         <text class="detail-item-meta">¥{{item.price}} × {{item.quantity}}{{item.unit}}</text>
       </view>
     </view>

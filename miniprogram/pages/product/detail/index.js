@@ -80,7 +80,11 @@ Page({
       this.data.product.price,
       this.data.product.unit,
       this.data.product.image || (this.data.product.images && this.data.product.images[0]),
-      this.data.quantity
+      this.data.quantity,
+      {
+        itemType: this.data.productType === 'gift' ? 'PACKAGE' : 'PRODUCT',
+        packageCode: this.data.productType === 'gift' ? this.data.product.code : undefined
+      }
     )
     this.setData({ showCartTip: true })
     setTimeout(() => this.setData({ showCartTip: false }), 1500)
@@ -89,13 +93,16 @@ Page({
   // 立即购买
   onBuyNow() {
     const item = {
+      itemType: this.data.productType === 'gift' ? 'PACKAGE' : 'PRODUCT',
       productId: this.data.product.id,
+      packageCode: this.data.productType === 'gift' ? this.data.product.code : undefined,
       name: this.data.product.name,
       image: this.data.product.image || (this.data.product.images && this.data.product.images[0]) || '',
       price: this.data.product.price,
       unit: this.data.product.unit || '500g',
       quantity: this.data.quantity
     }
+    item.cartKey = `${item.itemType}:${item.packageCode || item.productId}`
     const orderItems = encodeURIComponent(JSON.stringify([item]))
     wx.navigateTo({ url: `/pages/order/confirm/index?items=${orderItems}&source=direct` })
   },

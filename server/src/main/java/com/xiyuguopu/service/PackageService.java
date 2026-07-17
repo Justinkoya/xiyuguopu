@@ -23,27 +23,40 @@ public class PackageService {
         List<PackageDef> packages = packageDefMapper.selectList(
                 new LambdaQueryWrapper<PackageDef>().orderByAsc(PackageDef::getSortOrder));
 
-        return packages.stream().map(pkg -> {
-            List<PackageProduct> products = packageProductMapper.selectList(
-                    new LambdaQueryWrapper<PackageProduct>()
-                            .eq(PackageProduct::getPackageId, pkg.getId())
-                            .orderByAsc(PackageProduct::getSortOrder));
+        return packages.stream().map(this::toVO).collect(Collectors.toList());
+    }
 
-            List<String> items = products.stream()
-                    .map(p -> p.getProductName() + " " + p.getQuantity())
-                    .collect(Collectors.toList());
+    public PackageVO detail(String code) {
+        PackageDef pkg = packageDefMapper.selectOne(
+                new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, code));
+        if (pkg == null) {
+            throw new RuntimeException("套餐不存在");
+        }
+        return toVO(pkg);
+    }
 
-            return PackageVO.builder()
-                    .code(pkg.getCode())
-                    .icon(pkg.getIcon())
-                    .name(pkg.getName())
-                    .subtitle(pkg.getSubtitle())
-                    .price(pkg.getPrice())
-                    .featured(pkg.getFeatured())
-                    .badge(pkg.getBadge())
-                    .extra(pkg.getExtra())
-                    .items(items)
-                    .build();
-        }).collect(Collectors.toList());
+    private PackageVO toVO(PackageDef pkg) {
+        List<PackageProduct> products = packageProductMapper.selectList(
+                new LambdaQueryWrapper<PackageProduct>()
+                        .eq(PackageProduct::getPackageId, pkg.getId())
+                        .orderByAsc(PackageProduct::getSortOrder));
+
+        List<String> items = products.stream()
+                .map(p -> p.getProductName() + " " + p.getQuantity())
+                .collect(Collectors.toList());
+
+        return PackageVO.builder()
+                .code(pkg.getCode())
+                .icon(pkg.getIcon())
+                .name(pkg.getName())
+                .subtitle(pkg.getSubtitle())
+                .price(pkg.getPrice())
+                .stock(pkg.getStock())
+                .sale(pkg.getSale())
+                .featured(pkg.getFeatured())
+                .badge(pkg.getBadge())
+                .extra(pkg.getExtra())
+                .items(items)
+                .build();
     }
 }

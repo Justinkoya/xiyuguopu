@@ -23,8 +23,9 @@ public class CreateOrderDTO {
 
     @Data
     public static class OrderItemDTO {
-        @NotNull(message = "商品ID不能为空")
         private Long productId;
+        private String itemType = "PRODUCT";
+        private String packageCode;
 
         @NotNull(message = "数量不能为空")
         private Integer quantity;

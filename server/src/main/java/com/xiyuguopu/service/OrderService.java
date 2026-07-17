@@ -26,6 +26,7 @@ public class OrderService {
     private final OrderItemMapper orderItemMapper;
     private final AddressMapper addressMapper;
     private final ProductMapper productMapper;
+    private final PackageDefMapper packageDefMapper;
 
     /**
      * 创建订单
@@ -46,28 +47,58 @@ public class OrderService {
         snapshot.put("district", addr.getDistrict());
         snapshot.put("detail", addr.getDetail());
 
-        // 3. 校验商品并计算金额
+        // 3. 校验商品/套餐并计算金额
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (CreateOrderDTO.OrderItemDTO itemDTO : dto.getItems()) {
-            Product p = productMapper.selectById(itemDTO.getProductId());
-            if (p == null) {
-                throw new RuntimeException("商品不存在: id=" + itemDTO.getProductId());
-            }
-            if (p.getStock() == null || p.getStock() < itemDTO.getQuantity()) {
-                throw new RuntimeException("「" + p.getName() + "」库存不足");
+            int quantity = itemDTO.getQuantity() == null ? 0 : itemDTO.getQuantity();
+            if (quantity <= 0) {
+                throw new RuntimeException("商品数量不合法");
             }
 
-            OrderItem item = new OrderItem();
-            item.setProductId(p.getId());
-            item.setProductName(p.getName());
-            item.setPrice(BigDecimal.valueOf(p.getPrice()));
-            item.setQuantity(itemDTO.getQuantity());
-            item.setSubtotal(BigDecimal.valueOf(p.getPrice()).multiply(BigDecimal.valueOf(itemDTO.getQuantity())));
-            orderItems.add(item);
+            String itemType = itemDTO.getItemType() == null || itemDTO.getItemType().isBlank()
+                    ? "PRODUCT"
+                    : itemDTO.getItemType().toUpperCase();
 
-            total = total.add(item.getSubtotal());
+            if ("PACKAGE".equals(itemType)) {
+                PackageDef pkg = packageDefMapper.selectOne(
+                        new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, itemDTO.getPackageCode()));
+                if (pkg == null) {
+                    throw new RuntimeException("套餐不存在: code=" + itemDTO.getPackageCode());
+                }
+                if (pkg.getStock() == null || pkg.getStock() < quantity) {
+                    throw new RuntimeException("「" + pkg.getName() + "」库存不足");
+                }
+
+                OrderItem item = new OrderItem();
+                item.setItemType("PACKAGE");
+                item.setPackageCode(pkg.getCode());
+                item.setProductName(pkg.getName());
+                item.setPrice(BigDecimal.valueOf(pkg.getPrice()));
+                item.setQuantity(quantity);
+                item.setSubtotal(BigDecimal.valueOf(pkg.getPrice()).multiply(BigDecimal.valueOf(quantity)));
+                orderItems.add(item);
+                total = total.add(item.getSubtotal());
+            } else {
+                Product p = productMapper.selectById(itemDTO.getProductId());
+                if (p == null) {
+                    throw new RuntimeException("商品不存在: id=" + itemDTO.getProductId());
+                }
+                if (p.getStock() == null || p.getStock() < quantity) {
+                    throw new RuntimeException("「" + p.getName() + "」库存不足");
+                }
+
+                OrderItem item = new OrderItem();
+                item.setItemType("PRODUCT");
+                item.setProductId(p.getId());
+                item.setProductName(p.getName());
+                item.setPrice(BigDecimal.valueOf(p.getPrice()));
+                item.setQuantity(quantity);
+                item.setSubtotal(BigDecimal.valueOf(p.getPrice()).multiply(BigDecimal.valueOf(quantity)));
+                orderItems.add(item);
+                total = total.add(item.getSubtotal());
+            }
         }
 
         // 4. 生成订单号
@@ -118,7 +149,9 @@ public class OrderService {
             List<OrderItem> items = itemMap.getOrDefault(head.getId(), Collections.emptyList());
             List<UserOrderVO.OrderItemVO> itemVOs = items.stream()
                     .map(i -> UserOrderVO.OrderItemVO.builder()
+                            .itemType(i.getItemType())
                             .productId(i.getProductId())
+                            .packageCode(i.getPackageCode())
                             .productName(i.getProductName())
                             .price(i.getPrice())
                             .quantity(i.getQuantity())
@@ -161,7 +194,9 @@ public class OrderService {
 
         List<UserOrderVO.OrderItemVO> itemVOs = items.stream()
                 .map(i -> UserOrderVO.OrderItemVO.builder()
+                        .itemType(i.getItemType())
                         .productId(i.getProductId())
+                        .packageCode(i.getPackageCode())
                         .productName(i.getProductName())
                         .price(i.getPrice())
                         .quantity(i.getQuantity())

@@ -19,6 +19,8 @@ public class PackageDef {
     private String name;
     private String subtitle;
     private Double price;
+    private Integer stock;
+    private Integer sale;
     private Boolean featured;
     private String badge;
     private String extra;

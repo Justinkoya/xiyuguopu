@@ -18,10 +18,11 @@
 
   <!-- 商品列表 -->
   <view class="order-items">
-    <view class="order-item" wx:for="{{items}}" wx:key="productId">
+    <view class="order-item" wx:for="{{items}}" wx:key="cartKey">
       <image src="{{item.image}}" class="order-item-img" mode="aspectFill" />
       <view class="order-item-info">
         <text class="order-item-name">{{item.name}}</text>
+        <text class="order-item-unit" wx:if="{{item.itemType === 'PACKAGE'}}">精选套餐</text>
         <text class="order-item-unit">/{{item.unit}}</text>
       </view>
       <view class="order-item-right">

@@ -12,7 +12,11 @@ Page({
   },
 
   onLoad(options) {
-    const items = JSON.parse(decodeURIComponent(options.items || '[]'))
+    const items = JSON.parse(decodeURIComponent(options.items || '[]')).map(i => ({
+      ...i,
+      itemType: i.itemType || 'PRODUCT',
+      cartKey: i.cartKey || `${i.itemType || 'PRODUCT'}:${i.packageCode || i.productId || i.id}`
+    }))
     const source = options.source || 'cart'
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
     this.setData({
@@ -61,7 +65,9 @@ Page({
       const order = await api.createOrder({
         addressId: this.data.address.id,
         items: this.data.items.map(i => ({
+          itemType: i.itemType || 'PRODUCT',
           productId: i.productId,
+          packageCode: i.packageCode,
           quantity: i.quantity
         })),
         remark: this.data.remark
@@ -70,8 +76,7 @@ Page({
       wx.hideLoading()
 
       // 从购物车中移除已购买的商品（保留未勾选的）
-      const purchasedIds = this.data.items.map(i => i.productId)
-      api.removeCartItems(purchasedIds)
+      api.removeCartItems(this.data.items)
 
       wx.redirectTo({ url: `/pages/order/pay/index?id=${order.id}` })
     } catch (err) {

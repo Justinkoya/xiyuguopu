@@ -44,7 +44,9 @@ public class UserOrderVO {
     @Data
     @Builder
     public static class OrderItemVO {
+        private String itemType;
         private Long productId;
+        private String packageCode;
         private String productName;
         private BigDecimal price;
         private Integer quantity;

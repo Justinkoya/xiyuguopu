@@ -19,11 +19,12 @@
 
     <!-- 商品项 -->
     <view class="cart-list">
-      <view class="cart-item" wx:for="{{cartItems}}" wx:key="productId">
+      <view class="cart-item" wx:for="{{cartItems}}" wx:key="cartKey">
         <view class="checkbox {{item.checked ? 'checked' : ''}}" data-index="{{index}}" bindtap="onToggleCheck">✓</view>
         <image src="{{item.image}}" class="cart-item-image" mode="aspectFill" />
         <view class="cart-item-info">
           <text class="cart-item-name">{{item.name}}</text>
+          <text class="cart-item-unit" wx:if="{{item.itemType === 'PACKAGE'}}">精选套餐</text>
           <text class="cart-item-unit">/{{item.unit}}</text>
           <view class="cart-item-bottom">
             <text class="price">¥<text class="price-large">{{item.price}}</text></text>

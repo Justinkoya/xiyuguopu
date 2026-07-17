@@ -18,13 +18,24 @@
     <view class="detail-tags">
       <text class="tag tag-gold" wx:for="{{product.tags}}" wx:key="*this">{{item}}</text>
     </view>
-    <view class="origin-info">
+    <view class="origin-info" wx:if="{{productType !== 'gift'}}">
       <text>📍 {{product.origin.region}} · {{product.origin.orchard}}</text>
       <text class="origin-season">采摘季：{{product.origin.harvestSeason}}</text>
     </view>
   </view>
 
   <view class="divider"></view>
+
+  <!-- 套餐内容 -->
+  <view class="package-section" wx:if="{{productType === 'gift' && product.items}}">
+    <text class="section-label">🎁 套餐内容</text>
+    <view class="package-list">
+      <text class="package-item" wx:for="{{product.items}}" wx:key="*this">{{item}}</text>
+    </view>
+    <text class="package-note" wx:if="{{product.extra}}">{{product.extra}}</text>
+  </view>
+
+  <view class="divider" wx:if="{{productType === 'gift'}}"></view>
 
   <!-- 6星评分卡 -->
   <view class="scorecard-section" wx:if="{{product.scorecard}}">

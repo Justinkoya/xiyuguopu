@@ -19,4 +19,9 @@ public class PackageController {
     public Result<List<PackageVO>> listAll() {
         return Result.ok(packageService.listAll());
     }
+
+    @GetMapping("/packages/{code}")
+    public Result<PackageVO> detail(@PathVariable String code) {
+        return Result.ok(packageService.detail(code));
+    }
 }

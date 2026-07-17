@@ -19,9 +19,9 @@
         <text class="order-status" style="color: {{item.statusColor}}">{{item.statusText}}</text>
       </view>
       <view class="order-items">
-        <view class="order-item-row" wx:for="{{item.items}}" wx:for-item="oi" wx:key="productId">
+        <view class="order-item-row" wx:for="{{item.items}}" wx:for-item="oi" wx:key="orderItemKey">
           <image src="{{oi.image}}" class="order-item-thumb" mode="aspectFill" />
-          <text class="order-item-name">{{oi.name}}</text>
+          <text class="order-item-name">{{oi.itemType === 'PACKAGE' ? '[套餐] ' : ''}}{{oi.name}}</text>
           <text class="order-item-price">¥{{oi.price}} ×{{oi.quantity}}</text>
         </view>
       </view>

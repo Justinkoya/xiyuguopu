@@ -14,7 +14,11 @@ Page({
   },
 
   loadCart() {
-    const items = api.getCart()
+    const items = api.getCart().map(i => ({
+      ...i,
+      itemType: i.itemType || 'PRODUCT',
+      cartKey: i.cartKey || `${i.itemType || 'PRODUCT'}:${i.packageCode || i.productId || i.id}`
+    }))
     const isEmpty = items.length === 0
     this.setData({ cartItems: items, isEmpty })
     this.calcTotal()
