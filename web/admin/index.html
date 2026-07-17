@@ -116,6 +116,7 @@
     document.getElementById('nav-' + tab).classList.add('bg-white/10', 'font-bold');
     if (tab === 'dashboard') loadDashboard();
     else if (tab === 'products') loadProducts();
+    else if (tab === 'packages') loadPackages();
     else if (tab === 'orders') loadOrders();
   }
 
@@ -289,6 +290,140 @@
     } catch (e) { toast('保存失败: ' + e.message, false); }
   }
 
+  // ==================== 套餐管理 ====================
+
+  let packagePage = 1, packageKeyword = '';
+
+  async function loadPackages(page = 1) {
+    packagePage = page;
+    const params = new URLSearchParams({ page, size: 10 });
+    if (packageKeyword) params.set('keyword', packageKeyword);
+    try {
+      const data = await api('/admin/packages?' + params);
+      renderPackageTable(data);
+    } catch (e) { toast('加载套餐失败: ' + e.message, false); }
+  }
+
+  function searchPackages() {
+    packageKeyword = document.getElementById('pkg-search').value.trim();
+    loadPackages(1);
+  }
+
+  function renderPackageTable(page) {
+    const tbody = document.getElementById('pkg-tbody');
+    if (!page.records.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-8">暂无套餐</td></tr>';
+    } else {
+      tbody.innerHTML = page.records.map(p => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="py-3 px-2 text-gray-400 text-xs">${p.id}</td>
+          <td class="py-3 px-2"><span class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 font-bold inline-flex items-center justify-center">${p.icon || '套'}</span></td>
+          <td class="py-3 px-2">
+            <div class="font-medium">${p.name}</div>
+            <div class="text-xs text-gray-400">${p.code} · ${p.subtitle || '-'}</div>
+          </td>
+          <td class="py-3 px-2 font-bold">¥${formatPrice(p.price)}</td>
+          <td class="py-3 px-2 text-xs text-gray-500">${p.stock || 0}</td>
+          <td class="py-3 px-2 text-xs text-gray-500">${p.sale || 0}</td>
+          <td class="py-3 px-2">${p.featured ? '<span class="text-amber-600 text-xs">推荐</span>' : '<span class="text-gray-300 text-xs">-</span>'}</td>
+          <td class="py-3 px-2 text-xs text-gray-500">${p.sortOrder || 0}</td>
+          <td class="py-3 px-2">
+            <button onclick="editPackage(${p.id})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fa fa-edit"></i></button>
+            <button onclick="deletePackage(${p.id},'${p.name.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 text-xs"><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>`).join('');
+    }
+
+    document.getElementById('pkg-pagination').innerHTML = page.pages > 1
+      ? `<button onclick="loadPackages(${page.current - 1})" ${page.current <= 1 ? 'disabled' : ''} class="px-3 py-1 border rounded-l ${page.current <= 1 ? 'text-gray-300' : 'hover:bg-gray-100'}">上一页</button>
+         <span class="px-3 py-1 border-t border-b text-sm">${page.current} / ${page.pages}（共 ${page.total} 个）</span>
+         <button onclick="loadPackages(${page.current + 1})" ${page.current >= page.pages ? 'disabled' : ''} class="px-3 py-1 border rounded-r ${page.current >= page.pages ? 'text-gray-300' : 'hover:bg-gray-100'}">下一页</button>`
+      : '';
+  }
+
+  function openAddPackageModal() {
+    document.getElementById('pkg-modal-title').textContent = '新增套餐';
+    document.getElementById('pkg-form').reset();
+    document.getElementById('pkg-id').value = '';
+    document.getElementById('pkg-items').value = '';
+    document.getElementById('pkg-modal').classList.remove('hidden');
+  }
+
+  async function editPackage(id) {
+    try {
+      const p = await api(`/admin/packages/${id}`);
+      document.getElementById('pkg-modal-title').textContent = '编辑套餐';
+      document.getElementById('pkg-id').value = p.id;
+      document.getElementById('pkg-code').value = p.code || '';
+      document.getElementById('pkg-icon').value = p.icon || '';
+      document.getElementById('pkg-name').value = p.name || '';
+      document.getElementById('pkg-subtitle').value = p.subtitle || '';
+      document.getElementById('pkg-price').value = p.price || '';
+      document.getElementById('pkg-stock').value = p.stock || 999;
+      document.getElementById('pkg-sale').value = p.sale || 0;
+      document.getElementById('pkg-badge').value = p.badge || '';
+      document.getElementById('pkg-extra').value = p.extra || '';
+      document.getElementById('pkg-sortOrder').value = p.sortOrder || 0;
+      document.getElementById('pkg-featured').checked = !!p.featured;
+      document.getElementById('pkg-items').value = (p.items || []).map(i => `${i.productName} ${i.quantity || '500g'}`).join('\n');
+      document.getElementById('pkg-modal').classList.remove('hidden');
+    } catch (e) { toast('获取套餐失败: ' + e.message, false); }
+  }
+
+  function closePackageModal() { document.getElementById('pkg-modal').classList.add('hidden'); }
+
+  function parsePackageItems(text) {
+    return text.split(/\n+/)
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(line => {
+        const parts = line.split(/\s+/);
+        const quantity = parts.length > 1 ? parts.pop() : '500g';
+        return { productName: parts.join(' '), quantity };
+      })
+      .filter(item => item.productName);
+  }
+
+  async function savePackage() {
+    const id = document.getElementById('pkg-id').value;
+    const body = {
+      code: document.getElementById('pkg-code').value.trim(),
+      icon: document.getElementById('pkg-icon').value.trim(),
+      name: document.getElementById('pkg-name').value.trim(),
+      subtitle: document.getElementById('pkg-subtitle').value.trim(),
+      price: parseFloat(document.getElementById('pkg-price').value),
+      stock: parseInt(document.getElementById('pkg-stock').value) || 0,
+      sale: parseInt(document.getElementById('pkg-sale').value) || 0,
+      featured: document.getElementById('pkg-featured').checked,
+      badge: document.getElementById('pkg-badge').value.trim(),
+      extra: document.getElementById('pkg-extra').value.trim(),
+      sortOrder: parseInt(document.getElementById('pkg-sortOrder').value) || 0,
+      items: parsePackageItems(document.getElementById('pkg-items').value)
+    };
+    if (!body.code || !body.name || isNaN(body.price)) return toast('请填写编码、套餐名和价格', false);
+
+    try {
+      if (id) {
+        await api(`/admin/packages/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+        toast('套餐已更新');
+      } else {
+        await api('/admin/packages', { method: 'POST', body: JSON.stringify(body) });
+        toast('套餐已新增');
+      }
+      closePackageModal();
+      loadPackages(packagePage);
+    } catch (e) { toast('保存套餐失败: ' + e.message, false); }
+  }
+
+  async function deletePackage(id, name) {
+    if (!confirm(`确定要删除「${name}」吗？此操作不可撤销。`)) return;
+    try {
+      await api(`/admin/packages/${id}`, { method: 'DELETE' });
+      toast('已删除: ' + name);
+      loadPackages(packagePage);
+    } catch (e) { toast('删除套餐失败: ' + e.message, false); }
+  }
+
   // ==================== 订单管理 ====================
 
   let orderPage = 1, orderStatus = '';
@@ -445,6 +580,9 @@
       <button id="nav-products" onclick="switchTab('products')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
         <i class="fa fa-cube"></i> 商品管理
       </button>
+      <button id="nav-packages" onclick="switchTab('packages')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
+        <i class="fa fa-gift"></i> 套餐管理
+      </button>
       <button id="nav-orders" onclick="switchTab('orders')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
         <i class="fa fa-list-alt"></i> 订单管理
       </button>
@@ -524,6 +662,31 @@
       </div>
     </div>
 
+    <!-- ===== 套餐管理 ===== -->
+    <div id="tab-packages" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold">套餐管理</h2>
+        <button onclick="openAddPackageModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold transition">
+          <i class="fa fa-plus mr-1"></i> 新增套餐
+        </button>
+      </div>
+
+      <div class="flex gap-3 mb-4">
+        <input id="pkg-search" type="text" placeholder="搜索套餐名或编码..." oninput="searchPackages()"
+          class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 text-gray-400 text-xs uppercase">
+            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">图标</th><th class="py-3 px-2 text-left">套餐</th><th class="py-3 px-2 text-left">价格</th><th class="py-3 px-2 text-left">库存</th><th class="py-3 px-2 text-left">销量</th><th class="py-3 px-2 text-left">推荐</th><th class="py-3 px-2 text-left">排序</th><th class="py-3 px-2 text-left">操作</th>
+          </tr></thead>
+          <tbody id="pkg-tbody"></tbody>
+        </table>
+        <div id="pkg-pagination" class="flex justify-center p-4 text-sm"></div>
+      </div>
+    </div>
+
     <!-- ===== 订单管理 ===== -->
     <div id="tab-orders" class="tab-content hidden">
       <h2 class="text-xl font-bold mb-6">订单管理</h2>
@@ -594,6 +757,42 @@
     <div class="flex justify-end gap-3 mt-6">
       <button onclick="closeModal()" class="px-6 py-2 border rounded-lg text-sm hover:bg-gray-50">取消</button>
       <button onclick="saveProduct()" class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 套餐 Modal ==================== -->
+<div id="pkg-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+  <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h2 id="pkg-modal-title" class="text-xl font-bold">套餐信息</h2>
+      <button onclick="closePackageModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    <form id="pkg-form">
+    <input type="hidden" id="pkg-id">
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div><label class="text-gray-500 text-xs">套餐编码 *</label><input id="pkg-code" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="trial / gift / family"></div>
+      <div><label class="text-gray-500 text-xs">图标文字</label><input id="pkg-icon" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="新 / 礼 / 家"></div>
+      <div><label class="text-gray-500 text-xs">套餐名 *</label><input id="pkg-name" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+      <div><label class="text-gray-500 text-xs">价格 *</label><input id="pkg-price" type="number" step="0.1" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+      <div class="col-span-2"><label class="text-gray-500 text-xs">副标题</label><input id="pkg-subtitle" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="3款经典搭配 · 首次体验"></div>
+      <div><label class="text-gray-500 text-xs">库存</label><input id="pkg-stock" type="number" value="999" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+      <div><label class="text-gray-500 text-xs">销量</label><input id="pkg-sale" type="number" value="0" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+      <div><label class="text-gray-500 text-xs">推荐角标</label><input id="pkg-badge" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="最受欢迎"></div>
+      <div><label class="text-gray-500 text-xs">排序</label><input id="pkg-sortOrder" type="number" value="0" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+      <div class="col-span-2"><label class="text-gray-500 text-xs">额外信息</label><input id="pkg-extra" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="月均仅需327元"></div>
+      <div class="col-span-2">
+        <label class="text-gray-500 text-xs">套餐内容（每行一个：商品名 规格）</label>
+        <textarea id="pkg-items" rows="5" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="纸皮核桃 500g&#10;小白杏 500g&#10;喀什西梅干 500g"></textarea>
+      </div>
+      <div class="col-span-2 flex items-center gap-4">
+        <label class="flex items-center gap-1 text-xs"><input id="pkg-featured" type="checkbox"> 首页推荐</label>
+      </div>
+    </div>
+    </form>
+    <div class="flex justify-end gap-3 mt-6">
+      <button onclick="closePackageModal()" class="px-6 py-2 border rounded-lg text-sm hover:bg-gray-50">取消</button>
+      <button onclick="savePackage()" class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold">保存</button>
     </div>
   </div>
 </div>
