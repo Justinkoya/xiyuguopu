@@ -65,7 +65,7 @@ function request(method, path, data) {
             if (body.code === 200) {
               resolve(body.data)
             } else {
-              reject(new Error(body.msg || '请求失败'))
+              reject(new Error(body.message || body.msg || '请求失败'))
             }
           } else {
             resolve(body)

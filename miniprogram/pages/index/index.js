@@ -117,7 +117,11 @@ Page({
   },
 
   onTapGiftSet(e) {
-    const code = e.currentTarget.dataset.code
+    const code = e.currentTarget.dataset.code || e.currentTarget.dataset.id
+    if (!code) {
+      wx.showToast({ title: '套餐信息缺失', icon: 'none' })
+      return
+    }
     wx.navigateTo({ url: `/pages/product/detail/index?id=${code}&type=gift` })
   },
 
