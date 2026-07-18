@@ -5,6 +5,7 @@ Page({
     categories: [],
     activeCategoryCode: '',
     products: [],
+    isGiftCategory: false,
     sortType: 'default',
     loading: true
   },
@@ -35,9 +36,12 @@ Page({
   async loadProducts(categoryCode) {
     this.setData({ loading: true })
     try {
-      const products = await api.getProducts(categoryCode)
+      const isGiftCategory = categoryCode === 'gift'
+      const products = isGiftCategory
+        ? await api.getPackages()
+        : await api.getProducts(categoryCode)
       const sorted = this.applySort(products)
-      this.setData({ products: sorted, loading: false })
+      this.setData({ products: sorted, isGiftCategory, loading: false })
     } catch (err) {
       console.error('加载商品失败:', err)
       this.setData({ loading: false })
@@ -75,6 +79,7 @@ Page({
 
   onTapProduct(e) {
     const id = e.currentTarget.dataset.id
-    wx.navigateTo({ url: `/pages/product/detail/index?id=${id}` })
+    const type = e.currentTarget.dataset.type
+    wx.navigateTo({ url: `/pages/product/detail/index?id=${id}${type ? '&type=' + type : ''}` })
   }
 })

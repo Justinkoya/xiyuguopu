@@ -32,18 +32,19 @@
           wx:key="_id"
           class="product-item card"
           data-id="{{item._id}}"
+          data-type="{{item.itemType === 'PACKAGE' ? 'gift' : ''}}"
           bindtap="onTapProduct"
         >
           <image src="{{item.images[0]}}" class="product-img" mode="aspectFill" lazy-load />
-          <view class="badge badge-red" wx:if="{{item.priceAdvantage}}">低于1688价</view>
+          <view class="badge badge-red" wx:if="{{item.priceAdvantage || item.isHot}}">{{item.badge || '精选礼品'}}</view>
           <view class="product-body">
             <text class="product-name">{{item.name}}</text>
             <view class="product-tags">
               <text class="tag tag-green" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
             </view>
             <view class="product-meta">
-              <text class="origin-tag">📍{{item.origin.region}}</text>
-              <text class="score-tag">⭐{{item.scorecard.overall}}</text>
+              <text class="origin-tag">{{item.itemType === 'PACKAGE' ? '🎁 精选套餐' : '📍' + item.origin.region}}</text>
+              <text class="score-tag">{{item.itemType === 'PACKAGE' ? item.packageSummary : '⭐' + item.scorecard.overall}}</text>
             </view>
             <view class="product-price-row">
               <text class="price">¥<text class="price-num">{{item.price}}</text></text>

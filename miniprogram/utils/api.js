@@ -152,6 +152,12 @@ function parseOrigin(extra) {
 
 function toCategoryItem(raw) {
   if (!raw) return null
+  const colorMap = {
+    blue: '#2563EB',
+    amber: '#D88831',
+    green: '#059669',
+    red: '#B64A2E'
+  }
   return {
     _id: raw.id,
     id: raw.id,
@@ -159,7 +165,7 @@ function toCategoryItem(raw) {
     name: raw.name,
     description: '',
     slug: raw.code,
-    color: raw.themeColor || '#C4774A',
+    color: colorMap[raw.themeColor] || raw.themeColor || '#C4774A',
     icon: '',
     products: []
   }

@@ -79,9 +79,10 @@ Page({
     try {
       // 获取分类
       const categories = await api.getCategories()
+      const productCategories = categories.filter(cat => cat.code !== 'gift')
 
       // 获取每个分类下的商品（最多3个）
-      const seriesPromises = categories.map(async (cat) => {
+      const seriesPromises = productCategories.map(async (cat) => {
         const products = await api.getProducts(cat.code)
         return { ...cat, products: products.slice(0, 3) }
       })

@@ -26,7 +26,8 @@ CREATE TABLE category (
 INSERT INTO category (name, code, theme_color, sort_order) VALUES
 ('尝鲜精选', 'trial',      'blue',  1),
 ('西域珍品', 'premium',    'amber', 2),
-('口碑好物', 'bestseller', 'green', 3);
+('口碑好物', 'bestseller', 'green', 3),
+('精选礼品', 'gift',       'red',   4);
 
 -- ================================================================
 -- 2. 商品
