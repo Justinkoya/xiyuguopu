@@ -114,10 +114,15 @@ Page({
 
   // 分享
   onShareAppMessage() {
+    const product = this.data.product || {}
+    const isGift = this.data.productType === 'gift'
+    const id = isGift ? product.code : product.id
+    const unit = product.unit || (isGift ? '套' : '500g')
+    const typeParam = isGift ? '&type=gift' : ''
     return {
-      title: `${this.data.product?.name || '西域果脯'} - ¥${this.data.product?.price || 0}/500g`,
-      path: `/pages/product/detail/index?id=${this.data.product?.id}`,
-      imageUrl: this.data.product?.image || ''
+      title: `${product.name || '西域果脯'} - ¥${product.price || 0}/${unit}`,
+      path: `/pages/product/detail/index?id=${id || ''}${typeParam}`,
+      imageUrl: product.image || ''
     }
   }
 })

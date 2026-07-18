@@ -18,6 +18,11 @@
     <view class="detail-tags">
       <text class="tag tag-gold" wx:for="{{product.tags}}" wx:key="*this">{{item}}</text>
     </view>
+    <view class="detail-meta-row">
+      <text wx:if="{{product.sales > 0}}">已售 {{product.sales}}</text>
+      <text wx:if="{{product.hasStock}}">库存 {{product.stock}}</text>
+      <text wx:if="{{productType === 'gift' && product.packageSummary}}">{{product.packageSummary}}</text>
+    </view>
     <view class="origin-info" wx:if="{{productType !== 'gift'}}">
       <text>📍 {{product.origin.region}} · {{product.origin.orchard}}</text>
       <text class="origin-season">采摘季：{{product.origin.harvestSeason}}</text>
@@ -27,12 +32,29 @@
   <view class="divider"></view>
 
   <!-- 套餐内容 -->
-  <view class="package-section" wx:if="{{productType === 'gift' && product.items}}">
+  <view class="package-section" wx:if="{{productType === 'gift'}}">
     <text class="section-label">🎁 套餐内容</text>
-    <view class="package-list">
-      <text class="package-item" wx:for="{{product.items}}" wx:key="*this">{{item}}</text>
+    <text class="package-desc" wx:if="{{product.description}}">{{product.description}}</text>
+    <view class="package-list" wx:if="{{product.hasPackageItems}}">
+      <view class="package-item" wx:for="{{product.packageItems}}" wx:key="text">
+        <text class="package-item-index">{{index + 1}}</text>
+        <text class="package-item-name">{{item.name}}</text>
+        <text class="package-item-qty">{{item.quantity}}</text>
+      </view>
     </view>
     <text class="package-note" wx:if="{{product.extra}}">{{product.extra}}</text>
+  </view>
+
+  <view class="divider" wx:if="{{productType === 'gift'}}"></view>
+
+  <view class="package-section" wx:if="{{productType === 'gift' && product.packageFeatures}}">
+    <text class="section-label">✨ 套餐优势</text>
+    <view class="package-feature-grid">
+      <view class="package-feature" wx:for="{{product.packageFeatures}}" wx:key="title">
+        <text class="package-feature-title">{{item.title}}</text>
+        <text class="package-feature-desc">{{item.desc}}</text>
+      </view>
+    </view>
   </view>
 
   <view class="divider" wx:if="{{productType === 'gift'}}"></view>
@@ -53,7 +75,7 @@
     </view>
   </view>
 
-  <view class="divider"></view>
+  <view class="divider" wx:if="{{product.scorecard}}"></view>
 
   <!-- 价格透明 -->
   <view class="price-breakdown" wx:if="{{product.costBreakdown}}">
@@ -70,7 +92,7 @@
     <text class="cost-note">💡 同行普遍加价40-60%，我们控制在20-26%</text>
   </view>
 
-  <view class="divider"></view>
+  <view class="divider" wx:if="{{product.costBreakdown}}"></view>
 
   <!-- 配料信息 -->
   <view class="ingredients-section" wx:if="{{product.ingredients}}">

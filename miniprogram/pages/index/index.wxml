@@ -107,7 +107,14 @@
           <view class="gift-info">
             <text class="gift-name">{{item.name}}</text>
             <text class="gift-desc">{{item.description}}</text>
-            <text class="price">¥<text class="price-large">{{item.price}}</text></text>
+            <view class="gift-tags">
+              <text class="tag tag-gold" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+            <view class="gift-price-row">
+              <text class="price">¥<text class="price-large">{{item.price}}</text></text>
+              <text class="product-unit">/{{item.unit}}</text>
+            </view>
+            <text class="gift-sales" wx:if="{{item.sales > 0}}">已售 {{item.sales}}</text>
           </view>
         </view>
       </view>

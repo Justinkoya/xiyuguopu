@@ -122,6 +122,7 @@ function toProductItem(raw) {
     highlightText: raw.highlightText,
     extra: raw.extra,
     stock: raw.stock,
+    hasStock: raw.stock !== undefined && raw.stock !== null,
     isOnSale: raw.isOnSale,
     // 兼容旧模板字段
     subtitle: raw.description || '',               // 详情页用 subtitle
@@ -233,6 +234,31 @@ function toOrderItem(raw) {
 function toPackageItem(raw) {
   if (!raw) return null
   const img = imageUrl(raw.image, imageUrl('assortment.png'))
+  const packageItems = (raw.items || []).map(item => {
+    if (typeof item === 'string') {
+      const parts = item.trim().split(/\s+/)
+      const quantity = parts.length > 1 ? parts.pop() : ''
+      return {
+        name: parts.join(' ') || item,
+        quantity,
+        text: item
+      }
+    }
+    const name = item.productName || item.name || ''
+    const quantity = item.quantity || ''
+    return {
+      name,
+      quantity,
+      text: `${name}${quantity ? ' ' + quantity : ''}`
+    }
+  }).filter(item => item.name)
+  const itemCount = packageItems.length
+  const tags = [
+    raw.badge || '精选套餐',
+    itemCount ? `${itemCount}款组合` : '',
+    raw.featured ? '首页推荐' : '',
+    '一键下单'
+  ].filter(Boolean)
   return {
     _id: raw.code,
     id: raw.code,
@@ -244,17 +270,27 @@ function toPackageItem(raw) {
     subtitle: raw.subtitle || '',
     description: raw.subtitle || '',
     price: raw.price,
-    unit: '500g',
+    unit: '套',
     stock: raw.stock,
+    hasStock: raw.stock !== undefined && raw.stock !== null,
     sales: raw.sale || raw.sales || 0,
     image: img,
     images: [img],                               // 详情页轮播用
-    tags: [],
+    tags,
     origin: {},
     scorecard: null,                             // 套餐无评分
     costBreakdown: null,
     ingredients: null,
-    items: raw.items || [],
+    items: packageItems.map(item => item.text),
+    packageItems,
+    itemCount,
+    hasPackageItems: itemCount > 0,
+    packageSummary: itemCount ? `${itemCount}款新疆干果组合` : '新疆干果组合',
+    packageFeatures: [
+      { title: '搭配省心', desc: '按场景配好，不用反复挑选' },
+      { title: '整套购买', desc: '下单、购物车、支付都按套餐处理' },
+      { title: '产地直发', desc: '和普通商品使用同一套图片与库存' }
+    ],
     badge: raw.badge,
     isHot: raw.featured || !!raw.badge,
     extra: raw.extra

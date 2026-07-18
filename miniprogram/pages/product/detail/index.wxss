@@ -36,6 +36,14 @@
 .detail-tags {
   margin-bottom: 16rpx;
 }
+.detail-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx 20rpx;
+  margin-bottom: 16rpx;
+  font-size: 24rpx;
+  color: #999999;
+}
 .origin-info {
   display: flex;
   flex-direction: column;
@@ -174,23 +182,78 @@
   padding: 32rpx;
   background-color: #FFFFFF;
 }
+.package-desc {
+  display: block;
+  font-size: 26rpx;
+  color: #777777;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
 .package-list {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
 }
 .package-item {
-  font-size: 28rpx;
-  color: #333333;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   padding: 18rpx 22rpx;
   background-color: #FFF8E8;
   border-radius: var(--radius-md);
+}
+.package-item-index {
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  text-align: center;
+  border-radius: 50%;
+  background-color: var(--color-gold);
+  color: var(--color-dark);
+  font-size: 22rpx;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.package-item-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #333333;
+}
+.package-item-qty {
+  font-size: 24rpx;
+  color: var(--color-sand);
+  flex-shrink: 0;
 }
 .package-note {
   display: block;
   margin-top: 18rpx;
   font-size: 24rpx;
   color: var(--color-sand);
+}
+.package-feature-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14rpx;
+}
+.package-feature {
+  padding: 20rpx 22rpx;
+  background-color: #FFFEF5;
+  border-radius: var(--radius-md);
+  border: 1rpx solid #F3E1C3;
+}
+.package-feature-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin-bottom: 6rpx;
+}
+.package-feature-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #777777;
+  line-height: 1.5;
 }
 
 /* ========== 底部操作栏 ========== */

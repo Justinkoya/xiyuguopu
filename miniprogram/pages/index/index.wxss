@@ -218,6 +218,21 @@
   color: #999999;
   margin: 4rpx 0 12rpx;
 }
+.gift-tags {
+  min-height: 40rpx;
+  margin-bottom: 10rpx;
+}
+.gift-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+  margin-bottom: 6rpx;
+}
+.gift-sales {
+  display: block;
+  font-size: 22rpx;
+  color: #999999;
+}
 
 /* ========== 溯源旅程 ========== */
 .journey-section {
