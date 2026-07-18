@@ -16,6 +16,7 @@ public class PackageDef {
 
     private String code;
     private String icon;
+    private String image;
     private String name;
     private String subtitle;
     private Double price;

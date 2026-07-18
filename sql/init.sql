@@ -189,6 +189,7 @@ CREATE TABLE package_def (
   id          BIGINT        AUTO_INCREMENT PRIMARY KEY,
   code        VARCHAR(16)   NOT NULL UNIQUE COMMENT '套餐编码(trial/gift/family)',
   icon        VARCHAR(8)    DEFAULT '' COMMENT '图标文字',
+  image       VARCHAR(255)  DEFAULT '' COMMENT '图片路径',
   name        VARCHAR(32)   NOT NULL COMMENT '套餐名',
   subtitle    VARCHAR(128)  DEFAULT '' COMMENT '副标题',
   price       DECIMAL(8,2)  NOT NULL COMMENT '套餐价',
@@ -202,10 +203,10 @@ CREATE TABLE package_def (
   updated_at  DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB COMMENT='套餐定义';
 
-INSERT INTO package_def (code, icon, name, subtitle, price, stock, sale, featured, badge, extra, sort_order) VALUES
-('trial',  '新', '尝鲜包',   '3款经典搭配 · 首次体验',              92.7,  999, 88,  0, '',       '',                      1),
-('gift',   '礼', '尊享礼盒', '6款精选 · 送礼自用',                  281.4, 999, 156, 1, '最受欢迎', '',                   2),
-('family', '家', '家庭囤货装', '8款全包 · 够吃一个月',              327.2, 999, 73,  0, '',       '月均仅需327元',         3);
+INSERT INTO package_def (code, icon, image, name, subtitle, price, stock, sale, featured, badge, extra, sort_order) VALUES
+('trial',  '新', 'images/assortment.png', '尝鲜包',     '3款经典搭配 · 首次体验', 92.7,  999, 88,  0, '',       '',              1),
+('gift',   '礼', 'images/gift-scene.png', '尊享礼盒',   '6款精选 · 送礼自用',     281.4, 999, 156, 1, '最受欢迎', '',           2),
+('family', '家', 'images/assortment.png', '家庭囤货装', '8款全包 · 够吃一个月',   327.2, 999, 73,  0, '',       '月均仅需327元', 3);
 
 DROP TABLE IF EXISTS package_product;
 CREATE TABLE package_product (

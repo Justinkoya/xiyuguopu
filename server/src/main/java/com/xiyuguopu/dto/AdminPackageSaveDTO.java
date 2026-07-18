@@ -18,6 +18,8 @@ public class AdminPackageSaveDTO {
 
     private String icon;
 
+    private String image;
+
     @NotBlank(message = "套餐名不能为空")
     private String name;
 

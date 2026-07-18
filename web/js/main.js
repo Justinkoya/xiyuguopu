@@ -215,11 +215,14 @@ function errorHTML(msg) {
       const imgMT = pkg.featured ? ' mt-2' : '';
       const btnClass = pkg.code === 'gift' ? 'bg-b-red text-white hover:bg-red-800 shadow-xl shadow-b-red/20' : 'bg-b-dark text-white hover:bg-gray-800';
       const extraHTML = pkg.extra ? `<p class="text-green-600 font-medium pt-1">${pkg.extra}</p>` : '';
+      const imageHTML = pkg.image
+        ? `<div class="relative mb-4 overflow-hidden rounded-2xl h-44${imgMT}"><img src="${pkg.image}" alt="${pkg.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy"></div>`
+        : `<div class="text-5xl mb-4${imgMT}">${pkg.icon}</div>`;
 
       return `
-      <div class="bg-b-cream rounded-3xl p-8 card-hover text-center${featuredClass}">
+      <div class="bg-b-cream rounded-3xl p-8 card-hover text-center group${featuredClass}">
         ${badgeHTML}
-        <div class="text-5xl mb-4${imgMT}">${pkg.icon}</div>
+        ${imageHTML}
         <h3 class="font-bold text-2xl mb-2">${pkg.name}</h3>
         <p class="text-gray-400 text-sm mb-2">${pkg.subtitle || ''}</p>
         <div class="text-4xl font-black ${pkg.code === 'gift' ? 'text-b-red' : 'text-b-dark'} mb-6">${pkg.price}</div>

@@ -48,6 +48,7 @@ public class PackageService {
         return PackageVO.builder()
                 .code(pkg.getCode())
                 .icon(pkg.getIcon())
+                .image(pkg.getImage())
                 .name(pkg.getName())
                 .subtitle(pkg.getSubtitle())
                 .price(pkg.getPrice())

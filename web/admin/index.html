@@ -53,6 +53,16 @@
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
+  function escapeHtml(text) {
+    return String(text || '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[ch]));
+  }
+
   function logout() {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
@@ -317,7 +327,7 @@
       tbody.innerHTML = page.records.map(p => `
         <tr class="border-b border-gray-100 hover:bg-gray-50">
           <td class="py-3 px-2 text-gray-400 text-xs">${p.id}</td>
-          <td class="py-3 px-2"><span class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 font-bold inline-flex items-center justify-center">${p.icon || '套'}</span></td>
+          <td class="py-3 px-2">${packageThumbHTML(p)}</td>
           <td class="py-3 px-2">
             <div class="font-medium">${p.name}</div>
             <div class="text-xs text-gray-400">${p.code} · ${p.subtitle || '-'}</div>
@@ -341,6 +351,13 @@
       : '';
   }
 
+  function packageThumbHTML(p) {
+    const fallback = `<span class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 font-bold inline-flex items-center justify-center">${escapeHtml(p.icon || '套')}</span>`;
+    if (!p.image) return fallback;
+    const fallbackAttr = fallback.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+    return `<img src="../${escapeHtml(p.image)}" class="w-10 h-10 rounded-lg object-cover" onerror="this.outerHTML='${fallbackAttr}'">`;
+  }
+
   function openAddPackageModal() {
     document.getElementById('pkg-modal-title').textContent = '新增套餐';
     document.getElementById('pkg-form').reset();
@@ -356,6 +373,7 @@
       document.getElementById('pkg-id').value = p.id;
       document.getElementById('pkg-code').value = p.code || '';
       document.getElementById('pkg-icon').value = p.icon || '';
+      document.getElementById('pkg-image').value = p.image || '';
       document.getElementById('pkg-name').value = p.name || '';
       document.getElementById('pkg-subtitle').value = p.subtitle || '';
       document.getElementById('pkg-price').value = p.price || '';
@@ -389,6 +407,7 @@
     const body = {
       code: document.getElementById('pkg-code').value.trim(),
       icon: document.getElementById('pkg-icon').value.trim(),
+      image: document.getElementById('pkg-image').value.trim(),
       name: document.getElementById('pkg-name').value.trim(),
       subtitle: document.getElementById('pkg-subtitle').value.trim(),
       price: parseFloat(document.getElementById('pkg-price').value),
@@ -679,7 +698,7 @@
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <table class="w-full text-sm">
           <thead><tr class="bg-gray-50 text-gray-400 text-xs uppercase">
-            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">图标</th><th class="py-3 px-2 text-left">套餐</th><th class="py-3 px-2 text-left">价格</th><th class="py-3 px-2 text-left">库存</th><th class="py-3 px-2 text-left">销量</th><th class="py-3 px-2 text-left">推荐</th><th class="py-3 px-2 text-left">排序</th><th class="py-3 px-2 text-left">操作</th>
+            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">图片</th><th class="py-3 px-2 text-left">套餐</th><th class="py-3 px-2 text-left">价格</th><th class="py-3 px-2 text-left">库存</th><th class="py-3 px-2 text-left">销量</th><th class="py-3 px-2 text-left">推荐</th><th class="py-3 px-2 text-left">排序</th><th class="py-3 px-2 text-left">操作</th>
           </tr></thead>
           <tbody id="pkg-tbody"></tbody>
         </table>
@@ -773,6 +792,7 @@
     <div class="grid grid-cols-2 gap-4 text-sm">
       <div><label class="text-gray-500 text-xs">套餐编码 *</label><input id="pkg-code" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="trial / gift / family"></div>
       <div><label class="text-gray-500 text-xs">图标文字</label><input id="pkg-icon" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="新 / 礼 / 家"></div>
+      <div class="col-span-2"><label class="text-gray-500 text-xs">图片路径</label><input id="pkg-image" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="images/assortment.png"></div>
       <div><label class="text-gray-500 text-xs">套餐名 *</label><input id="pkg-name" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
       <div><label class="text-gray-500 text-xs">价格 *</label><input id="pkg-price" type="number" step="0.1" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
       <div class="col-span-2"><label class="text-gray-500 text-xs">副标题</label><input id="pkg-subtitle" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="3款经典搭配 · 首次体验"></div>

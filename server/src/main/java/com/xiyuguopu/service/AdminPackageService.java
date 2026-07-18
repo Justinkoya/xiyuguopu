@@ -116,6 +116,7 @@ public class AdminPackageService {
                 .id(pkg.getId())
                 .code(pkg.getCode())
                 .icon(pkg.getIcon())
+                .image(pkg.getImage())
                 .name(pkg.getName())
                 .subtitle(pkg.getSubtitle())
                 .price(pkg.getPrice())

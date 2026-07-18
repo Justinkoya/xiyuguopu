@@ -232,13 +232,7 @@ function toOrderItem(raw) {
 
 function toPackageItem(raw) {
   if (!raw) return null
-  // 套餐图: code 对应的图片文件名
-  const pkgImages = {
-    trial: imageUrl('assortment.png'),
-    gift: imageUrl('gift-scene.png'),
-    family: imageUrl('assortment.png')
-  }
-  const img = pkgImages[raw.code] || imageUrl('assortment.png')
+  const img = imageUrl(raw.image, imageUrl('assortment.png'))
   return {
     _id: raw.code,
     id: raw.code,
