@@ -23,7 +23,12 @@ public class ProductController {
      * 不传 categoryCode 时返回全部上架商品
      */
     @GetMapping("/products")
-    public Result<List<Product>> listAll(@RequestParam(required = false) String categoryCode) {
+    public Result<List<Product>> listAll(
+            @RequestParam(required = false) String categoryCode,
+            @RequestParam(required = false) Boolean featured) {
+        if (Boolean.TRUE.equals(featured)) {
+            return Result.ok(productService.getFeatured());
+        }
         return Result.ok(productService.getByCategoryCode(categoryCode));
     }
 

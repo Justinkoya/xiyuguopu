@@ -29,6 +29,7 @@ public class AdminProductSaveDTO {
     private List<String> tags;
 
     private String description;
+    private Boolean featured = false;
     private Boolean highlight = false;
     private String highlightText;
     private String extra;

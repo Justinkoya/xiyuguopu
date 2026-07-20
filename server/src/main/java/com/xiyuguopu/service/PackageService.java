@@ -26,6 +26,15 @@ public class PackageService {
         return packages.stream().map(this::toVO).collect(Collectors.toList());
     }
 
+    public List<PackageVO> listFeatured() {
+        List<PackageDef> packages = packageDefMapper.selectList(
+                new LambdaQueryWrapper<PackageDef>()
+                        .eq(PackageDef::getFeatured, true)
+                        .orderByDesc(PackageDef::getCreatedAt));
+
+        return packages.stream().map(this::toVO).collect(Collectors.toList());
+    }
+
     public PackageVO detail(String code) {
         PackageDef pkg = packageDefMapper.selectOne(
                 new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, code));

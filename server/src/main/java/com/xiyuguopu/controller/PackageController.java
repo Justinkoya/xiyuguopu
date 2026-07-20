@@ -16,7 +16,10 @@ public class PackageController {
     private final PackageService packageService;
 
     @GetMapping("/packages")
-    public Result<List<PackageVO>> listAll() {
+    public Result<List<PackageVO>> listAll(@RequestParam(required = false) Boolean featured) {
+        if (Boolean.TRUE.equals(featured)) {
+            return Result.ok(packageService.listFeatured());
+        }
         return Result.ok(packageService.listAll());
     }
 

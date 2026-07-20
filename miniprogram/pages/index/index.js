@@ -28,7 +28,6 @@ Page({
       { icon: '⭐', text: '6星标准', path: '/pages/story/index?tab=standard' },
       { icon: '💰', text: '价格透明', path: '/pages/story/index?tab=price' }
     ],
-    series: [],
     featuredProducts: [],
     giftSets: [],
     personas: [
@@ -77,21 +76,12 @@ Page({
 
   async loadData() {
     try {
-      // 获取分类
-      const categories = await api.getCategories()
-      const productCategories = categories.filter(cat => cat.code !== 'gift')
+      const [featuredProducts, giftSets] = await Promise.all([
+        api.getFeaturedProducts(),
+        api.getFeaturedPackages()
+      ])
 
-      // 获取每个分类下的商品（最多3个）
-      const seriesPromises = productCategories.map(async (cat) => {
-        const products = await api.getProducts(cat.code)
-        return { ...cat, products: products.slice(0, 3) }
-      })
-      const series = await Promise.all(seriesPromises)
-
-      // 获取套餐
-      const giftSets = await api.getPackages()
-
-      this.setData({ series, giftSets })
+      this.setData({ featuredProducts, giftSets })
     } catch (err) {
       console.error('加载首页数据失败:', err)
       wx.showToast({ title: '加载失败，请确认后端已启动', icon: 'none' })

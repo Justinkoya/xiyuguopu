@@ -28,6 +28,7 @@ public class Product {
     private List<String> tags;
 
     private String description;
+    private Boolean featured;
     private Boolean highlight;
     private String highlightText;
     private String extra;

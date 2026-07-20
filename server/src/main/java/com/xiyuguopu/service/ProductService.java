@@ -51,4 +51,12 @@ public class ProductService {
                         .eq(Product::getIsOnSale, true)
                         .orderByAsc(Product::getSortOrder));
     }
+
+    public List<Product> getFeatured() {
+        return productMapper.selectList(
+                new LambdaQueryWrapper<Product>()
+                        .eq(Product::getIsOnSale, true)
+                        .eq(Product::getFeatured, true)
+                        .orderByDesc(Product::getCreatedAt));
+    }
 }

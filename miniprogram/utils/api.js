@@ -118,6 +118,7 @@ function toProductItem(raw) {
     tags: raw.tags || [],
     badge: raw.badge,
     description: raw.description,
+    featured: raw.featured,
     highlight: raw.highlight,
     highlightText: raw.highlightText,
     extra: raw.extra,
@@ -399,6 +400,10 @@ function getProductDetail(id) {
   return get('/products/' + id).then(toProductItem)
 }
 
+function getFeaturedProducts() {
+  return get('/products', { featured: true }).then(list => (list || []).map(toProductItem))
+}
+
 // --- 套餐 ---
 function getPackages() {
   return get('/packages').then(list => (list || []).map(toPackageItem))
@@ -406,6 +411,10 @@ function getPackages() {
 
 function getPackageDetail(code) {
   return get('/packages/' + code).then(toPackageItem)
+}
+
+function getFeaturedPackages() {
+  return get('/packages', { featured: true }).then(list => (list || []).map(toPackageItem))
 }
 
 // --- 评分卡 & 成本透明 ---
@@ -582,9 +591,11 @@ module.exports = {
   // 商品
   getProducts,
   getProductDetail,
+  getFeaturedProducts,
   // 套餐
   getPackages,
   getPackageDetail,
+  getFeaturedPackages,
   // 地址
   getAddresses,
   getAddressDetail,

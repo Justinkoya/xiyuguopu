@@ -40,23 +40,23 @@
 
   <view class="divider"></view>
 
-  <!-- 产品系列 -->
-  <view class="section" wx:for="{{series}}" wx:key="_id">
+  <!-- 首页推荐商品 -->
+  <view class="section" wx:if="{{featuredProducts.length > 0}}">
     <view class="section-header">
       <view class="section-title-row">
-        <text class="section-icon">{{item.icon || '🥜'}}</text>
+        <text class="section-icon">⭐</text>
         <view>
-          <text class="section-title">{{item.name}}</text>
-          <text class="section-desc">{{item.description}}</text>
+          <text class="section-title">首页推荐</text>
+          <text class="section-desc">后台勾选推荐后展示在这里</text>
         </view>
       </view>
-      <text class="section-more" data-code="{{item.code}}" bindtap="onTapCategory">查看更多 ›</text>
+      <text class="section-more" data-code="" bindtap="onTapCategory">查看更多 ›</text>
     </view>
 
-    <scroll-view scroll-x class="product-scroll" wx:if="{{item.products.length > 0}}">
+    <scroll-view scroll-x class="product-scroll">
       <view class="product-scroll-inner">
         <view
-          wx:for="{{item.products}}"
+          wx:for="{{featuredProducts}}"
           wx:for-item="product"
           wx:key="_id"
           class="product-card card"
