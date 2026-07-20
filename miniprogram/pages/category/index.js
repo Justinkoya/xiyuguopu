@@ -4,6 +4,7 @@ Page({
   data: {
     categories: [],
     activeCategoryCode: '',
+    productsRaw: [],
     products: [],
     isGiftCategory: false,
     sortType: 'default',
@@ -40,8 +41,9 @@ Page({
       const products = isGiftCategory
         ? await api.getPackages()
         : await api.getProducts(categoryCode)
-      const sorted = this.applySort(products)
-      this.setData({ products: sorted, isGiftCategory, loading: false })
+      const productsRaw = [...products]
+      const sorted = this.applySort(productsRaw, this.data.sortType)
+      this.setData({ productsRaw, products: sorted, isGiftCategory, loading: false })
     } catch (err) {
       console.error('加载商品失败:', err)
       this.setData({ loading: false })
@@ -60,20 +62,21 @@ Page({
   onTapSort(e) {
     const type = e.currentTarget.dataset.type
     this.setData({ sortType: type })
-    const products = this.applySort([...this.data.products])
+    const products = this.applySort(this.data.productsRaw, type)
     this.setData({ products })
   },
 
-  applySort(products) {
-    switch (this.data.sortType) {
+  applySort(products, sortType = this.data.sortType) {
+    const list = [...products]
+    switch (sortType) {
       case 'price-asc':
-        return products.sort((a, b) => a.price - b.price)
+        return list.sort((a, b) => a.price - b.price)
       case 'price-desc':
-        return products.sort((a, b) => b.price - a.price)
+        return list.sort((a, b) => b.price - a.price)
       case 'sales':
-        return products.sort((a, b) => (b.sales || 0) - (a.sales || 0))
+        return list.sort((a, b) => (b.sales || 0) - (a.sales || 0))
       default:
-        return products
+        return list
     }
   },
 
