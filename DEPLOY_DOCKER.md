@@ -1,34 +1,32 @@
-# 西域果铺 Docker 并行测试部署
+# 西域果铺全 Docker 部署
 
-本指南用于在阿里云 Linux 3 上先用 `8088` 端口运行 Docker 版，不影响当前宿主机 Nginx 的 `80` 端口。
+本指南用于清空后的新服务器部署。Compose 会启动 `mariadb`、`server`、`nginx` 三个容器，首次启动自动导入 `sql/init.sql`。
 
-## 1. 安装 Docker
+## 1. 安装运行环境
+
+阿里云 Linux 3 推荐使用 Podman：
 
 ```bash
-dnf install -y docker docker-compose-plugin
-systemctl enable --now docker
-docker version
-docker compose version
+dnf install -y git podman podman-docker podman-compose
+podman version
+podman-compose --version
 ```
 
-阿里云安全组临时放行 TCP `8088`。
+阿里云安全组放行：
+
+```text
+TCP 80   0.0.0.0/0
+TCP 22   你的登录来源 IP，或临时 0.0.0.0/0
+```
+
+不要放行 `3306`。
 
 ## 2. 拉取代码
 
 ```bash
 cd /opt
-git clone https://github.com/Justinkoya/xiyuguopu.git xiyuguopu-docker
-cd /opt/xiyuguopu-docker
-git checkout codex/server-ip-deploy
-```
-
-如果服务器已经 clone 过：
-
-```bash
-cd /opt/xiyuguopu-docker
-git fetch origin
-git checkout codex/server-ip-deploy
-git pull
+git clone -b codex/server-ip-deploy https://github.com/Justinkoya/xiyuguopu.git xiyuguopu
+cd /opt/xiyuguopu
 ```
 
 ## 3. 创建环境变量
@@ -38,107 +36,76 @@ cp .env.example .env
 vi .env
 ```
 
-至少修改：
+必须修改：
 
 ```dotenv
-MYSQL_PASSWORD=当前宿主 MariaDB 的 xiyuguopu 用户密码
+MYSQL_ROOT_PASSWORD=数据库root强密码
+MYSQL_PASSWORD=应用数据库强密码
 XIYU_JWT_SECRET=至少32字符随机密钥
+APP_CORS_ALLOWED_ORIGINS=http://47.109.93.162
+NGINX_PORT=80
 ```
 
-保留：
-
-```dotenv
-MYSQL_HOST=host.docker.internal
-NGINX_PORT=8088
-APP_CORS_ALLOWED_ORIGINS=http://47.109.93.162,http://47.109.93.162:8088
-```
-
-## 4. 允许 Docker 访问宿主 MariaDB
-
-容器会通过 `host.docker.internal` 访问宿主机 MariaDB。宿主 MariaDB 需要监听 Docker 网桥，并允许 Docker 网段用户登录。
-
-编辑 MariaDB 配置：
+生成 JWT 密钥：
 
 ```bash
-vi /etc/my.cnf.d/mariadb-server.cnf
+openssl rand -base64 48
 ```
 
-在 `[mysqld]` 下确认或新增：
-
-```ini
-bind-address=0.0.0.0
-```
-
-重启 MariaDB：
+## 4. 启动
 
 ```bash
-systemctl restart mariadb
+podman-compose up -d --build
+podman-compose ps
+podman-compose logs --tail=100 db
+podman-compose logs --tail=100 server
 ```
 
-授权 Docker 网桥访问。这里的密码要和 `.env` 里的 `MYSQL_PASSWORD` 一致：
+首次启动数据库会执行 `sql/init.sql`。如果 `db-data` 卷已经存在，MariaDB 不会重复导入初始化 SQL。
+
+## 5. 验收
 
 ```bash
-mysql -u root
-```
-
-```sql
-CREATE USER IF NOT EXISTS 'xiyuguopu'@'172.17.%' IDENTIFIED BY '当前数据库密码';
-GRANT ALL PRIVILEGES ON xiyuguopu.* TO 'xiyuguopu'@'172.17.%';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-确认宿主没有把 `3306` 暴露到公网安全组；阿里云安全组仍然不要放行 `3306`。
-
-## 5. 启动并行测试环境
-
-```bash
-docker compose up -d --build
-docker compose ps
-docker compose logs --tail=100 server
-```
-
-验证：
-
-```bash
-curl http://127.0.0.1:8088/api/products
-curl http://47.109.93.162:8088/api/products
+curl http://127.0.0.1/api/products
+curl http://47.109.93.162/api/products
 ```
 
 浏览器访问：
 
-- `http://47.109.93.162:8088/`
-- `http://47.109.93.162:8088/admin/`
+- `http://47.109.93.162/`
+- `http://47.109.93.162/admin/`
+
+后台默认账号来自 `sql/init.sql`。首次登录后立即修改默认密码。
 
 ## 6. 常用命令
 
 ```bash
-docker compose logs -f server
-docker compose logs -f nginx
-docker compose restart server
-docker compose down
-docker compose up -d --build
+podman-compose ps
+podman-compose logs -f server
+podman-compose logs -f nginx
+podman-compose restart server
+podman-compose down
+podman-compose up -d --build
 ```
 
-## 7. 切换到正式 80 端口
+## 7. 数据备份与恢复
 
-确认 Docker 版 `8088` 没问题后，再执行：
+备份：
 
 ```bash
-systemctl stop xiyuguopu
-systemctl stop nginx
+podman exec xiyuguopu-db sh -c 'mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" xiyuguopu' > /root/xiyuguopu_backup.sql
 ```
 
-编辑 `.env`：
-
-```dotenv
-NGINX_PORT=80
-APP_CORS_ALLOWED_ORIGINS=http://47.109.93.162
-```
-
-重启 Docker：
+恢复到空库：
 
 ```bash
-docker compose up -d
-curl http://47.109.93.162/api/products
+cat /root/xiyuguopu_backup.sql | podman exec -i xiyuguopu-db sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" xiyuguopu'
+```
+
+清空全部容器和数据库卷：
+
+```bash
+podman-compose down
+podman volume ls | grep db-data
+podman volume rm 项目前缀_db-data
 ```
