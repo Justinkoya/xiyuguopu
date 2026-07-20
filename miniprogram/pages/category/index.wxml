@@ -61,6 +61,4 @@
       </view>
     </scroll-view>
   </view>
-
-  <view class="safe-bottom" style="height: 16rpx;"></view>
 </view>

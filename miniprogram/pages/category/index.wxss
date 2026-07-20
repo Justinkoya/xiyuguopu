@@ -1,5 +1,7 @@
 /* ========== 排序栏 ========== */
 .category-page {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow: hidden;
 }
@@ -40,16 +42,15 @@
 /* ========== 分类布局 ========== */
 .category-layout {
   display: flex;
-  height: calc(100vh - 100rpx);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 .category-sidebar {
   width: 180rpx;
-  height: calc(100vh - 100rpx);
+  height: 100%;
   background-color: #F8F8F8;
   flex-shrink: 0;
-  position: sticky;
-  top: 100rpx;
   z-index: 2;
 }
 .sidebar-item {
