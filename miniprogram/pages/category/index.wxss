@@ -1,4 +1,9 @@
 /* ========== 排序栏 ========== */
+.category-page {
+  height: 100vh;
+  overflow: hidden;
+}
+
 .sort-bar {
   display: flex;
   background-color: #FFFFFF;
@@ -36,10 +41,16 @@
 .category-layout {
   display: flex;
   height: calc(100vh - 100rpx);
+  overflow: hidden;
 }
 .category-sidebar {
   width: 180rpx;
+  height: calc(100vh - 100rpx);
   background-color: #F8F8F8;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100rpx;
+  z-index: 2;
 }
 .sidebar-item {
   display: flex;
@@ -63,7 +74,9 @@
 
 .category-content {
   flex: 1;
+  height: 100%;
   padding: 16rpx;
+  box-sizing: border-box;
 }
 
 .product-grid {
