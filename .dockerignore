@@ -1,0 +1,14 @@
+.git/
+.idea/
+.vscode/
+.agents/
+.codex/
+**/target/
+**/node_modules/
+web/images-original/
+nginx/
+uniapp-test/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
