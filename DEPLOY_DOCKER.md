@@ -2,7 +2,30 @@
 
 本指南用于清空后的新服务器部署。Compose 会启动 `mariadb`、`server`、`nginx` 三个容器，首次启动自动导入 `sql/init.sql`。
 
-## 1. 安装运行环境
+## 1. 一键部署
+
+清空后的阿里云 Linux 3 服务器，先确认安全组放行 `22` 和 `80`，然后用 `root` 执行：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Justinkoya/xiyuguopu/refs/heads/codex/server-ip-deploy/scripts/deploy.sh | bash
+```
+
+脚本会自动安装 `git`、`podman`、`podman-docker`、`podman-compose`，拉取当前分支代码，生成 `.env` 强密码，构建并启动 `mariadb`、`server`、`nginx`。
+
+如需指定公网 IP、端口或目录：
+
+```bash
+PUBLIC_HOST=47.109.93.162 NGINX_PORT=80 APP_DIR=/opt/xiyuguopu \
+  bash scripts/deploy.sh
+```
+
+如果已经手动 clone 了仓库，也可以在项目目录执行：
+
+```bash
+bash scripts/deploy.sh
+```
+
+## 2. 手动安装运行环境
 
 阿里云 Linux 3 推荐使用 Podman：
 
@@ -21,7 +44,7 @@ TCP 22   你的登录来源 IP，或临时 0.0.0.0/0
 
 不要放行 `3306`。
 
-## 2. 拉取代码
+## 3. 拉取代码
 
 ```bash
 cd /opt
@@ -29,7 +52,7 @@ git clone -b codex/server-ip-deploy https://github.com/Justinkoya/xiyuguopu.git 
 cd /opt/xiyuguopu
 ```
 
-## 3. 创建环境变量
+## 4. 创建环境变量
 
 ```bash
 cp .env.example .env
@@ -52,7 +75,7 @@ NGINX_PORT=80
 openssl rand -base64 48
 ```
 
-## 4. 启动
+## 5. 启动
 
 ```bash
 podman-compose up -d --build
@@ -63,7 +86,7 @@ podman-compose logs --tail=100 server
 
 首次启动数据库会执行 `sql/init.sql`。如果 `db-data` 卷已经存在，MariaDB 不会重复导入初始化 SQL。
 
-## 5. 验收
+## 6. 验收
 
 ```bash
 curl http://127.0.0.1/api/products
@@ -77,7 +100,7 @@ curl http://47.109.93.162/api/products
 
 后台默认账号来自 `sql/init.sql`。首次登录后立即修改默认密码。
 
-## 6. 常用命令
+## 7. 常用命令
 
 ```bash
 podman-compose ps
@@ -88,7 +111,7 @@ podman-compose down
 podman-compose up -d --build
 ```
 
-## 7. 数据备份与恢复
+## 8. 数据备份与恢复
 
 备份：
 
