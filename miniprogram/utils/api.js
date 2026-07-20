@@ -157,12 +157,22 @@ function toCategoryItem(raw) {
     blue: '#2563EB',
     amber: '#D88831',
     green: '#059669',
-    red: '#B64A2E'
+    red: '#B64A2E',
+    purple: '#7C3AED',
+    pink: '#DB2777',
+    orange: '#EA580C',
+    teal: '#0D9488',
+    cyan: '#0891B2',
+    lime: '#65A30D',
+    brown: '#8B5E34',
+    slate: '#475569'
   }
   return {
     _id: raw.id,
     id: raw.id,
     code: raw.code,
+    entryType: raw.entryType || raw.entry_type || 'PRODUCT',
+    isEnabled: raw.isEnabled !== false && raw.is_enabled !== false,
     name: raw.name,
     description: '',
     slug: raw.code,
@@ -586,6 +596,7 @@ module.exports = {
   login,
   getToken,
   setToken,
+  imageUrl,
   // 分类
   getCategories,
   // 商品

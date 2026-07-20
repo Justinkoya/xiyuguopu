@@ -28,6 +28,21 @@
     return json.data;
   }
 
+  async function uploadApi(url, formData) {
+    const token = localStorage.getItem('admin_token');
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(API_BASE + url, { method: 'POST', headers, body: formData });
+    if (res.status === 401) { logout(); return null; }
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(json.message || `HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    if (json.code !== 200) throw new Error(json.message || 'API error');
+    return json.data;
+  }
+
   function formatPrice(n) { return (n || 0).toFixed(1); }
   function parseTime(t) {
     if (!t) return null;
@@ -63,6 +78,12 @@
       '"': '&quot;',
       "'": '&#39;'
     }[ch]));
+  }
+
+  function imageSrc(path) {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+    return '../' + path.replace(/^\/+/, '');
   }
 
   function logout() {
@@ -128,6 +149,7 @@
     document.getElementById('nav-' + tab).classList.add('bg-white/10', 'font-bold');
     if (tab === 'dashboard') loadDashboard();
     else if (tab === 'products') loadProducts();
+    else if (tab === 'categories') loadCategories();
     else if (tab === 'packages') loadPackages();
     else if (tab === 'orders') loadOrders();
   }
@@ -157,6 +179,158 @@
 
   // ==================== 商品管理 ====================
 
+  let categoryPage = 1, categoryKeyword = '', adminCategories = [];
+
+  async function loadAdminCategories(force = false) {
+    if (adminCategories.length && !force) return adminCategories;
+    const page = await api('/admin/categories?page=1&size=200');
+    adminCategories = page.records || [];
+    renderProductCategoryOptions();
+    return adminCategories;
+  }
+
+  function productCategories() {
+    return adminCategories.filter(c => (c.entryType || 'PRODUCT') === 'PRODUCT');
+  }
+
+  function categoryName(id) {
+    const category = adminCategories.find(c => String(c.id) === String(id));
+    return category ? category.name : id;
+  }
+
+  function renderProductCategoryOptions() {
+    const filter = document.getElementById('prod-cat-filter');
+    const select = document.getElementById('prod-category');
+    const options = productCategories().map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    if (filter) filter.innerHTML = `<option value="">全部分类</option>${options}`;
+    if (select) select.innerHTML = options || '<option value="">暂无商品分类</option>';
+  }
+
+  async function loadCategories(page = 1) {
+    categoryPage = page;
+    categoryKeyword = document.getElementById('cat-search') ? document.getElementById('cat-search').value.trim() : categoryKeyword;
+    const params = new URLSearchParams({ page, size: 20 });
+    if (categoryKeyword) params.set('keyword', categoryKeyword);
+    try {
+      const data = await api('/admin/categories?' + params);
+      adminCategories = data.records || [];
+      renderProductCategoryOptions();
+      renderCategoryTable(data);
+    } catch (e) { toast('加载分类失败: ' + e.message, false); }
+  }
+
+  function searchCategories() {
+    categoryKeyword = document.getElementById('cat-search').value.trim();
+    loadCategories(1);
+  }
+
+  function renderCategoryTable(page) {
+    const tbody = document.getElementById('cat-tbody');
+    if (!page.records.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-400 py-8">暂无分类</td></tr>';
+    } else {
+      tbody.innerHTML = page.records.map(c => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="py-3 px-2 text-gray-400 text-xs">${c.id}</td>
+          <td class="py-3 px-2 font-medium">${escapeHtml(c.name)}</td>
+          <td class="py-3 px-2 text-xs text-gray-500">${escapeHtml(c.code)}</td>
+          <td class="py-3 px-2 text-xs"><span class="px-2 py-0.5 rounded-full bg-gray-100">${c.entryType || 'PRODUCT'}</span></td>
+          <td class="py-3 px-2 text-xs"><span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded-full" style="background:${escapeHtml(themeColorValue(c.themeColor))}"></span>${escapeHtml(c.themeColor)}</span></td>
+          <td class="py-3 px-2 text-xs text-gray-500">${c.sortOrder || 0}</td>
+          <td class="py-3 px-2">${c.isEnabled !== false ? '<span class="text-green-600 text-xs">启用</span>' : '<span class="text-gray-400 text-xs">停用</span>'}</td>
+          <td class="py-3 px-2">
+            <button onclick="editCategory(${c.id})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fa fa-edit"></i></button>
+            <button onclick="deleteCategory(${c.id},'${String(c.name).replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 text-xs"><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>`).join('');
+    }
+    document.getElementById('cat-pagination').innerHTML = page.pages > 1
+      ? `<button onclick="loadCategories(${page.current - 1})" ${page.current <= 1 ? 'disabled' : ''} class="px-3 py-1 border rounded-l ${page.current <= 1 ? 'text-gray-300' : 'hover:bg-gray-100'}">上一页</button>
+         <span class="px-3 py-1 border-t border-b text-sm">${page.current} / ${page.pages}（共 ${page.total} 个）</span>
+         <button onclick="loadCategories(${page.current + 1})" ${page.current >= page.pages ? 'disabled' : ''} class="px-3 py-1 border rounded-r ${page.current >= page.pages ? 'text-gray-300' : 'hover:bg-gray-100'}">下一页</button>`
+      : '';
+  }
+
+  function themeColorValue(color) {
+    return {
+      blue: '#2563EB',
+      amber: '#D88831',
+      green: '#059669',
+      red: '#B64A2E',
+      purple: '#7C3AED',
+      pink: '#DB2777',
+      orange: '#EA580C',
+      teal: '#0D9488',
+      cyan: '#0891B2',
+      lime: '#65A30D',
+      brown: '#8B5E34',
+      slate: '#475569'
+    }[color] || color || '#999999';
+  }
+
+  function openAddCategoryModal() {
+    document.getElementById('cat-modal-title').textContent = '新增分类';
+    document.getElementById('cat-form').reset();
+    document.getElementById('cat-id').value = '';
+    document.getElementById('cat-entryType').value = 'PRODUCT';
+    document.getElementById('cat-themeColor').value = 'blue';
+    document.getElementById('cat-sortOrder').value = 0;
+    document.getElementById('cat-enabled').checked = true;
+    document.getElementById('cat-modal').classList.remove('hidden');
+  }
+
+  async function editCategory(id) {
+    try {
+      const c = await api(`/admin/categories/${id}`);
+      document.getElementById('cat-modal-title').textContent = '编辑分类';
+      document.getElementById('cat-id').value = c.id;
+      document.getElementById('cat-name').value = c.name || '';
+      document.getElementById('cat-code').value = c.code || '';
+      document.getElementById('cat-entryType').value = c.entryType || 'PRODUCT';
+      document.getElementById('cat-themeColor').value = c.themeColor || 'blue';
+      document.getElementById('cat-sortOrder').value = c.sortOrder || 0;
+      document.getElementById('cat-enabled').checked = c.isEnabled !== false;
+      document.getElementById('cat-modal').classList.remove('hidden');
+    } catch (e) { toast('获取分类失败: ' + e.message, false); }
+  }
+
+  function closeCategoryModal() { document.getElementById('cat-modal').classList.add('hidden'); }
+
+  async function saveCategory() {
+    const id = document.getElementById('cat-id').value;
+    const body = {
+      name: document.getElementById('cat-name').value.trim(),
+      code: document.getElementById('cat-code').value.trim(),
+      entryType: document.getElementById('cat-entryType').value,
+      themeColor: document.getElementById('cat-themeColor').value.trim(),
+      sortOrder: parseInt(document.getElementById('cat-sortOrder').value) || 0,
+      isEnabled: document.getElementById('cat-enabled').checked
+    };
+    if (!body.name || !body.code) return toast('请填写分类名称和编码', false);
+    try {
+      if (id) {
+        await api(`/admin/categories/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+        toast('分类已更新');
+      } else {
+        await api('/admin/categories', { method: 'POST', body: JSON.stringify(body) });
+        toast('分类已新增');
+      }
+      closeCategoryModal();
+      await loadCategories(categoryPage);
+      await loadAdminCategories(true);
+    } catch (e) { toast('保存分类失败: ' + e.message, false); }
+  }
+
+  async function deleteCategory(id, name) {
+    if (!confirm(`确定要删除「${name}」吗？建议优先停用分类。`)) return;
+    try {
+      await api(`/admin/categories/${id}`, { method: 'DELETE' });
+      toast('已删除 ' + name);
+      await loadCategories(categoryPage);
+      await loadAdminCategories(true);
+    } catch (e) { toast('删除分类失败: ' + e.message, false); }
+  }
+
   let productPage = 1, productKeyword = '', productCategoryId = '';
 
   async function loadProducts(page = 1) {
@@ -165,6 +339,7 @@
     if (productKeyword) params.set('keyword', productKeyword);
     if (productCategoryId) params.set('categoryId', productCategoryId);
     try {
+      await loadAdminCategories();
       const data = await api('/admin/products?' + params);
       renderProductTable(data);
     } catch (e) { toast('加载商品失败: ' + e.message, false); }
@@ -176,8 +351,6 @@
     loadProducts(1);
   }
 
-  const CAT_NAMES = { 1: '尝鲜精选', 2: '西域珍品', 3: '口碑好物', 4: '精选礼品' };
-
   function renderProductTable(page) {
     const tbody = document.getElementById('prod-tbody');
     if (!page.records.length) {
@@ -187,10 +360,10 @@
         <tr class="border-b border-gray-100 hover:bg-gray-50">
           <td class="py-3 px-2 text-gray-400 text-xs">${p.id}</td>
           <td class="py-3 px-2">
-            ${p.image ? `<img src="../${p.image}" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display='none'">` : '<span class="text-gray-300">-</span>'}
+            ${p.image ? `<img src="${escapeHtml(imageSrc(p.image))}" class="w-10 h-10 rounded-lg object-cover" onerror="this.style.display='none'">` : '<span class="text-gray-300">-</span>'}
           </td>
           <td class="py-3 px-2 font-medium">${p.name}</td>
-          <td class="py-3 px-2 text-xs"><span class="px-2 py-0.5 rounded-full bg-gray-100">${CAT_NAMES[p.categoryId] || p.categoryId}</span></td>
+          <td class="py-3 px-2 text-xs"><span class="px-2 py-0.5 rounded-full bg-gray-100">${escapeHtml(categoryName(p.categoryId))}</span></td>
           <td class="py-3 px-2 font-bold">¥${formatPrice(p.price)}</td>
           <td class="py-3 px-2">
             <input type="number" value="${p.stock}" min="0"
@@ -235,11 +408,14 @@
     } catch (e) { toast('删除失败: ' + e.message, false); }
   }
 
-  function openAddModal() {
+  async function openAddModal() {
+    await loadAdminCategories();
     document.getElementById('modal-title').textContent = '新增商品';
     document.getElementById('prod-form').reset();
+    renderProductCategoryOptions();
     document.getElementById('prod-id').value = '';
     document.getElementById('prod-tags').value = '';
+    resetProductImageUpload();
     document.getElementById('prod-modal').classList.remove('hidden');
   }
 
@@ -253,6 +429,8 @@
       document.getElementById('prod-price').value = p.price || '';
       document.getElementById('prod-unit').value = p.unit || '500g';
       document.getElementById('prod-image').value = p.image || '';
+      resetProductImageUpload();
+      updateProductImagePreview();
       document.getElementById('prod-badge').value = p.badge || '';
       document.getElementById('prod-desc').value = p.description || '';
       document.getElementById('prod-featured').checked = !!p.featured;
@@ -269,6 +447,54 @@
   }
 
   function closeModal() { document.getElementById('prod-modal').classList.add('hidden'); }
+
+  function resetProductImageUpload() {
+    const file = document.getElementById('prod-image-file');
+    const status = document.getElementById('prod-image-status');
+    if (file) file.value = '';
+    if (status) status.textContent = '';
+    updateProductImagePreview();
+  }
+
+  function updateProductImagePreview() {
+    const path = document.getElementById('prod-image').value.trim();
+    const wrap = document.getElementById('prod-image-preview-wrap');
+    const img = document.getElementById('prod-image-preview');
+    if (!wrap || !img) return;
+    if (!path) {
+      wrap.classList.add('hidden');
+      img.removeAttribute('src');
+      return;
+    }
+    img.src = imageSrc(path);
+    wrap.classList.remove('hidden');
+  }
+
+  async function uploadProductImage() {
+    const input = document.getElementById('prod-image-file');
+    const status = document.getElementById('prod-image-status');
+    const button = document.getElementById('prod-image-upload-btn');
+    const file = input && input.files ? input.files[0] : null;
+    if (!file) return toast('请先选择图片', false);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      if (status) status.textContent = '上传中...';
+      if (button) button.disabled = true;
+      const data = await uploadApi('/admin/uploads/images', formData);
+      if (!data) return;
+      document.getElementById('prod-image').value = data.path || '';
+      updateProductImagePreview();
+      if (status) status.textContent = data.path || '';
+      toast('图片已上传');
+    } catch (e) {
+      if (status) status.textContent = '';
+      toast('上传失败: ' + e.message, false);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
 
   async function saveProduct() {
     const id = document.getElementById('prod-id').value;
@@ -604,6 +830,9 @@
       <button id="nav-products" onclick="switchTab('products')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
         <i class="fa fa-cube"></i> 商品管理
       </button>
+      <button id="nav-categories" onclick="switchTab('categories')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
+        <i class="fa fa-tags"></i> 分类管理
+      </button>
       <button id="nav-packages" onclick="switchTab('packages')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
         <i class="fa fa-gift"></i> 套餐管理
       </button>
@@ -667,10 +896,7 @@
           class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
         <select id="prod-cat-filter" onchange="searchProducts()"
           class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
-          <option value="">全部分类</option>
-          <option value="1">尝鲜精选</option>
-          <option value="2">西域珍品</option>
-          <option value="3">口碑好物</option>
+          <option value="">&#20840;&#37096;&#20998;&#31867;</option>
         </select>
       </div>
 
@@ -687,6 +913,30 @@
     </div>
 
     <!-- ===== 套餐管理 ===== -->
+    <div id="tab-categories" class="tab-content hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold">分类管理</h2>
+        <button onclick="openAddCategoryModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold transition">
+          <i class="fa fa-plus mr-1"></i> 新增分类
+        </button>
+      </div>
+
+      <div class="flex gap-3 mb-4">
+        <input id="cat-search" type="text" placeholder="搜索分类名称或编码..." oninput="searchCategories()"
+          class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 text-gray-400 text-xs uppercase">
+            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">名称</th><th class="py-3 px-2 text-left">编码</th><th class="py-3 px-2 text-left">入口类型</th><th class="py-3 px-2 text-left">颜色</th><th class="py-3 px-2 text-left">排序</th><th class="py-3 px-2 text-left">状态</th><th class="py-3 px-2 text-left">操作</th>
+          </tr></thead>
+          <tbody id="cat-tbody"></tbody>
+        </table>
+        <div id="cat-pagination" class="flex justify-center p-4 text-sm"></div>
+      </div>
+    </div>
+
     <div id="tab-packages" class="tab-content hidden">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold">套餐管理</h2>
@@ -744,6 +994,52 @@
 </div>
 
 <!-- ==================== 商品 Modal ==================== -->
+<div id="cat-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+  <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-xl">
+    <div class="flex items-center justify-between mb-6">
+      <h2 id="cat-modal-title" class="text-xl font-bold">分类信息</h2>
+      <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    <form id="cat-form">
+      <input type="hidden" id="cat-id">
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div><label class="text-gray-500 text-xs">分类名称 *</label><input id="cat-name" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="尝鲜精选"></div>
+        <div><label class="text-gray-500 text-xs">分类编码 *</label><input id="cat-code" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="trial"></div>
+        <div><label class="text-gray-500 text-xs">入口类型</label>
+          <select id="cat-entryType" class="w-full border rounded-lg px-3 py-2 mt-1">
+            <option value="PRODUCT">普通商品</option>
+            <option value="PACKAGE">精选套餐</option>
+          </select>
+        </div>
+        <div><label class="text-gray-500 text-xs">主题色</label>
+          <select id="cat-themeColor" class="w-full border rounded-lg px-3 py-2 mt-1">
+            <option value="blue">blue</option>
+            <option value="amber">amber</option>
+            <option value="green">green</option>
+            <option value="red">red</option>
+            <option value="purple">purple</option>
+            <option value="pink">pink</option>
+            <option value="orange">orange</option>
+            <option value="teal">teal</option>
+            <option value="cyan">cyan</option>
+            <option value="lime">lime</option>
+            <option value="brown">brown</option>
+            <option value="slate">slate</option>
+          </select>
+        </div>
+        <div><label class="text-gray-500 text-xs">排序</label><input id="cat-sortOrder" type="number" value="0" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+        <div class="flex items-end pb-2">
+          <label class="flex items-center gap-2 text-xs"><input id="cat-enabled" type="checkbox" checked> 小程序展示</label>
+        </div>
+      </div>
+    </form>
+    <div class="flex justify-end gap-3 mt-6">
+      <button onclick="closeCategoryModal()" class="px-6 py-2 border rounded-lg text-sm hover:bg-gray-50">取消</button>
+      <button onclick="saveCategory()" class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold">保存</button>
+    </div>
+  </div>
+</div>
+
 <div id="prod-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/40">
   <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-6">
@@ -756,12 +1052,30 @@
       <div><label class="text-gray-500 text-xs">商品名 *</label><input id="prod-name" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
       <div><label class="text-gray-500 text-xs">分类 *</label>
         <select id="prod-category" class="w-full border rounded-lg px-3 py-2 mt-1">
-          <option value="1">尝鲜精选</option><option value="2">西域珍品</option><option value="3">口碑好物</option>
+          <option value="">&#26242;&#26080;&#21830;&#21697;&#20998;&#31867;</option>
         </select>
       </div>
       <div><label class="text-gray-500 text-xs">价格 *</label><input id="prod-price" type="number" step="0.1" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
       <div><label class="text-gray-500 text-xs">单位</label><input id="prod-unit" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
-      <div><label class="text-gray-500 text-xs">图片路径</label><input id="prod-image" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="images/xxx.png"></div>
+      <div class="col-span-2">
+        <label class="text-gray-500 text-xs">图片路径</label>
+        <div class="flex gap-2 mt-1">
+          <input id="prod-image" class="flex-1 border rounded-lg px-3 py-2" placeholder="images/xxx.png" oninput="updateProductImagePreview()">
+          <input id="prod-image-file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="hidden" onchange="uploadProductImage()">
+          <button type="button" onclick="document.getElementById('prod-image-file').click()" class="px-3 py-2 border rounded-lg text-sm hover:bg-gray-50">
+            <i class="fa fa-folder-open-o mr-1"></i>选择图片
+          </button>
+          <button id="prod-image-upload-btn" type="button" onclick="uploadProductImage()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-lg text-sm">
+            <i class="fa fa-upload mr-1"></i>上传
+          </button>
+        </div>
+        <div class="mt-2 flex items-center gap-3">
+          <div id="prod-image-preview-wrap" class="hidden w-20 h-20 rounded-lg border bg-gray-50 overflow-hidden">
+            <img id="prod-image-preview" class="w-full h-full object-cover" onerror="this.parentElement.classList.add('hidden')">
+          </div>
+          <div id="prod-image-status" class="text-xs text-gray-400 break-all"></div>
+        </div>
+      </div>
       <div><label class="text-gray-500 text-xs">角标</label><input id="prod-badge" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="初次尝鲜"></div>
       <div class="col-span-2"><label class="text-gray-500 text-xs">描述</label><input id="prod-desc" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
       <div class="col-span-2"><label class="text-gray-500 text-xs">标签（逗号分隔）</label><textarea id="prod-tags" rows="2" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="阿克苏185品种, 手捏即开"></textarea></div>

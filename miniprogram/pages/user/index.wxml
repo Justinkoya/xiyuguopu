@@ -53,11 +53,17 @@
       <text class="menu-text">价格透明</text>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="onContact">
+    <button
+      class="menu-item menu-button"
+      open-type="contact"
+      show-message-card="true"
+      send-message-title="西域果铺客服"
+      send-message-path="/pages/index/index"
+    >
       <text class="menu-icon">💬</text>
       <text class="menu-text">联系客服</text>
       <text class="menu-arrow">›</text>
-    </view>
+    </button>
   </view>
 
   <!-- 分享 -->
@@ -68,6 +74,6 @@
   <!-- 品牌 footer -->
   <view class="brand-footer">
     <text class="footer-brand">西域果脯</text>
-    <text class="footer-slogan">一口西��，一份实在</text>
+    <text class="footer-slogan">一口西域，一份实在</text>
   </view>
 </view>

@@ -72,6 +72,18 @@
   padding: 28rpx 32rpx;
   border-bottom: 1rpx solid #F8F8F8;
 }
+.menu-button {
+  width: 100%;
+  margin: 0;
+  background-color: #FFFFFF;
+  border-radius: 0;
+  border: 0;
+  line-height: normal;
+  text-align: left;
+}
+.menu-button::after {
+  border: 0;
+}
 .menu-icon {
   font-size: 36rpx;
 }

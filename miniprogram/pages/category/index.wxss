@@ -88,13 +88,19 @@
 .product-item {
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .product-img {
   width: 100%;
   height: 240rpx;
+  flex-shrink: 0;
 }
 .product-body {
   padding: 16rpx 20rpx 20rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .product-body .product-name {
   display: block;
@@ -124,6 +130,7 @@
   display: flex;
   align-items: baseline;
   gap: 4rpx;
+  margin-top: auto;
   margin-bottom: 6rpx;
 }
 .price-num {

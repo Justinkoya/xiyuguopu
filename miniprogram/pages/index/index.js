@@ -5,19 +5,19 @@ Page({
     banners: [
       {
         id: 1,
-        image: '../../images/assortment.png',
+        image: api.imageUrl('assortment.png'),
         title: '一口西域，一份实在',
         subtitle: '敢给你看产地底牌的新疆干果品牌'
       },
       {
         id: 2,
-        image: '../../images/orchard.png',
+        image: api.imageUrl('orchard.png'),
         title: '来自天山脚下的自然馈赠',
         subtitle: '180天自然生长 · 传统晾晒工艺'
       },
       {
         id: 3,
-        image: '../../images/market.png',
+        image: api.imageUrl('market.png'),
         title: '产地直发 · 品质看得见',
         subtitle: '4大核心产区 · 30+合作果园'
       }
@@ -126,7 +126,7 @@ Page({
     return {
       title: '西域果脯 - 一口西域，一份实在',
       path: '/pages/index/index',
-      imageUrl: '../../images/assortment.png'
+      imageUrl: api.imageUrl('assortment.png')
     }
   }
 })

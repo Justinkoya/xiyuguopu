@@ -46,22 +46,6 @@ Page({
     wx.navigateTo({ url: `/pages/story/index?tab=${tab}` })
   },
 
-  onContact() {
-    wx.showModal({
-      title: '联系客服',
-      content: '微信：xiyuguopu\n工作时间：工作日 9:00-21:00',
-      confirmText: '复制微信号',
-      success: (res) => {
-        if (res.confirm) {
-          wx.setClipboardData({
-            data: 'xiyuguopu',
-            success: () => wx.showToast({ title: '已复制', icon: 'success' })
-          })
-        }
-      }
-    })
-  },
-
   onShareAppMessage() {
     return {
       title: '西域果脯 - 一口西域，一份实在',

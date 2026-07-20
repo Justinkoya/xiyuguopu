@@ -56,6 +56,9 @@ public class AdminProductService {
         if (cat == null) {
             throw new RuntimeException("分类不存在");
         }
+        if (cat.getEntryType() != null && !"PRODUCT".equals(cat.getEntryType())) {
+            throw new RuntimeException("商品只能选择商品分类");
+        }
         Product p = new Product();
         BeanUtils.copyProperties(dto, p);
         productMapper.insert(p);
@@ -73,6 +76,9 @@ public class AdminProductService {
         Category cat = categoryMapper.selectById(dto.getCategoryId());
         if (cat == null) {
             throw new RuntimeException("分类不存在");
+        }
+        if (cat.getEntryType() != null && !"PRODUCT".equals(cat.getEntryType())) {
+            throw new RuntimeException("商品只能选择商品分类");
         }
         BeanUtils.copyProperties(dto, p);
         p.setId(id); // 防止 copy 覆盖 id

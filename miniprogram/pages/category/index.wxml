@@ -43,8 +43,8 @@
               <text class="tag tag-green" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
             </view>
             <view class="product-meta">
-              <text class="origin-tag">{{item.itemType === 'PACKAGE' ? '🎁 精选套餐' : '📍' + item.origin.region}}</text>
-              <text class="score-tag">{{item.itemType === 'PACKAGE' ? item.packageSummary : '⭐' + item.scorecard.overall}}</text>
+              <!-- <text class="origin-tag">{{item.itemType === 'PACKAGE' ? '🎁 精选套餐' : '📍' + item.origin.region}}</text>
+              <text class="score-tag">{{item.itemType === 'PACKAGE' ? item.packageSummary : '⭐' + item.scorecard.overall}}</text> -->
             </view>
             <view class="product-price-row">
               <text class="price">¥<text class="price-num">{{item.price}}</text></text>

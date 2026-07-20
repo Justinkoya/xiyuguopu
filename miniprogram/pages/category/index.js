@@ -37,13 +37,14 @@ Page({
   async loadProducts(categoryCode) {
     this.setData({ loading: true })
     try {
-      const isGiftCategory = categoryCode === 'gift'
-      const products = isGiftCategory
+      const category = this.data.categories.find(c => c.code === categoryCode) || {}
+      const isPackageCategory = category.entryType === 'PACKAGE'
+      const products = isPackageCategory
         ? await api.getPackages()
         : await api.getProducts(categoryCode)
       const productsRaw = [...products]
       const sorted = this.applySort(productsRaw, this.data.sortType)
-      this.setData({ productsRaw, products: sorted, isGiftCategory, loading: false })
+      this.setData({ productsRaw, products: sorted, isGiftCategory: isPackageCategory, loading: false })
     } catch (err) {
       console.error('加载商品失败:', err)
       this.setData({ loading: false })

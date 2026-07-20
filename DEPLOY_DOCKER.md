@@ -119,6 +119,19 @@ podman-compose up -d --build
 podman exec xiyuguopu-db sh -c 'mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" xiyuguopu' > /root/xiyuguopu_backup.sql
 ```
 
+后台上传图片默认保存在 `/opt/xiyuguopu-data/uploads/images`，更新代码或重启容器不会丢。备份图片：
+
+```bash
+tar -czf /root/xiyuguopu_upload_images_$(date +%Y%m%d).tar.gz -C /opt/xiyuguopu-data uploads/images
+```
+
+恢复图片：
+
+```bash
+mkdir -p /opt/xiyuguopu-data
+tar -xzf /root/xiyuguopu_upload_images_20260720.tar.gz -C /opt/xiyuguopu-data
+```
+
 恢复到空库：
 
 ```bash

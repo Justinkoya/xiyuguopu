@@ -6,6 +6,7 @@ BRANCH="${BRANCH:-codex/server-ip-deploy}"
 APP_DIR="${APP_DIR:-/opt/xiyuguopu}"
 PUBLIC_HOST="${PUBLIC_HOST:-47.109.93.162}"
 NGINX_PORT="${NGINX_PORT:-80}"
+UPLOAD_IMAGE_DIR="${UPLOAD_IMAGE_DIR:-/opt/xiyuguopu-data/uploads/images}"
 
 log() {
   printf '\n[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
@@ -77,7 +78,14 @@ MYSQL_PASSWORD=$(random_secret)
 XIYU_JWT_SECRET=$(random_secret)
 APP_CORS_ALLOWED_ORIGINS=http://${PUBLIC_HOST}
 NGINX_PORT=${NGINX_PORT}
+UPLOAD_IMAGE_DIR=${UPLOAD_IMAGE_DIR}
 EOF_ENV
+}
+
+ensure_upload_dir() {
+  log "Preparing upload directory: $UPLOAD_IMAGE_DIR"
+  mkdir -p "$UPLOAD_IMAGE_DIR"
+  chmod 0775 "$UPLOAD_IMAGE_DIR"
 }
 
 compose() {
@@ -133,6 +141,7 @@ main() {
   ensure_packages
   ensure_repo
   ensure_env
+  ensure_upload_dir
   start_stack
   show_status
   health_check

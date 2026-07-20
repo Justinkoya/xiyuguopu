@@ -68,6 +68,13 @@
             <version>${hutool.version}</version>
         </dependency>
 
+        <!-- ImageIO WebP support for uploaded product images -->
+        <dependency>
+            <groupId>com.github.usefulness</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.10.2</version>
+        </dependency>
+
         <!-- JWT (jjwt) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

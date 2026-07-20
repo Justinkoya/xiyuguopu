@@ -25,7 +25,9 @@ public class CategoryController {
     public Result<List<Category>> listAll() {
         List<Category> list = categoryMapper.selectList(
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Category>()
-                        .orderByAsc(Category::getSortOrder));
+                        .eq(Category::getIsEnabled, true)
+                        .orderByAsc(Category::getSortOrder)
+                        .orderByAsc(Category::getId));
         return Result.ok(list);
     }
 }

@@ -6,6 +6,10 @@ spring:
     active: dev
   application:
     name: xiyuguopu-server
+  servlet:
+    multipart:
+      max-file-size: ${UPLOAD_IMAGE_MAX_SIZE:5MB}
+      max-request-size: ${UPLOAD_IMAGE_MAX_SIZE:5MB}
 
 # MyBatis-Plus
 mybatis-plus:
@@ -35,3 +39,8 @@ springdoc:
 app:
   cors:
     allowed-origins: "*"
+  upload:
+    image-dir: ${APP_UPLOAD_IMAGE_DIR:/data/xiyuguopu/uploads/images}
+    max-image-size: ${APP_UPLOAD_MAX_IMAGE_SIZE:5242880}
+    max-image-side: ${APP_UPLOAD_MAX_IMAGE_SIDE:1200}
+    image-quality: ${APP_UPLOAD_IMAGE_QUALITY:0.82}

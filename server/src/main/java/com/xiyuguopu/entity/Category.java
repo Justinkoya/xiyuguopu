@@ -16,8 +16,10 @@ public class Category {
 
     private String name;
     private String code;
+    private String entryType;
     private String themeColor;
     private Integer sortOrder;
+    private Boolean isEnabled;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

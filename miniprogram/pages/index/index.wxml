@@ -47,7 +47,7 @@
         <text class="section-icon">⭐</text>
         <view>
           <text class="section-title">首页推荐</text>
-          <text class="section-desc">后台勾选推荐后展示在这里</text>
+          <text class="section-desc">人人爱吃、价格划算，降低你的首次尝试成本</text>
         </view>
       </view>
       <text class="section-more" data-code="" bindtap="onTapCategory">查看更多 ›</text>

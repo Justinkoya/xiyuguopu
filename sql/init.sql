@@ -17,17 +17,19 @@ CREATE TABLE category (
   id          BIGINT        AUTO_INCREMENT PRIMARY KEY,
   name        VARCHAR(32)   NOT NULL COMMENT '分类名',
   code        VARCHAR(32)   NOT NULL UNIQUE COMMENT '分类编码(trial/premium/bestseller)',
-  theme_color VARCHAR(16)   NOT NULL COMMENT '前端色系(blue/amber/green)',
+  entry_type  VARCHAR(16)   NOT NULL DEFAULT 'PRODUCT' COMMENT '入口类型(PRODUCT/PACKAGE)',
+  theme_color VARCHAR(16)   NOT NULL COMMENT '前端色系(blue/amber/green/red/purple/pink/orange/teal/cyan/lime/brown/slate)',
   sort_order  INT           DEFAULT 0,
+  is_enabled  TINYINT(1)    DEFAULT 1 COMMENT '是否展示',
   created_at  DATETIME      DEFAULT CURRENT_TIMESTAMP,
   updated_at  DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB COMMENT='商品分类';
 
-INSERT INTO category (name, code, theme_color, sort_order) VALUES
-('尝鲜精选', 'trial',      'blue',  1),
-('西域珍品', 'premium',    'amber', 2),
-('口碑好物', 'bestseller', 'green', 3),
-('精选礼品', 'gift',       'red',   4);
+INSERT INTO category (name, code, entry_type, theme_color, sort_order, is_enabled) VALUES
+('尝鲜精选', 'trial',      'PRODUCT', 'blue',  1, 1),
+('西域珍品', 'premium',    'PRODUCT', 'amber', 2, 1),
+('口碑好物', 'bestseller', 'PRODUCT', 'green', 3, 1),
+('精选礼品', 'gift',       'PACKAGE', 'red',   4, 1);
 
 -- ================================================================
 -- 2. 商品
