@@ -7,7 +7,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 <script>
-  const API_BASE = 'http://localhost:8080/api';
+  const API_BASE = window.location.hostname
+    ? window.location.origin + '/api'
+    : 'http://localhost:8080/api';
 
   // ==================== 通用工具 ====================
 
@@ -577,7 +579,7 @@
     <div class="space-y-4">
       <input id="login-username" type="text" placeholder="用户名" value="admin"
         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400">
-      <input id="login-password" type="password" placeholder="密码" value="admin123"
+      <input id="login-password" type="password" placeholder="密码"
         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400">
       <button onclick="doLogin()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition">
         登 录

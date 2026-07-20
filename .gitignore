@@ -7,3 +7,12 @@ uniapp-test/
 *.tmp
 .DS_Store
 Thumbs.db
+nginx/**/logs/
+nginx/**/*.pid
+nginx/**/temp/
+nginx/**/client_body_temp/
+nginx/**/proxy_temp/
+nginx/**/fastcgi_temp/
+nginx/**/uwsgi_temp/
+nginx/**/scgi_temp/
+web/images-original/

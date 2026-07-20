@@ -11,14 +11,14 @@ const CFG = {
     imageBase: 'http://localhost/images',         // 走 Nginx 静态文件
   },
   prod: {
-    baseUrl: 'https://api.xiyuguopu.com/api',
-    imageBase: 'https://api.xiyuguopu.com/images',
+    baseUrl: 'http://47.109.93.162/api',
+    imageBase: 'http://47.109.93.162/images',
   }
 }[ENV]
 
 // ========== 辅助 ==========
 
-/** 拼接完整图片 URL（dev → localhost, prod → CDN 域名） */
+/** 拼接完整图片 URL（dev → localhost, prod → 公网 IP/域名） */
 function imageUrl(path, fallback) {
   if (!path) return fallback || CFG.imageBase + '/assortment.png'
   if (path.startsWith('http')) return path        // 已是完整 URL

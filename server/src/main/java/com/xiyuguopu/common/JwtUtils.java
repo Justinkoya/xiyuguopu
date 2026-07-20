@@ -13,9 +13,34 @@ import java.util.Date;
  */
 public class JwtUtils {
 
-    private static final String SECRET = "xiyuguopu-jwt-secret-key-2025-keep-it-safe!!";
+    private static final String DEV_SECRET = "xiyuguopu-jwt-secret-key-2025-keep-it-safe!!";
     private static final long EXPIRE_MS = 7 * 24 * 60 * 60 * 1000L; // 7 天
-    private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    private static final SecretKey KEY = Keys.hmacShaKeyFor(resolveSecret().getBytes(StandardCharsets.UTF_8));
+
+    private static String resolveSecret() {
+        String secret = System.getenv("XIYU_JWT_SECRET");
+        if (secret != null && !secret.isBlank()) {
+            return secret;
+        }
+
+        String profiles = firstNonBlank(
+                System.getProperty("spring.profiles.active"),
+                System.getenv("SPRING_PROFILES_ACTIVE"));
+        if (profiles != null && profiles.toLowerCase().contains("prod")) {
+            throw new IllegalStateException("生产环境必须配置 XIYU_JWT_SECRET 环境变量");
+        }
+
+        return DEV_SECRET;
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
+    }
 
     /** 管理后台 token：载荷存 userId + username + role=ADMIN */
     public static String createToken(Long userId, String username) {

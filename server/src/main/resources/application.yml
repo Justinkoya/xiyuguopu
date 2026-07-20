@@ -13,7 +13,6 @@ mybatis-plus:
   type-aliases-package: com.xiyuguopu.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: auto
@@ -32,3 +31,7 @@ springdoc:
     path: /doc.html
   api-docs:
     path: /v3/api-docs
+
+app:
+  cors:
+    allowed-origins: "*"
