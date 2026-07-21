@@ -235,6 +235,8 @@ function toOrderItem(raw) {
     addressSnapshot: raw.addressSnapshot,
     remark: raw.remark || '',
     wxTransactionId: raw.wxTransactionId,
+    trackingNumber: raw.trackingNumber || '',
+    shippingCompany: raw.shippingCompany || '',
     createdAt,
     createdAtText: util.formatTime(createdAt),
     paidAt,
