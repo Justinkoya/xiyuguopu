@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/Justinkoya/xiyuguopu.git}"
-BRANCH="${BRANCH:-codex/server-ip-deploy}"
+BRANCH="${BRANCH:-codex/admin-image-upload}"
 APP_DIR="${APP_DIR:-/opt/xiyuguopu}"
 PUBLIC_HOST="${PUBLIC_HOST:-47.109.93.162}"
 NGINX_PORT="${NGINX_PORT:-80}"
