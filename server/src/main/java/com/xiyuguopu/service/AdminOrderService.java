@@ -88,11 +88,20 @@ public class AdminOrderService {
             throw new RuntimeException("订单不存在");
         }
 
-        switch (status) {
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+        switch (normalizedStatus) {
             case "SHIPPED":
+                String normalizedTrackingNumber = trackingNumber == null ? "" : trackingNumber.trim();
+                String normalizedShippingCompany = shippingCompany == null ? "" : shippingCompany.trim();
+                if (normalizedTrackingNumber.isBlank()) {
+                    throw new RuntimeException("物流单号不能为空");
+                }
+                if (normalizedShippingCompany.isBlank()) {
+                    throw new RuntimeException("快递公司不能为空");
+                }
                 head.setShippedAt(LocalDateTime.now());
-                head.setTrackingNumber(trackingNumber != null ? trackingNumber : "");
-                head.setShippingCompany(shippingCompany != null ? shippingCompany : "");
+                head.setTrackingNumber(normalizedTrackingNumber);
+                head.setShippingCompany(normalizedShippingCompany);
                 break;
             case "COMPLETED":
                 head.setCompletedAt(LocalDateTime.now());
@@ -104,7 +113,7 @@ public class AdminOrderService {
                 throw new RuntimeException("不支持的状态: " + status);
         }
 
-        head.setStatus(status);
+        head.setStatus(normalizedStatus);
         orderHeadMapper.updateById(head);
     }
 }
