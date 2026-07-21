@@ -2,6 +2,9 @@
 set -Eeuo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/Justinkoya/xiyuguopu.git}"
+GIT_MIRROR_PREFIXES="${GIT_MIRROR_PREFIXES:-https://gh.llkk.cc/}"
+ALLOW_DIRECT_DOWNLOADS="${ALLOW_DIRECT_DOWNLOADS:-0}"
+CONTAINER_IMAGE_MIRRORS="${CONTAINER_IMAGE_MIRRORS:-docker.m.daocloud.io docker.1ms.run docker.1panel.live dockerproxy.net}"
 BRANCH="${BRANCH:-codex/admin-image-upload}"
 APP_DIR="${APP_DIR:-/opt/xiyuguopu}"
 PUBLIC_HOST="${PUBLIC_HOST:-47.109.93.162}"
@@ -42,16 +45,44 @@ ensure_packages() {
   fi
 }
 
+repo_urls() {
+  local prefix
+  for prefix in $GIT_MIRROR_PREFIXES; do
+    printf '%s%s\n' "$prefix" "$REPO_URL"
+  done
+  if [ "$ALLOW_DIRECT_DOWNLOADS" = "1" ]; then
+    printf '%s\n' "$REPO_URL"
+  fi
+}
+
 ensure_repo() {
   if [ -d "$APP_DIR/.git" ]; then
     log "Updating existing repo at $APP_DIR"
-    git -C "$APP_DIR" fetch origin "$BRANCH"
-    git -C "$APP_DIR" checkout "$BRANCH"
-    git -C "$APP_DIR" pull --ff-only origin "$BRANCH"
+    local url
+    for url in $(repo_urls); do
+      log "Fetching $BRANCH via $url"
+      if git -C "$APP_DIR" fetch "$url" "$BRANCH"; then
+        if git -C "$APP_DIR" rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+          git -C "$APP_DIR" switch "$BRANCH"
+          git -C "$APP_DIR" pull --ff-only "$url" "$BRANCH"
+        else
+          git -C "$APP_DIR" switch -c "$BRANCH" FETCH_HEAD
+        fi
+        return
+      fi
+    done
+    die "Failed to fetch branch $BRANCH from configured Git mirrors."
   else
     log "Cloning repo to $APP_DIR"
     mkdir -p "$(dirname "$APP_DIR")"
-    git clone -b "$BRANCH" "$REPO_URL" "$APP_DIR"
+    local url
+    for url in $(repo_urls); do
+      log "Cloning $BRANCH via $url"
+      if git clone -b "$BRANCH" "$url" "$APP_DIR"; then
+        return
+      fi
+    done
+    die "Failed to clone branch $BRANCH from configured Git mirrors."
   fi
 }
 
@@ -100,8 +131,56 @@ compose() {
   fi
 }
 
+container_cli() {
+  if command -v podman >/dev/null 2>&1; then
+    printf 'podman\n'
+  elif command -v docker >/dev/null 2>&1; then
+    printf 'docker\n'
+  else
+    die "podman/docker not found."
+  fi
+}
+
+pull_image_from_mirrors() {
+  local image="$1"
+  local target="$2"
+  local cli mirror source
+  cli="$(container_cli)"
+
+  if "$cli" image exists "$target" >/dev/null 2>&1; then
+    log "Image already exists: $target"
+    return
+  fi
+
+  for mirror in $CONTAINER_IMAGE_MIRRORS; do
+    source="${mirror}/${image}"
+    log "Pulling $target via $source"
+    if "$cli" pull "$source"; then
+      "$cli" tag "$source" "$target"
+      return
+    fi
+  done
+
+  if [ "$ALLOW_DIRECT_DOWNLOADS" = "1" ]; then
+    log "Pulling $target directly"
+    "$cli" pull "$target"
+    return
+  fi
+
+  die "Failed to pull $target from configured container mirrors."
+}
+
+prepull_images() {
+  pull_image_from_mirrors library/maven:3.9.9-eclipse-temurin-17 maven:3.9.9-eclipse-temurin-17
+  pull_image_from_mirrors library/eclipse-temurin:17-jre eclipse-temurin:17-jre
+  pull_image_from_mirrors library/mariadb:10.11 mariadb:10.11
+  pull_image_from_mirrors library/nginx:1.26-alpine nginx:1.26-alpine
+}
+
 start_stack() {
   cd "$APP_DIR"
+  log "Preparing base images from China mirrors"
+  prepull_images
   log "Starting containers"
   compose up -d --build
 }

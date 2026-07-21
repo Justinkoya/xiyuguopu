@@ -1,6 +1,6 @@
 services:
   db:
-    image: docker.m.daocloud.io/library/mariadb:10.11
+    image: mariadb:10.11
     container_name: xiyuguopu-db
     restart: unless-stopped
     environment:
@@ -39,7 +39,7 @@ services:
       - xiyuguopu
 
   nginx:
-    image: docker.m.daocloud.io/library/nginx:1.26-alpine
+    image: nginx:1.26-alpine
     container_name: xiyuguopu-nginx
     restart: unless-stopped
     depends_on:
