@@ -41,7 +41,7 @@ public class AdminOrderController {
 
     /**
      * PUT /api/admin/orders/{id}/status
-     * Body: {"status": "SHIPPED"}
+     * Body: {"status": "SHIPPED", "trackingNumber": "SF123456", "shippingCompany": "顺丰"}
      */
     @PutMapping("/orders/{id}/status")
     public Result<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
@@ -49,7 +49,7 @@ public class AdminOrderController {
         if (status == null || status.isBlank()) {
             return Result.fail("状态不能为空");
         }
-        adminOrderService.updateStatus(id, status);
+        adminOrderService.updateStatus(id, status, body.get("trackingNumber"), body.get("shippingCompany"));
         return Result.ok();
     }
 }

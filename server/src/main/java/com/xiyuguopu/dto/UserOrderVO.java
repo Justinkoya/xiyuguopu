@@ -41,6 +41,10 @@ public class UserOrderVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private LocalDateTime createdAt;
 
+    /** 物流信息 */
+    private String trackingNumber;
+    private String shippingCompany;
+
     @Data
     @Builder
     public static class OrderItemVO {

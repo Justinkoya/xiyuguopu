@@ -28,6 +28,10 @@ public class OrderHead {
     private String wxTransactionId;
     private String remark;
 
+    /** 物流信息 */
+    private String trackingNumber;
+    private String shippingCompany;
+
     private LocalDateTime paidAt;
     private LocalDateTime shippedAt;
     private LocalDateTime completedAt;

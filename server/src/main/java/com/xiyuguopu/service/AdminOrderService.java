@@ -74,13 +74,15 @@ public class AdminOrderService {
                 .completedAt(head.getCompletedAt())
                 .cancelledAt(head.getCancelledAt())
                 .createdAt(head.getCreatedAt())
+                .trackingNumber(head.getTrackingNumber())
+                .shippingCompany(head.getShippingCompany())
                 .build();
     }
 
     /**
-     * 变更状态，自动填对应时间戳
+     * 变更状态，自动填对应时间戳；发货时设置物流信息
      */
-    public void updateStatus(Long id, String status) {
+    public void updateStatus(Long id, String status, String trackingNumber, String shippingCompany) {
         OrderHead head = orderHeadMapper.selectById(id);
         if (head == null) {
             throw new RuntimeException("订单不存在");
@@ -89,6 +91,8 @@ public class AdminOrderService {
         switch (status) {
             case "SHIPPED":
                 head.setShippedAt(LocalDateTime.now());
+                head.setTrackingNumber(trackingNumber != null ? trackingNumber : "");
+                head.setShippingCompany(shippingCompany != null ? shippingCompany : "");
                 break;
             case "COMPLETED":
                 head.setCompletedAt(LocalDateTime.now());

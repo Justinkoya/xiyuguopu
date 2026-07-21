@@ -32,6 +32,10 @@ public class AdminOrderVO {
     private LocalDateTime cancelledAt;
     private LocalDateTime createdAt;
 
+    /** 物流信息 */
+    private String trackingNumber;
+    private String shippingCompany;
+
     @Data
     @Builder
     public static class OrderItemVO {

@@ -193,6 +193,8 @@ public class OrderService {
                     .completedAt(head.getCompletedAt())
                     .cancelledAt(head.getCancelledAt())
                     .createdAt(head.getCreatedAt())
+                    .trackingNumber(head.getTrackingNumber())
+                    .shippingCompany(head.getShippingCompany())
                     .build();
         }).collect(Collectors.toList());
 
@@ -238,6 +240,8 @@ public class OrderService {
                 .completedAt(head.getCompletedAt())
                 .cancelledAt(head.getCancelledAt())
                 .createdAt(head.getCreatedAt())
+                .trackingNumber(head.getTrackingNumber())
+                .shippingCompany(head.getShippingCompany())
                 .build();
     }
 
