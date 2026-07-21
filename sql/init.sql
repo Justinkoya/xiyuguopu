@@ -290,6 +290,8 @@ CREATE TABLE order_head (
   status              VARCHAR(16)   NOT NULL DEFAULT 'UNPAID' COMMENT 'UNPAID/PAID/SHIPPED/COMPLETED/CANCELLED',
   wx_transaction_id   VARCHAR(64)   DEFAULT '' COMMENT '微信支付流水号',
   remark              VARCHAR(255)  DEFAULT '' COMMENT '用户备注',
+  tracking_number     VARCHAR(64)   DEFAULT '' COMMENT '快递单号',
+  shipping_company    VARCHAR(32)   DEFAULT '' COMMENT '快递公司',
   paid_at             DATETIME      COMMENT '支付时间',
   shipped_at          DATETIME      COMMENT '发货时间',
   completed_at        DATETIME      COMMENT '完成时间',
