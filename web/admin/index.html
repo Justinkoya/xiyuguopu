@@ -765,7 +765,12 @@
             <h4 class="font-bold mb-2">📍 收货地址</h4>
             <p class="text-xs text-gray-500">${addr.name || '-'} · ${addr.phone || ''}</p>
             <p class="text-xs text-gray-500">${addr.province || ''}${addr.city || ''}${addr.district || ''} ${addr.detail || ''}</p>
-            ${o.remark ? `<p class="text-xs text-gray-400 mt-1">备注: ${o.remark}</p>` : ''}
+            ${o.remark ? `<p class="text-xs text-gray-400 mt-1">备注: ${o.remark}</p>` : ''}
+            ${o.trackingNumber ? `<div class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+              <p class="text-xs font-bold text-amber-800">📦 物流信息</p>
+              <p class="text-xs text-amber-700">快递公司: ${o.shippingCompany || '-'}</p>
+              <p class="text-xs text-amber-700">快递单号: ${o.trackingNumber}</p>
+            </div>` : ''}
             <div class="mt-2 text-xs text-gray-400 space-y-0.5">
               <p>支付: ${formatTime(o.paidAt)}</p>
               <p>发货: ${formatTime(o.shippedAt)}</p>
@@ -781,8 +786,19 @@
   async function changeOrderStatus(id, status) {
     const labels = { SHIPPED: '发货', COMPLETED: '完成', CANCELLED: '取消' };
     if (!confirm(`确定要${labels[status] || status}该订单吗？`)) return;
+
+    let trackingNumber = '', shippingCompany = '';
+    if (status === 'SHIPPED') {
+      trackingNumber = prompt('请输入快递单号：');
+      if (!trackingNumber || !trackingNumber.trim()) return toast('快递单号不能为空', false);
+      shippingCompany = prompt('请输入快递公司（如：顺丰、中通、圆通、韵达、京东、EMS）：', '顺丰');
+      if (!shippingCompany || !shippingCompany.trim()) return toast('快递公司不能为空', false);
+      trackingNumber = trackingNumber.trim();
+      shippingCompany = shippingCompany.trim();
+    }
+
     try {
-      await api(`/admin/orders/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+      await api(`/admin/orders/${id}/status`, { method: 'PUT', body: JSON.stringify({ status, trackingNumber, shippingCompany }) });
       toast('状态已更新');
       loadOrders(orderPage);
     } catch (e) { toast('操作失败: ' + e.message, false); }
