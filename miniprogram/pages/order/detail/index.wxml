@@ -49,7 +49,7 @@
     </view>
     <view class="detail-info-row" wx:if="{{order.trackingNumber}}">
       <text class="detail-info-label">物流单号</text>
-      <text class="detail-info-value">{{order.shippingCompany}} {{order.trackingNumber}}</text>
+      <text class="detail-info-value" bindtap="onCopyTrackingNo">{{order.shippingCompany}} {{order.trackingNumber}} 📋</text>
     </view>
   </view>
 

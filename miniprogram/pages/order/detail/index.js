@@ -52,6 +52,11 @@ Page({
     wx.showToast({ title: '已复制订单号', icon: 'success' })
   },
 
+  onCopyTrackingNo() {
+    util.copyText(this.data.order.trackingNumber)
+    wx.showToast({ title: '已复制物流单号', icon: 'success' })
+  },
+
   onCopyWechat() {
     util.copyText('xiyuguopu')
     wx.showToast({ title: '已复制微信号', icon: 'success' })
