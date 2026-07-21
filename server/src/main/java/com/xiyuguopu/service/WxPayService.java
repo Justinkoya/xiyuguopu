@@ -1,5 +1,7 @@
 package com.xiyuguopu.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.xiyuguopu.entity.OrderHead;
 import com.xiyuguopu.entity.OrderItem;
 import com.xiyuguopu.entity.PackageDef;
@@ -10,6 +12,7 @@ import com.xiyuguopu.mapper.PackageDefMapper;
 import com.xiyuguopu.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -56,8 +59,9 @@ public class WxPayService {
     }
 
     /**
-     * 支付回调 — 更新订单状态 + 扣库存
+     * 支付回调 — 更新订单状态 + 累加销量（库存已在创建订单时扣减）
      */
+    @Transactional
     public void handleCallback(Long orderId, String transactionId) {
         OrderHead head = orderHeadMapper.selectById(orderId);
         if (head == null) {
@@ -73,31 +77,21 @@ public class WxPayService {
         head.setPaidAt(LocalDateTime.now());
         orderHeadMapper.updateById(head);
 
-        // 扣减库存
+        // 累加销量（付款成功才算销量）
         List<OrderItem> items = orderItemMapper.selectList(
-                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderItem>()
-                        .eq(OrderItem::getOrderId, orderId));
+                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
         for (OrderItem item : items) {
+            int qty = item.getQuantity();
             if ("PACKAGE".equals(item.getItemType())) {
-                PackageDef pkg = packageDefMapper.selectOne(
-                        new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<PackageDef>()
+                packageDefMapper.update(null,
+                        new LambdaUpdateWrapper<PackageDef>()
+                                .setSql("sale = COALESCE(sale,0) + " + qty)
                                 .eq(PackageDef::getCode, item.getPackageCode()));
-                if (pkg != null) {
-                    int newStock = pkg.getStock() - item.getQuantity();
-                    if (newStock < 0) newStock = 0;
-                    pkg.setStock(newStock);
-                    pkg.setSale((pkg.getSale() == null ? 0 : pkg.getSale()) + item.getQuantity());
-                    packageDefMapper.updateById(pkg);
-                }
-            } else {
-                Product p = productMapper.selectById(item.getProductId());
-                if (p != null) {
-                    int newStock = p.getStock() - item.getQuantity();
-                    if (newStock < 0) newStock = 0;
-                    p.setStock(newStock);
-                    p.setSale((p.getSale() == null ? 0 : p.getSale()) + item.getQuantity());
-                    productMapper.updateById(p);
-                }
+            } else if (item.getProductId() != null) {
+                productMapper.update(null,
+                        new LambdaUpdateWrapper<Product>()
+                                .setSql("sale = COALESCE(sale,0) + " + qty)
+                                .eq(Product::getId, item.getProductId()));
             }
         }
     }

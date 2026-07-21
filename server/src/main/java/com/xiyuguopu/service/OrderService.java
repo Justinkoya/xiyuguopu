@@ -1,6 +1,7 @@
 package com.xiyuguopu.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xiyuguopu.dto.CreateOrderDTO;
 import com.xiyuguopu.dto.UserOrderVO;
@@ -8,6 +9,7 @@ import com.xiyuguopu.entity.*;
 import com.xiyuguopu.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,8 +31,9 @@ public class OrderService {
     private final PackageDefMapper packageDefMapper;
 
     /**
-     * 创建订单
+     * 创建订单 — 原子扣库存，事务回滚
      */
+    @Transactional
     public OrderHead create(Long userId, CreateOrderDTO dto) {
         // 1. 校验地址
         Address addr = addressMapper.selectById(dto.getAddressId());
@@ -47,7 +50,7 @@ public class OrderService {
         snapshot.put("district", addr.getDistrict());
         snapshot.put("detail", addr.getDetail());
 
-        // 3. 校验商品/套餐并计算金额
+        // 3. 原子扣库存 + 构建明细
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
 
@@ -62,12 +65,20 @@ public class OrderService {
                     : itemDTO.getItemType().toUpperCase();
 
             if ("PACKAGE".equals(itemType)) {
+                // 先查套餐信息（价格、名称）
                 PackageDef pkg = packageDefMapper.selectOne(
                         new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, itemDTO.getPackageCode()));
                 if (pkg == null) {
                     throw new RuntimeException("套餐不存在: code=" + itemDTO.getPackageCode());
                 }
-                if (pkg.getStock() == null || pkg.getStock() < quantity) {
+
+                // 原子扣库存: UPDATE package_def SET stock = stock - ? WHERE code = ? AND stock >= ?
+                int updated = packageDefMapper.update(null,
+                        new LambdaUpdateWrapper<PackageDef>()
+                                .setSql("stock = stock - " + quantity)
+                                .eq(PackageDef::getCode, pkg.getCode())
+                                .ge(PackageDef::getStock, quantity));
+                if (updated == 0) {
                     throw new RuntimeException("「" + pkg.getName() + "」库存不足");
                 }
 
@@ -81,11 +92,19 @@ public class OrderService {
                 orderItems.add(item);
                 total = total.add(item.getSubtotal());
             } else {
+                // 先查商品信息（价格、名称）
                 Product p = productMapper.selectById(itemDTO.getProductId());
                 if (p == null) {
                     throw new RuntimeException("商品不存在: id=" + itemDTO.getProductId());
                 }
-                if (p.getStock() == null || p.getStock() < quantity) {
+
+                // 原子扣库存: UPDATE product SET stock = stock - ? WHERE id = ? AND stock >= ?
+                int updated = productMapper.update(null,
+                        new LambdaUpdateWrapper<Product>()
+                                .setSql("stock = stock - " + quantity)
+                                .eq(Product::getId, p.getId())
+                                .ge(Product::getStock, quantity));
+                if (updated == 0) {
                     throw new RuntimeException("「" + p.getName() + "」库存不足");
                 }
 
@@ -223,13 +242,32 @@ public class OrderService {
     }
 
     /**
-     * 取消订单（仅 UNPAID）
+     * 取消订单（仅 UNPAID）— 回退库存
      */
     public void cancel(Long userId, Long orderId) {
         OrderHead head = getOwnOrder(userId, orderId);
         if (!"UNPAID".equals(head.getStatus())) {
             throw new RuntimeException("仅待支付订单可取消");
         }
+
+        // 回退库存
+        List<OrderItem> items = orderItemMapper.selectList(
+                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
+        for (OrderItem item : items) {
+            int qty = item.getQuantity();
+            if ("PACKAGE".equals(item.getItemType())) {
+                packageDefMapper.update(null,
+                        new LambdaUpdateWrapper<PackageDef>()
+                                .setSql("stock = stock + " + qty)
+                                .eq(PackageDef::getCode, item.getPackageCode()));
+            } else if (item.getProductId() != null) {
+                productMapper.update(null,
+                        new LambdaUpdateWrapper<Product>()
+                                .setSql("stock = stock + " + qty)
+                                .eq(Product::getId, item.getProductId()));
+            }
+        }
+
         head.setStatus("CANCELLED");
         head.setCancelledAt(LocalDateTime.now());
         orderHeadMapper.updateById(head);
