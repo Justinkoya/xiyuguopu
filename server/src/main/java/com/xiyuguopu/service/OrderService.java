@@ -65,6 +65,9 @@ public class OrderService {
                     : itemDTO.getItemType().toUpperCase();
 
             if ("PACKAGE".equals(itemType)) {
+                if (itemDTO.getPackageCode() == null || itemDTO.getPackageCode().isBlank()) {
+                    throw new RuntimeException("套餐编码不能为空");
+                }
                 // 先查套餐信息（价格、名称）
                 PackageDef pkg = packageDefMapper.selectOne(
                         new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, itemDTO.getPackageCode()));
@@ -92,6 +95,9 @@ public class OrderService {
                 orderItems.add(item);
                 total = total.add(item.getSubtotal());
             } else {
+                if (itemDTO.getProductId() == null) {
+                    throw new RuntimeException("商品ID不能为空");
+                }
                 // 先查商品信息（价格、名称）
                 Product p = productMapper.selectById(itemDTO.getProductId());
                 if (p == null) {

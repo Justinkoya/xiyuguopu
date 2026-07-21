@@ -64,12 +64,15 @@ Page({
       // Step 1: 创建订单
       const order = await api.createOrder({
         addressId: this.data.address.id,
-        items: this.data.items.map(i => ({
-          itemType: i.itemType || 'PRODUCT',
-          productId: i.productId,
-          packageCode: i.packageCode,
-          quantity: i.quantity
-        })),
+        items: this.data.items.map(i => {
+          const itemType = i.itemType || 'PRODUCT'
+          return {
+            itemType,
+            productId: itemType === 'PACKAGE' ? null : (i.productId || i.id),
+            packageCode: itemType === 'PACKAGE' ? (i.packageCode || i.code || i.id) : i.packageCode,
+            quantity: i.quantity
+          }
+        }),
         remark: this.data.remark
       })
 

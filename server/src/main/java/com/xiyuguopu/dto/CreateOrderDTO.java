@@ -1,5 +1,6 @@
 package com.xiyuguopu.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -23,11 +24,15 @@ public class CreateOrderDTO {
 
     @Data
     public static class OrderItemDTO {
+        @JsonAlias("product_id")
         private Long productId;
+        @JsonAlias("item_type")
         private String itemType = "PRODUCT";
+        @JsonAlias("package_code")
         private String packageCode;
 
         @NotNull(message = "数量不能为空")
+        @JsonAlias("qty")
         private Integer quantity;
     }
 }
