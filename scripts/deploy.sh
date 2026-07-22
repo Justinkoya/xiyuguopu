@@ -4,7 +4,7 @@ set -Eeuo pipefail
 REPO_URL="${REPO_URL:-https://github.com/Justinkoya/xiyuguopu.git}"
 GIT_MIRROR_PREFIXES="${GIT_MIRROR_PREFIXES:-}"
 ALLOW_DIRECT_DOWNLOADS="${ALLOW_DIRECT_DOWNLOADS:-1}"
-CONTAINER_IMAGE_MIRRORS="${CONTAINER_IMAGE_MIRRORS:-docker.m.daocloud.io docker.1ms.run docker.1panel.live dockerproxy.net}"
+CONTAINER_IMAGE_MIRRORS="${CONTAINER_IMAGE_MIRRORS:-dockerproxy.net docker.1panel.live}"
 BRANCH="${BRANCH:-codex/admin-image-upload}"
 APP_DIR="${APP_DIR:-/opt/xiyuguopu}"
 PUBLIC_HOST="${PUBLIC_HOST:-47.109.93.162}"
