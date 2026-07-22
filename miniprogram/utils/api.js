@@ -4,7 +4,7 @@
 
 const util = require('./util.js')
 
-const ENV = 'prod'                                 // 'dev' | 'prod' — 上线时改这里
+const ENV = 'dev'                                 // 'dev' | 'prod' — 上线时改这里
 const CFG = {
   dev: {
     baseUrl: 'http://localhost/api',              // 走 Nginx :80 → 反代到 :8080
