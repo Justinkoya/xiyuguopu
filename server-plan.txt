@@ -20,7 +20,7 @@
 
 数据库设计（8张表）
 ==================
-11 张表，已从 products.js 全部导入初始数据：
+10 张表，已从 products.js 全部导入初始数据：
 
 表	说明	初始数据
 category	商品分类	3 条（尝鲜/珍品/好物）
@@ -32,7 +32,6 @@ user	用户	空（注册时写入）
 address	收货地址	空
 order_head + order_item	订单	空
 sys_user	后台管理员	admin / admin123
-site_config	站点配置	品牌名、微信、统计数字等 11 项
 
 
 核心表：
