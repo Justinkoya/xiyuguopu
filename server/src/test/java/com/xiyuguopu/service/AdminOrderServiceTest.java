@@ -47,7 +47,7 @@ class AdminOrderServiceTest {
         pkg.setQuantity(1);
 
         when(orderHeadMapper.selectById(10L)).thenReturn(head);
-        when(orderItemMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(product, pkg));
+        when(orderItemMapper.selectList(anyOrderItemQuery())).thenReturn(List.of(product, pkg));
 
         service.updateStatus(10L, OrderStatusService.CANCELLED, null, null);
 
@@ -55,5 +55,10 @@ class AdminOrderServiceTest {
         verify(inventoryService).restore(pkg);
         verify(inventoryService, times(2)).restore(any(OrderItem.class));
         verify(orderHeadMapper).updateById(head);
+    }
+
+    @SuppressWarnings("unchecked")
+    private LambdaQueryWrapper<OrderItem> anyOrderItemQuery() {
+        return any(LambdaQueryWrapper.class);
     }
 }
