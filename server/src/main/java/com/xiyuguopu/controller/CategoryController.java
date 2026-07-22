@@ -1,33 +1,31 @@
 package com.xiyuguopu.controller;
 
 import com.xiyuguopu.common.Result;
+import com.xiyuguopu.dto.CatalogItemVO;
 import com.xiyuguopu.entity.Category;
-import com.xiyuguopu.mapper.CategoryMapper;
+import com.xiyuguopu.service.CategoryCatalogService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 分类接口 — 小程序公用
- */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryMapper categoryMapper;
+    private final CategoryCatalogService categoryCatalogService;
 
-    /**
-     * GET /api/categories — 所有分类，按 sortOrder 排序
-     */
     @GetMapping("/categories")
     public Result<List<Category>> listAll() {
-        List<Category> list = categoryMapper.selectList(
-                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Category>()
-                        .eq(Category::getIsEnabled, true)
-                        .orderByAsc(Category::getSortOrder)
-                        .orderByAsc(Category::getId));
-        return Result.ok(list);
+        return Result.ok(categoryCatalogService.listEnabledCategories());
+    }
+
+    @GetMapping("/categories/{code}/items")
+    public Result<List<CatalogItemVO>> listItems(@PathVariable String code) {
+        return Result.ok(categoryCatalogService.listItems(code));
     }
 }

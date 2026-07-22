@@ -1,454 +1,73 @@
-// ============================================================
-// API 封装层 — 替代云开发 db.js，直连 Spring Boot 后端
-// ============================================================
+const http = require('./http-client.js')
+const adapter = require('./data-adapter.js')
+const cart = require('./cart-store.js')
 
-const util = require('./util.js')
-
-const ENV = 'prod'                                 // 'dev' | 'prod' — 上线时改这里
-const CFG = {
-  dev: {
-    baseUrl: 'http://localhost/api',              // 走 Nginx :80 → 反代到 :8080
-    imageBase: 'http://localhost/images',         // 走 Nginx 静态文件
-  },
-  prod: {
-    baseUrl: 'http://47.109.93.162/api',
-    imageBase: 'http://47.109.93.162/images',
-  }
-}[ENV]
-
-// ========== 辅助 ==========
-
-/** 拼接完整图片 URL（dev → localhost, prod → 公网 IP/域名） */
-function imageUrl(path, fallback) {
-  if (!path) return fallback || CFG.imageBase + '/assortment.png'
-  if (path.startsWith('http')) return path        // 已是完整 URL
-  // 去重 images/ 前缀，统一拼接
-  const clean = path.replace(/\\/g, '/').replace(/^\//, '').replace(/^images\//, '')
-  return CFG.imageBase + '/' + clean
-}
-
-// ========== Token 管理 ==========
-
-function getToken() {
-  return wx.getStorageSync('token') || ''
-}
-
-function setToken(token) {
-  wx.setStorageSync('token', token)
-}
-
-// ========== HTTP 请求封装 ==========
-
-/**
- * 通用请求
- * 后端统一返回 Result<T> = { code: 200, msg: "success", data: ... }
- * 这里自动解包取 .data
- */
-function request(method, path, data) {
-  return new Promise((resolve, reject) => {
-    const token = getToken()
-    const header = { 'Content-Type': 'application/json' }
-    if (token) {
-      header['Authorization'] = 'Bearer ' + token
-    }
-
-    wx.request({
-      url: CFG.baseUrl + path,
-      method,
-      header,
-      data,
-      success(res) {
-        if (res.statusCode === 200) {
-          const body = res.data
-          // 后端统一 Result 包装
-          if (body && typeof body.code !== 'undefined') {
-            if (body.code === 200) {
-              resolve(body.data)
-            } else {
-              reject(new Error(body.message || body.msg || '请求失败'))
-            }
-          } else {
-            resolve(body)
-          }
-        } else if (res.statusCode === 401) {
-          // token 过期，清除并提示
-          wx.removeStorageSync('token')
-          reject(new Error('登录已过期，请重新打开小程序'))
-        } else {
-          reject(new Error('请求失败: ' + res.statusCode))
-        }
-      },
-      fail(err) {
-        console.error('网络请求失败:', err)
-        reject(new Error('网络连接失败，请检查后端服务是否启动'))
-      }
-    })
-  })
-}
-
-function get(path, data) {
-  let url = path
-  if (data) {
-    const params = Object.keys(data)
-      .filter(k => data[k] !== null && data[k] !== undefined && data[k] !== '')
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-      .join('&')
-    if (params) url += '?' + params
-  }
-  return request('GET', url)
-}
-
-function post(path, data) { return request('POST', path, data) }
-function put(path, data) { return request('PUT', path, data) }
-function del(path) { return request('DELETE', path) }
-
-// ========== 字段映射适配 ==========
-
-function toProductItem(raw) {
-  if (!raw) return null
-  const img = imageUrl(raw.image)
-  return {
-    _id: raw.id,
-    id: raw.id,
-    name: raw.name,
-    price: raw.price,
-    unit: raw.unit,
-    images: img ? [img] : [],
-    image: img,
-    tags: raw.tags || [],
-    badge: raw.badge,
-    description: raw.description,
-    featured: raw.featured,
-    highlight: raw.highlight,
-    highlightText: raw.highlightText,
-    extra: raw.extra,
-    stock: raw.stock,
-    hasStock: raw.stock !== undefined && raw.stock !== null,
-    isOnSale: raw.isOnSale,
-    // 兼容旧模板字段
-    subtitle: raw.description || '',               // 详情页用 subtitle
-    origin: parseOrigin(raw.extra),
-    scorecard: null,                                // 6星评分 — mergeProductExtras() 填充
-    costBreakdown: null,                            // 价格透明 — mergeProductExtras() 填充
-    ingredients: null,                              // 配料表 — mergeProductExtras() 填充
-    sales: raw.sale || raw.sales || raw.salesVolume || raw.saleCount || 0
-  }
-}
-
-/** 解析 extra 字段：JSON { region, orchard, harvestSeason } 或纯文本 → region */
-function parseOrigin(extra) {
-  if (!extra) return {}
-  try {
-    const obj = JSON.parse(extra)
-    return {
-      region: obj.region || '',
-      orchard: obj.orchard || '',
-      harvestSeason: obj.harvestSeason || ''
-    }
-  } catch (e) {
-    // 纯文本 → 当产地
-    return { region: String(extra), orchard: '', harvestSeason: '' }
-  }
-}
-
-function toCategoryItem(raw) {
-  if (!raw) return null
-  const colorMap = {
-    blue: '#2563EB',
-    amber: '#D88831',
-    green: '#059669',
-    red: '#B64A2E',
-    purple: '#7C3AED',
-    pink: '#DB2777',
-    orange: '#EA580C',
-    teal: '#0D9488',
-    cyan: '#0891B2',
-    lime: '#65A30D',
-    brown: '#8B5E34',
-    slate: '#475569'
-  }
-  return {
-    _id: raw.id,
-    id: raw.id,
-    code: raw.code,
-    entryType: raw.entryType || raw.entry_type || 'PRODUCT',
-    isEnabled: raw.isEnabled !== false && raw.is_enabled !== false,
-    name: raw.name,
-    description: '',
-    slug: raw.code,
-    color: colorMap[raw.themeColor] || raw.themeColor || '#C4774A',
-    icon: '',
-    products: []
-  }
-}
-
-function toAddressItem(raw) {
-  if (!raw) return null
-  return {
-    _id: raw.id,
-    id: raw.id,
-    name: raw.name,
-    phone: raw.phone,
-    province: raw.province || '',
-    city: raw.city || '',
-    district: raw.district || '',
-    detail: raw.detail || '',
-    isDefault: raw.isDefault,
-    createdAt: raw.createdAt
-  }
-}
-
-function toOrderItem(raw) {
-  if (!raw) return null
-  const createdAt = raw.createdAt || raw.createTime || raw.created_time || raw.created_at
-  const paidAt = raw.paidAt || raw.paidTime || raw.paid_time || raw.paid_at
-  const shippedAt = raw.shippedAt || raw.shippedTime || raw.shipped_time || raw.shipped_at
-  const completedAt = raw.completedAt || raw.completedTime || raw.completed_time || raw.completed_at
-  const cancelledAt = raw.cancelledAt || raw.cancelledTime || raw.cancelled_time || raw.cancelled_at
-
-  return {
-    _id: raw.id,
-    id: raw.id,
-    orderNo: raw.orderNo,
-    userId: raw.userId,
-    status: raw.status,                         // UNPAID/PAID/SHIPPED/COMPLETED/CANCELLED
-    statusText: util.getOrderStatusText(raw.status),
-    statusColor: util.getOrderStatusColor(raw.status),
-    total: raw.totalAmount,                     // 模板用 total
-    totalAmount: raw.totalAmount,
-    subtotal: raw.totalAmount,
-    shipping: 0,
-    totalCount: (raw.items || []).reduce((sum, i) => sum + (i.quantity || 0), 0),
-    items: (raw.items || []).map((i, index) => ({
-      itemType: i.itemType || 'PRODUCT',
-      productId: i.productId,
-      packageCode: i.packageCode,
-      orderItemKey: `${i.itemType || 'PRODUCT'}:${i.packageCode || i.productId || index}`,
-      name: i.productName,                      // 模板用 name
-      productName: i.productName,
-      price: i.price,
-      quantity: i.quantity,
-      unit: '',
-      image: ''
-    })),
-    address: raw.addressSnapshot || {},         // 模板用 address.xxx
-    addressSnapshot: raw.addressSnapshot,
-    remark: raw.remark || '',
-    wxTransactionId: raw.wxTransactionId,
-    trackingNumber: raw.trackingNumber || '',
-    shippingCompany: raw.shippingCompany || '',
-    createdAt,
-    createdAtText: util.formatTime(createdAt),
-    paidAt,
-    paidAtText: util.formatTime(paidAt),
-    shippedAt,
-    shippedAtText: util.formatTime(shippedAt),
-    completedAt,
-    completedAtText: util.formatTime(completedAt),
-    cancelledAt,
-    cancelledAtText: util.formatTime(cancelledAt)
-  }
-}
-
-function toPackageItem(raw) {
-  if (!raw) return null
-  const img = imageUrl(raw.image, imageUrl('assortment.png'))
-  const packageItems = (raw.items || []).map(item => {
-    if (typeof item === 'string') {
-      const parts = item.trim().split(/\s+/)
-      const quantity = parts.length > 1 ? parts.pop() : ''
-      return {
-        name: parts.join(' ') || item,
-        quantity,
-        text: item
-      }
-    }
-    const name = item.productName || item.name || ''
-    const quantity = item.quantity || ''
-    return {
-      name,
-      quantity,
-      text: `${name}${quantity ? ' ' + quantity : ''}`
-    }
-  }).filter(item => item.name)
-  const itemCount = packageItems.length
-  const tags = [
-    raw.badge || '精选套餐',
-    itemCount ? `${itemCount}款组合` : '',
-    raw.featured ? '首页推荐' : '',
-    '一键下单'
-  ].filter(Boolean)
-  return {
-    _id: raw.code,
-    id: raw.code,
-    productId: null,
-    itemType: 'PACKAGE',
-    packageCode: raw.code,
-    code: raw.code,
-    name: raw.name,
-    subtitle: raw.subtitle || '',
-    description: raw.subtitle || '',
-    price: raw.price,
-    unit: '套',
-    stock: raw.stock,
-    hasStock: raw.stock !== undefined && raw.stock !== null,
-    sales: raw.sale || raw.sales || 0,
-    image: img,
-    images: [img],                               // 详情页轮播用
-    tags,
-    origin: {},
-    scorecard: null,                             // 套餐无评分
-    costBreakdown: null,
-    ingredients: null,
-    items: packageItems.map(item => item.text),
-    packageItems,
-    itemCount,
-    hasPackageItems: itemCount > 0,
-    packageSummary: itemCount ? `${itemCount}款新疆干果组合` : '新疆干果组合',
-    packageFeatures: [
-      { title: '搭配省心', desc: '按场景配好，不用反复挑选' },
-      { title: '整套购买', desc: '下单、购物车、支付都按套餐处理' },
-      { title: '产地直发', desc: '和普通商品使用同一套图片与库存' }
-    ],
-    badge: raw.badge,
-    isHot: raw.featured || !!raw.badge,
-    extra: raw.extra
-  }
-}
-
-// ========== 评分卡 / 成本透明 适配 ==========
-
-// 维度中文标签 → 模板 key 映射
-const DIM_LABEL_MAP = {
-  '产地透明': 'originTransparency',
-  '颗粒均匀': 'sizeUniformity',
-  '干湿适口': 'moisture',
-  '洁净免洗': 'cleanliness',
-  '口感稳定': 'taste',
-  '配料纯净': 'purity'
-}
-
-// 成本项中文标签 → 模板 key 映射
-const COST_LABEL_MAP = {
-  '产地收购价': 'purchasePrice',
-  '冷链物流': 'logistics',
-  '包装+分拣': 'packaging',
-  '快递包邮': 'delivery',
-  '我们利润': 'profit'
-}
-
-function toScorecardData(vo) {
-  if (!vo) return null
-  const data = { overall: vo.totalScore || 0 }
-  ;(vo.dimensions || []).forEach(d => {
-    const key = DIM_LABEL_MAP[d.label] || d.label
-    data[key] = d.score || 0
-  })
-  return data
-}
-
-function toCostBreakdownData(vo) {
-  if (!vo) return null
-  const data = { profit: vo.profit || 0 }
-  ;(vo.items || []).forEach(item => {
-    const key = COST_LABEL_MAP[item.label] || item.label
-    data[key] = item.amount || 0
-  })
-  return data
-}
-
-/**
- * 按 productId 从列表中查找并合并 scorecard / costBreakdown 到 product 对象
- */
-function mergeProductExtras(product, scorecards, costBreakdowns) {
-  if (!product) return product
-  const id = product.id
-  const sc = (scorecards || []).find(s => s.productId === id)
-  const cb = (costBreakdowns || []).find(c => c.productId === id)
-  // 配料表：有 scorecard 则用 ingredientText 拆分数组，否则保持原值
-  let ingredients = product.ingredients
-  if (sc && sc.ingredientText) {
-    ingredients = sc.ingredientText.split(/[,，、\n]/).map(s => s.trim()).filter(Boolean)
-  }
-  return {
-    ...product,
-    scorecard: sc ? toScorecardData(sc) : null,
-    costBreakdown: cb ? toCostBreakdownData(cb) : null,
-    ingredients
-  }
-}
-
-// ========== API 方法 ==========
-
-// --- 登录 ---
 function login() {
-  // 生成一个持久的 mock code
   let code = wx.getStorageSync('mock_code')
   if (!code) {
     code = 'mp_user_' + Date.now()
     wx.setStorageSync('mock_code', code)
   }
-  return post('/wx/login', { code }).then(res => {
+  return http.post('/wx/login', { code }).then(res => {
     if (res && res.token) {
-      setToken(res.token)
+      http.setToken(res.token)
       return res
     }
     throw new Error('登录返回无效 token')
   })
 }
 
-// --- 分类 ---
 function getCategories() {
-  return get('/categories').then(list => (list || []).map(toCategoryItem))
+  return http.get('/categories').then(list => (list || []).map(adapter.toCategoryItem))
 }
 
-// --- 商品 ---
+function getCategoryItems(categoryCode) {
+  return http.get('/categories/' + categoryCode + '/items').then(list => (list || []).map(adapter.toCatalogItem))
+}
+
 function getProducts(categoryCode) {
-  return get('/products', categoryCode ? { categoryCode } : {})
-    .then(list => (list || []).map(toProductItem))
+  return http.get('/products', categoryCode ? { categoryCode } : {})
+    .then(list => (list || []).map(adapter.toProductItem))
 }
 
 function getProductDetail(id) {
-  return get('/products/' + id).then(toProductItem)
+  return http.get('/products/' + id).then(adapter.toProductItem)
 }
 
 function getFeaturedProducts() {
-  return get('/products', { featured: true }).then(list => (list || []).map(toProductItem))
+  return http.get('/products', { featured: true }).then(list => (list || []).map(adapter.toProductItem))
 }
 
-// --- 套餐 ---
 function getPackages() {
-  return get('/packages').then(list => (list || []).map(toPackageItem))
+  return http.get('/packages').then(list => (list || []).map(adapter.toPackageItem))
 }
 
 function getPackageDetail(code) {
-  return get('/packages/' + code).then(toPackageItem)
+  return http.get('/packages/' + code).then(adapter.toPackageItem)
 }
 
 function getFeaturedPackages() {
-  return get('/packages', { featured: true }).then(list => (list || []).map(toPackageItem))
+  return http.get('/packages', { featured: true }).then(list => (list || []).map(adapter.toPackageItem))
 }
 
-// --- 评分卡 & 成本透明 ---
 function getScorecards() {
-  return get('/scorecards')
+  return http.get('/scorecards')
 }
 
 function getCostBreakdown() {
-  return get('/cost-breakdown')
+  return http.get('/cost-breakdown')
 }
 
-// --- 地址 ---
 function getAddresses() {
-  return get('/user/addresses').then(list => (list || []).map(toAddressItem))
+  return http.get('/user/addresses').then(list => (list || []).map(adapter.toAddressItem))
 }
 
 function getAddressDetail(id) {
-  return get('/user/addresses/' + id).then(toAddressItem)
+  return http.get('/user/addresses/' + id).then(adapter.toAddressItem)
 }
 
 function addAddress(data) {
-  return post('/user/addresses', {
+  return http.post('/user/addresses', {
     name: data.name,
     phone: data.phone,
     province: data.province || '',
@@ -460,7 +79,7 @@ function addAddress(data) {
 }
 
 function updateAddress(id, data) {
-  return put('/user/addresses/' + id, {
+  return http.put('/user/addresses/' + id, {
     name: data.name,
     phone: data.phone,
     province: data.province || '',
@@ -472,12 +91,11 @@ function updateAddress(id, data) {
 }
 
 function deleteAddress(id) {
-  return del('/user/addresses/' + id)
+  return http.del('/user/addresses/' + id)
 }
 
-// --- 订单 ---
 function createOrder(data) {
-  return post('/orders', {
+  return http.post('/orders', {
     addressId: data.addressId,
     items: (data.items || []).map(i => ({
       itemType: i.itemType || 'PRODUCT',
@@ -492,11 +110,9 @@ function createOrder(data) {
 function getOrders(status, page, size) {
   const p = page || 1
   const s = size || 10
-  return get('/orders', { page: p, size: s }).then(res => {
-    // 后端 MyBatis-Plus Page: { records, total, current, size, pages }
+  return http.get('/orders', { page: p, size: s }).then(res => {
     const orders = (res && res.records) ? res.records : (Array.isArray(res) ? res : [])
-    let result = orders.map(toOrderItem)
-    // 前端按状态过滤（后端暂不支持 status 参数过滤）
+    let result = orders.map(adapter.toOrderItem)
     if (status && status !== 'all') {
       result = result.filter(o => o.status === status)
     }
@@ -511,131 +127,55 @@ function getOrders(status, page, size) {
 }
 
 function getOrderDetail(id) {
-  return get('/orders/' + id).then(toOrderItem)
+  return http.get('/orders/' + id).then(adapter.toOrderItem)
 }
 
 function cancelOrder(id) {
-  return post('/orders/' + id + '/cancel')
+  return http.post('/orders/' + id + '/cancel')
 }
 
-// --- 支付 ---
 function pay(orderId) {
-  return post('/wx/pay', { orderId })
+  return http.post('/wx/pay', { orderId })
 }
 
 function payCallback(orderId, transactionId) {
-  return post('/wx/pay-callback', { orderId, transactionId })
-}
-
-// ========== 购物车（本地存储） ==========
-
-function getCart() {
-  try {
-    return wx.getStorageSync('cart') || []
-  } catch (e) {
-    return []
-  }
-}
-
-function saveCart(items) {
-  try {
-    wx.setStorageSync('cart', items)
-    updateCartBadge(items)
-  } catch (e) {
-    console.error('保存购物车失败:', e)
-  }
-}
-
-function updateCartBadge(items) {
-  const app = getApp()
-  if (!app) return
-  const count = (items || []).reduce((s, i) => s + (i.quantity || 0), 0)
-  app.globalData.cartCount = count
-  if (count > 0) {
-    wx.setTabBarBadge({ index: 2, text: String(Math.min(count, 99)) })
-  } else {
-    wx.removeTabBarBadge({ index: 2 })
-  }
-}
-
-function cartKey(item) {
-  return (item.itemType || 'PRODUCT') + ':' + (item.packageCode || item.productId || item.id)
-}
-
-/** 加入购物车（已存在则累加数量） */
-function addToCart(productId, name, price, unit, image, quantity, options) {
-  const cart = getCart()
-  const item = {
-    itemType: (options && options.itemType) || 'PRODUCT',
-    productId,
-    packageCode: options && options.packageCode,
-    name,
-    price: price || 0,
-    unit: unit || '500g',
-    image: image || '',
-    quantity,
-    checked: true
-  }
-  item.cartKey = cartKey(item)
-  const existing = cart.find(i => (i.cartKey || cartKey(i)) === item.cartKey)
-  if (existing) {
-    existing.quantity += quantity
-  } else {
-    cart.push(item)
-  }
-  saveCart(cart)
-}
-
-/** 结算后移除已购商品 */
-function removeCartItems(items) {
-  if (!items || items.length === 0) return
-  const keySet = new Set(items.map(i => i.cartKey || cartKey(i)))
-  saveCart(getCart().filter(i => !keySet.has(i.cartKey || cartKey(i))))
+  return http.post('/wx/pay-callback', { orderId, transactionId })
 }
 
 module.exports = {
-  // 核心
   login,
-  getToken,
-  setToken,
-  imageUrl,
-  // 分类
+  getToken: http.getToken,
+  setToken: http.setToken,
+  imageUrl: http.imageUrl,
   getCategories,
-  // 商品
+  getCategoryItems,
   getProducts,
   getProductDetail,
   getFeaturedProducts,
-  // 套餐
   getPackages,
   getPackageDetail,
   getFeaturedPackages,
-  // 地址
   getAddresses,
   getAddressDetail,
   addAddress,
   updateAddress,
   deleteAddress,
-  // 订单
   createOrder,
   getOrders,
   getOrderDetail,
   cancelOrder,
-  // 支付
   pay,
   payCallback,
-  // 购物车
-  getCart,
-  saveCart,
-  addToCart,
-  removeCartItems,
-  // 评分卡 & 成本透明
+  getCart: cart.getCart,
+  saveCart: cart.saveCart,
+  addToCart: cart.addToCart,
+  removeCartItems: cart.removeCartItems,
   getScorecards,
   getCostBreakdown,
-  mergeProductExtras,
-  // 适配器
-  toProductItem,
-  toOrderItem,
-  toAddressItem,
-  toScorecardData,
-  toCostBreakdownData
+  mergeProductExtras: adapter.mergeProductExtras,
+  toProductItem: adapter.toProductItem,
+  toOrderItem: adapter.toOrderItem,
+  toAddressItem: adapter.toAddressItem,
+  toScorecardData: adapter.toScorecardData,
+  toCostBreakdownData: adapter.toCostBreakdownData
 }

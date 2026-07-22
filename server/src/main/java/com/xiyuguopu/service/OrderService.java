@@ -1,12 +1,20 @@
 package com.xiyuguopu.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiyuguopu.common.BusinessException;
 import com.xiyuguopu.dto.CreateOrderDTO;
 import com.xiyuguopu.dto.UserOrderVO;
-import com.xiyuguopu.entity.*;
-import com.xiyuguopu.mapper.*;
+import com.xiyuguopu.entity.Address;
+import com.xiyuguopu.entity.OrderHead;
+import com.xiyuguopu.entity.OrderItem;
+import com.xiyuguopu.entity.PackageDef;
+import com.xiyuguopu.entity.Product;
+import com.xiyuguopu.mapper.AddressMapper;
+import com.xiyuguopu.mapper.OrderHeadMapper;
+import com.xiyuguopu.mapper.OrderItemMapper;
+import com.xiyuguopu.mapper.PackageDefMapper;
+import com.xiyuguopu.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
-/**
- * 用户端订单
- */
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -29,19 +39,17 @@ public class OrderService {
     private final AddressMapper addressMapper;
     private final ProductMapper productMapper;
     private final PackageDefMapper packageDefMapper;
+    private final OrderAssembler orderAssembler;
+    private final InventoryService inventoryService;
+    private final OrderStatusService orderStatusService;
 
-    /**
-     * 创建订单 — 原子扣库存，事务回滚
-     */
     @Transactional
     public OrderHead create(Long userId, CreateOrderDTO dto) {
-        // 1. 校验地址
         Address addr = addressMapper.selectById(dto.getAddressId());
         if (addr == null || !addr.getUserId().equals(userId)) {
-            throw new RuntimeException("收货地址不存在");
+            throw BusinessException.notFound("收货地址不存在");
         }
 
-        // 2. 构建地址快照
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("name", addr.getName());
         snapshot.put("phone", addr.getPhone());
@@ -50,14 +58,13 @@ public class OrderService {
         snapshot.put("district", addr.getDistrict());
         snapshot.put("detail", addr.getDetail());
 
-        // 3. 原子扣库存 + 构建明细
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (CreateOrderDTO.OrderItemDTO itemDTO : dto.getItems()) {
             int quantity = itemDTO.getQuantity() == null ? 0 : itemDTO.getQuantity();
             if (quantity <= 0) {
-                throw new RuntimeException("商品数量不合法");
+                throw BusinessException.badRequest("商品数量不合法");
             }
 
             String itemType = itemDTO.getItemType() == null || itemDTO.getItemType().isBlank()
@@ -65,83 +72,26 @@ public class OrderService {
                     : itemDTO.getItemType().toUpperCase();
 
             if ("PACKAGE".equals(itemType)) {
-                if (itemDTO.getPackageCode() == null || itemDTO.getPackageCode().isBlank()) {
-                    throw new RuntimeException("套餐编码不能为空");
-                }
-                // 先查套餐信息（价格、名称）
-                PackageDef pkg = packageDefMapper.selectOne(
-                        new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, itemDTO.getPackageCode()));
-                if (pkg == null) {
-                    throw new RuntimeException("套餐不存在: code=" + itemDTO.getPackageCode());
-                }
-
-                // 原子扣库存: UPDATE package_def SET stock = stock - ? WHERE code = ? AND stock >= ?
-                int updated = packageDefMapper.update(null,
-                        new LambdaUpdateWrapper<PackageDef>()
-                                .setSql("stock = stock - " + quantity)
-                                .eq(PackageDef::getCode, pkg.getCode())
-                                .ge(PackageDef::getStock, quantity));
-                if (updated == 0) {
-                    throw new RuntimeException("「" + pkg.getName() + "」库存不足");
-                }
-
-                OrderItem item = new OrderItem();
-                item.setItemType("PACKAGE");
-                item.setPackageCode(pkg.getCode());
-                item.setProductName(pkg.getName());
-                item.setPrice(BigDecimal.valueOf(pkg.getPrice()));
-                item.setQuantity(quantity);
-                item.setSubtotal(BigDecimal.valueOf(pkg.getPrice()).multiply(BigDecimal.valueOf(quantity)));
+                OrderItem item = buildPackageOrderItem(itemDTO, quantity);
                 orderItems.add(item);
                 total = total.add(item.getSubtotal());
             } else {
-                if (itemDTO.getProductId() == null) {
-                    throw new RuntimeException("商品ID不能为空");
-                }
-                // 先查商品信息（价格、名称）
-                Product p = productMapper.selectById(itemDTO.getProductId());
-                if (p == null) {
-                    throw new RuntimeException("商品不存在: id=" + itemDTO.getProductId());
-                }
-
-                // 原子扣库存: UPDATE product SET stock = stock - ? WHERE id = ? AND stock >= ?
-                int updated = productMapper.update(null,
-                        new LambdaUpdateWrapper<Product>()
-                                .setSql("stock = stock - " + quantity)
-                                .eq(Product::getId, p.getId())
-                                .ge(Product::getStock, quantity));
-                if (updated == 0) {
-                    throw new RuntimeException("「" + p.getName() + "」库存不足");
-                }
-
-                OrderItem item = new OrderItem();
-                item.setItemType("PRODUCT");
-                item.setProductId(p.getId());
-                item.setProductName(p.getName());
-                item.setPrice(BigDecimal.valueOf(p.getPrice()));
-                item.setQuantity(quantity);
-                item.setSubtotal(BigDecimal.valueOf(p.getPrice()).multiply(BigDecimal.valueOf(quantity)));
+                OrderItem item = buildProductOrderItem(itemDTO, quantity);
                 orderItems.add(item);
                 total = total.add(item.getSubtotal());
             }
         }
 
-        // 4. 生成订单号
-        String orderNo = "XG" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
-                + String.format("%04d", new Random().nextInt(10000));
-
-        // 5. 插入订单主表
         OrderHead head = new OrderHead();
-        head.setOrderNo(orderNo);
+        head.setOrderNo(newOrderNo());
         head.setUserId(userId);
         head.setAddressId(addr.getId());
         head.setAddressSnapshot(snapshot);
         head.setTotalAmount(total);
-        head.setStatus("UNPAID");
+        head.setStatus(OrderStatusService.UNPAID);
         head.setRemark(dto.getRemark() != null ? dto.getRemark() : "");
         orderHeadMapper.insert(head);
 
-        // 6. 插入订单明细
         for (OrderItem item : orderItems) {
             item.setOrderId(head.getId());
             orderItemMapper.insert(item);
@@ -150,18 +100,13 @@ public class OrderService {
         return head;
     }
 
-    /**
-     * 我的订单列表（含商品明细）
-     */
     public Page<UserOrderVO> list(Long userId, int page, int size) {
-        // 1. 分页查订单主表
         LambdaQueryWrapper<OrderHead> qw = new LambdaQueryWrapper<OrderHead>()
                 .eq(OrderHead::getUserId, userId)
                 .orderByDesc(OrderHead::getCreatedAt);
         Page<OrderHead> headPage = orderHeadMapper.selectPage(new Page<>(page, size), qw);
         List<OrderHead> heads = headPage.getRecords();
 
-        // 2. 批量查所有订单的商品明细
         List<Long> orderIds = heads.stream().map(OrderHead::getId).collect(Collectors.toList());
         List<OrderItem> allItems = orderIds.isEmpty()
                 ? Collections.emptyList()
@@ -169,130 +114,92 @@ public class OrderService {
         Map<Long, List<OrderItem>> itemMap = allItems.stream()
                 .collect(Collectors.groupingBy(OrderItem::getOrderId));
 
-        // 3. 组装 VO
-        List<UserOrderVO> vos = heads.stream().map(head -> {
-            List<OrderItem> items = itemMap.getOrDefault(head.getId(), Collections.emptyList());
-            List<UserOrderVO.OrderItemVO> itemVOs = items.stream()
-                    .map(i -> UserOrderVO.OrderItemVO.builder()
-                            .itemType(i.getItemType())
-                            .productId(i.getProductId())
-                            .packageCode(i.getPackageCode())
-                            .productName(i.getProductName())
-                            .price(i.getPrice())
-                            .quantity(i.getQuantity())
-                            .subtotal(i.getSubtotal())
-                            .build())
-                    .collect(Collectors.toList());
+        List<UserOrderVO> vos = heads.stream()
+                .map(head -> orderAssembler.toUserVO(head, itemMap.getOrDefault(head.getId(), Collections.emptyList())))
+                .collect(Collectors.toList());
 
-            return UserOrderVO.builder()
-                    .id(head.getId())
-                    .orderNo(head.getOrderNo())
-                    .userId(head.getUserId())
-                    .status(head.getStatus())
-                    .totalAmount(head.getTotalAmount())
-                    .remark(head.getRemark())
-                    .addressSnapshot(head.getAddressSnapshot())
-                    .wxTransactionId(head.getWxTransactionId())
-                    .items(itemVOs)
-                    .paidAt(head.getPaidAt())
-                    .shippedAt(head.getShippedAt())
-                    .completedAt(head.getCompletedAt())
-                    .cancelledAt(head.getCancelledAt())
-                    .createdAt(head.getCreatedAt())
-                    .trackingNumber(head.getTrackingNumber())
-                    .shippingCompany(head.getShippingCompany())
-                    .build();
-        }).collect(Collectors.toList());
-
-        // 4. 构造分页结果
         Page<UserOrderVO> voPage = new Page<>(page, size, headPage.getTotal());
         voPage.setRecords(vos);
         return voPage;
     }
 
-    /**
-     * 订单详情
-     */
     public UserOrderVO detail(Long userId, Long orderId) {
         OrderHead head = getOwnOrder(userId, orderId);
-
         List<OrderItem> items = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
-
-        List<UserOrderVO.OrderItemVO> itemVOs = items.stream()
-                .map(i -> UserOrderVO.OrderItemVO.builder()
-                        .itemType(i.getItemType())
-                        .productId(i.getProductId())
-                        .packageCode(i.getPackageCode())
-                        .productName(i.getProductName())
-                        .price(i.getPrice())
-                        .quantity(i.getQuantity())
-                        .subtotal(i.getSubtotal())
-                        .build())
-                .collect(Collectors.toList());
-
-        return UserOrderVO.builder()
-                .id(head.getId())
-                .orderNo(head.getOrderNo())
-                .userId(head.getUserId())
-                .status(head.getStatus())
-                .totalAmount(head.getTotalAmount())
-                .remark(head.getRemark())
-                .addressSnapshot(head.getAddressSnapshot())
-                .wxTransactionId(head.getWxTransactionId())
-                .items(itemVOs)
-                .paidAt(head.getPaidAt())
-                .shippedAt(head.getShippedAt())
-                .completedAt(head.getCompletedAt())
-                .cancelledAt(head.getCancelledAt())
-                .createdAt(head.getCreatedAt())
-                .trackingNumber(head.getTrackingNumber())
-                .shippingCompany(head.getShippingCompany())
-                .build();
+        return orderAssembler.toUserVO(head, items);
     }
 
-    /**
-     * 取消订单（仅 UNPAID）— 回退库存
-     */
+    @Transactional
     public void cancel(Long userId, Long orderId) {
         OrderHead head = getOwnOrder(userId, orderId);
-        if (!"UNPAID".equals(head.getStatus())) {
-            throw new RuntimeException("仅待支付订单可取消");
-        }
+        orderStatusService.transition(head, OrderStatusService.CANCELLED);
 
-        // 回退库存
         List<OrderItem> items = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
         for (OrderItem item : items) {
-            int qty = item.getQuantity();
-            if ("PACKAGE".equals(item.getItemType())) {
-                packageDefMapper.update(null,
-                        new LambdaUpdateWrapper<PackageDef>()
-                                .setSql("stock = stock + " + qty)
-                                .eq(PackageDef::getCode, item.getPackageCode()));
-            } else if (item.getProductId() != null) {
-                productMapper.update(null,
-                        new LambdaUpdateWrapper<Product>()
-                                .setSql("stock = stock + " + qty)
-                                .eq(Product::getId, item.getProductId()));
-            }
+            inventoryService.restore(item);
         }
 
-        head.setStatus("CANCELLED");
-        head.setCancelledAt(LocalDateTime.now());
         orderHeadMapper.updateById(head);
     }
 
-    // ---- 私有工具 ----
+    private OrderItem buildPackageOrderItem(CreateOrderDTO.OrderItemDTO itemDTO, int quantity) {
+        if (itemDTO.getPackageCode() == null || itemDTO.getPackageCode().isBlank()) {
+            throw BusinessException.badRequest("套餐编码不能为空");
+        }
+        PackageDef pkg = packageDefMapper.selectOne(
+                new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, itemDTO.getPackageCode()));
+        if (pkg == null) {
+            throw BusinessException.notFound("套餐不存在: code=" + itemDTO.getPackageCode());
+        }
+
+        inventoryService.deductPackage(pkg, quantity);
+
+        OrderItem item = new OrderItem();
+        item.setItemType("PACKAGE");
+        item.setPackageCode(pkg.getCode());
+        item.setProductName(pkg.getName());
+        item.setPrice(BigDecimal.valueOf(pkg.getPrice()));
+        item.setQuantity(quantity);
+        item.setSubtotal(BigDecimal.valueOf(pkg.getPrice()).multiply(BigDecimal.valueOf(quantity)));
+        return item;
+    }
+
+    private OrderItem buildProductOrderItem(CreateOrderDTO.OrderItemDTO itemDTO, int quantity) {
+        if (itemDTO.getProductId() == null) {
+            throw BusinessException.badRequest("商品ID不能为空");
+        }
+        Product product = productMapper.selectById(itemDTO.getProductId());
+        if (product == null) {
+            throw BusinessException.notFound("商品不存在: id=" + itemDTO.getProductId());
+        }
+
+        inventoryService.deductProduct(product, quantity);
+
+        OrderItem item = new OrderItem();
+        item.setItemType("PRODUCT");
+        item.setProductId(product.getId());
+        item.setProductName(product.getName());
+        item.setPrice(BigDecimal.valueOf(product.getPrice()));
+        item.setQuantity(quantity);
+        item.setSubtotal(BigDecimal.valueOf(product.getPrice()).multiply(BigDecimal.valueOf(quantity)));
+        return item;
+    }
 
     private OrderHead getOwnOrder(Long userId, Long orderId) {
         OrderHead head = orderHeadMapper.selectById(orderId);
         if (head == null) {
-            throw new RuntimeException("订单不存在");
+            throw BusinessException.notFound("订单不存在");
         }
         if (!head.getUserId().equals(userId)) {
-            throw new RuntimeException("无权查看该订单");
+            throw BusinessException.forbidden("无权查看该订单");
         }
         return head;
+    }
+
+    private String newOrderNo() {
+        return "XG" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+                + String.format("%04d", new Random().nextInt(10000));
     }
 }

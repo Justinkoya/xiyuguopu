@@ -1,6 +1,7 @@
 package com.xiyuguopu.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xiyuguopu.common.BusinessException;
 import com.xiyuguopu.dto.PackageVO;
 import com.xiyuguopu.entity.PackageDef;
 import com.xiyuguopu.entity.PackageProduct;
@@ -18,11 +19,11 @@ public class PackageService {
 
     private final PackageDefMapper packageDefMapper;
     private final PackageProductMapper packageProductMapper;
+    private final PackageAssembler packageAssembler;
 
     public List<PackageVO> listAll() {
         List<PackageDef> packages = packageDefMapper.selectList(
                 new LambdaQueryWrapper<PackageDef>().orderByAsc(PackageDef::getSortOrder));
-
         return packages.stream().map(this::toVO).collect(Collectors.toList());
     }
 
@@ -31,7 +32,6 @@ public class PackageService {
                 new LambdaQueryWrapper<PackageDef>()
                         .eq(PackageDef::getFeatured, true)
                         .orderByDesc(PackageDef::getCreatedAt));
-
         return packages.stream().map(this::toVO).collect(Collectors.toList());
     }
 
@@ -39,7 +39,7 @@ public class PackageService {
         PackageDef pkg = packageDefMapper.selectOne(
                 new LambdaQueryWrapper<PackageDef>().eq(PackageDef::getCode, code));
         if (pkg == null) {
-            throw new RuntimeException("套餐不存在");
+            throw BusinessException.notFound("套餐不存在");
         }
         return toVO(pkg);
     }
@@ -49,24 +49,6 @@ public class PackageService {
                 new LambdaQueryWrapper<PackageProduct>()
                         .eq(PackageProduct::getPackageId, pkg.getId())
                         .orderByAsc(PackageProduct::getSortOrder));
-
-        List<String> items = products.stream()
-                .map(p -> p.getProductName() + " " + p.getQuantity())
-                .collect(Collectors.toList());
-
-        return PackageVO.builder()
-                .code(pkg.getCode())
-                .icon(pkg.getIcon())
-                .image(pkg.getImage())
-                .name(pkg.getName())
-                .subtitle(pkg.getSubtitle())
-                .price(pkg.getPrice())
-                .stock(pkg.getStock())
-                .sale(pkg.getSale())
-                .featured(pkg.getFeatured())
-                .badge(pkg.getBadge())
-                .extra(pkg.getExtra())
-                .items(items)
-                .build();
+        return packageAssembler.toVO(pkg, products);
     }
 }

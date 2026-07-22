@@ -2,6 +2,7 @@ package com.xiyuguopu.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiyuguopu.common.BusinessException;
 import com.xiyuguopu.dto.AdminOrderVO;
 import com.xiyuguopu.entity.OrderHead;
 import com.xiyuguopu.entity.OrderItem;
@@ -9,24 +10,20 @@ import com.xiyuguopu.mapper.OrderHeadMapper;
 import com.xiyuguopu.mapper.OrderItemMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * 管理后台 — 订单管理
- */
 @Service
 @RequiredArgsConstructor
 public class AdminOrderService {
 
     private final OrderHeadMapper orderHeadMapper;
     private final OrderItemMapper orderItemMapper;
+    private final OrderAssembler orderAssembler;
+    private final OrderStatusService orderStatusService;
+    private final InventoryService inventoryService;
 
-    /**
-     * 分页列表，按状态筛选，按创建时间倒序
-     */
     public Page<OrderHead> list(int page, int size, String status) {
         LambdaQueryWrapper<OrderHead> qw = new LambdaQueryWrapper<>();
         if (status != null && !status.isBlank()) {
@@ -36,84 +33,56 @@ public class AdminOrderService {
         return orderHeadMapper.selectPage(new Page<>(page, size), qw);
     }
 
-    /**
-     * 订单详情（含明细 + 地址快照）
-     */
     public AdminOrderVO detail(Long id) {
         OrderHead head = orderHeadMapper.selectById(id);
         if (head == null) {
-            throw new RuntimeException("订单不存在");
+            throw BusinessException.notFound("订单不存在");
         }
 
         List<OrderItem> items = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, id));
-
-        List<AdminOrderVO.OrderItemVO> itemVOs = items.stream()
-                .map(i -> AdminOrderVO.OrderItemVO.builder()
-                        .itemType(i.getItemType())
-                        .productId(i.getProductId())
-                        .packageCode(i.getPackageCode())
-                        .productName(i.getProductName())
-                        .price(i.getPrice())
-                        .quantity(i.getQuantity())
-                        .subtotal(i.getSubtotal())
-                        .build())
-                .collect(Collectors.toList());
-
-        return AdminOrderVO.builder()
-                .id(head.getId())
-                .orderNo(head.getOrderNo())
-                .userId(head.getUserId())
-                .status(head.getStatus())
-                .totalAmount(head.getTotalAmount())
-                .remark(head.getRemark())
-                .addressSnapshot(head.getAddressSnapshot())
-                .items(itemVOs)
-                .paidAt(head.getPaidAt())
-                .shippedAt(head.getShippedAt())
-                .completedAt(head.getCompletedAt())
-                .cancelledAt(head.getCancelledAt())
-                .createdAt(head.getCreatedAt())
-                .trackingNumber(head.getTrackingNumber())
-                .shippingCompany(head.getShippingCompany())
-                .build();
+        return orderAssembler.toAdminVO(head, items);
     }
 
-    /**
-     * 变更状态，自动填对应时间戳；发货时设置物流信息
-     */
+    @Transactional
     public void updateStatus(Long id, String status, String trackingNumber, String shippingCompany) {
         OrderHead head = orderHeadMapper.selectById(id);
         if (head == null) {
-            throw new RuntimeException("订单不存在");
+            throw BusinessException.notFound("订单不存在");
         }
 
         String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
         switch (normalizedStatus) {
-            case "SHIPPED":
+            case OrderStatusService.SHIPPED:
                 String normalizedTrackingNumber = trackingNumber == null ? "" : trackingNumber.trim();
                 String normalizedShippingCompany = shippingCompany == null ? "" : shippingCompany.trim();
                 if (normalizedTrackingNumber.isBlank()) {
-                    throw new RuntimeException("物流单号不能为空");
+                    throw BusinessException.badRequest("物流单号不能为空");
                 }
                 if (normalizedShippingCompany.isBlank()) {
-                    throw new RuntimeException("快递公司不能为空");
+                    throw BusinessException.badRequest("快递公司不能为空");
                 }
-                head.setShippedAt(LocalDateTime.now());
                 head.setTrackingNumber(normalizedTrackingNumber);
                 head.setShippingCompany(normalizedShippingCompany);
                 break;
-            case "COMPLETED":
-                head.setCompletedAt(LocalDateTime.now());
+            case OrderStatusService.COMPLETED:
                 break;
-            case "CANCELLED":
-                head.setCancelledAt(LocalDateTime.now());
+            case OrderStatusService.CANCELLED:
+                restoreInventory(id);
                 break;
             default:
-                throw new RuntimeException("不支持的状态: " + status);
+                throw BusinessException.badRequest("不支持的状态: " + status);
         }
 
-        head.setStatus(normalizedStatus);
+        orderStatusService.transition(head, normalizedStatus);
         orderHeadMapper.updateById(head);
+    }
+
+    private void restoreInventory(Long orderId) {
+        List<OrderItem> items = orderItemMapper.selectList(
+                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
+        for (OrderItem item : items) {
+            inventoryService.restore(item);
+        }
     }
 }
