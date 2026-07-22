@@ -149,10 +149,11 @@
     document.getElementById('nav-' + tab).classList.add('bg-white/10', 'font-bold');
     if (tab === 'dashboard') loadDashboard();
     else if (tab === 'products') loadProducts();
-    else if (tab === 'categories') loadCategories();
-    else if (tab === 'packages') loadPackages();
-    else if (tab === 'orders') loadOrders();
-  }
+	    else if (tab === 'categories') loadCategories();
+	    else if (tab === 'packages') loadPackages();
+	    else if (tab === 'scorecards') loadScorecards();
+	    else if (tab === 'orders') loadOrders();
+	  }
 
   // ==================== 仪表盘 ====================
 
@@ -665,16 +666,161 @@
     } catch (e) { toast('保存套餐失败: ' + e.message, false); }
   }
 
-  async function deletePackage(id, name) {
-    if (!confirm(`确定要删除「${name}」吗？此操作不可撤销。`)) return;
-    try {
-      await api(`/admin/packages/${id}`, { method: 'DELETE' });
-      toast('已删除: ' + name);
-      loadPackages(packagePage);
-    } catch (e) { toast('删除套餐失败: ' + e.message, false); }
-  }
+	  async function deletePackage(id, name) {
+	    if (!confirm(`确定要删除「${name}」吗？此操作不可撤销。`)) return;
+	    try {
+	      await api(`/admin/packages/${id}`, { method: 'DELETE' });
+	      toast('已删除: ' + name);
+	      loadPackages(packagePage);
+	    } catch (e) { toast('删除套餐失败: ' + e.message, false); }
+	  }
 
-  // ==================== 订单管理 ====================
+	  // ==================== 评分卡管理 ====================
+
+	  let scorecardPage = 1, scorecardKeyword = '';
+
+	  async function loadScorecards(page = 1) {
+	    scorecardPage = page;
+	    scorecardKeyword = document.getElementById('score-search') ? document.getElementById('score-search').value.trim() : scorecardKeyword;
+	    const params = new URLSearchParams({ page, size: 10 });
+	    if (scorecardKeyword) params.set('keyword', scorecardKeyword);
+	    try {
+	      await loadAdminCategories();
+	      const data = await api('/admin/scorecards?' + params);
+	      renderScorecardTable(data);
+	    } catch (e) { toast('加载评分卡失败: ' + e.message, false); }
+	  }
+
+	  function searchScorecards() {
+	    scorecardKeyword = document.getElementById('score-search').value.trim();
+	    loadScorecards(1);
+	  }
+
+	  function renderScorecardTable(page) {
+	    const tbody = document.getElementById('score-tbody');
+	    if (!page.records.length) {
+	      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-8">暂无评分卡</td></tr>';
+	    } else {
+	      tbody.innerHTML = page.records.map(s => `
+	        <tr class="border-b border-gray-100 hover:bg-gray-50">
+	          <td class="py-3 px-2 text-gray-400 text-xs">${s.id}</td>
+	          <td class="py-3 px-2">
+	            <div class="font-medium">${escapeHtml(s.productName || '-')}</div>
+	            <div class="text-xs text-gray-400">商品ID: ${s.productId}</div>
+	          </td>
+	          <td class="py-3 px-2 font-bold text-amber-600">${formatPrice(s.totalScore)}/6</td>
+	          <td class="py-3 px-2 text-xs text-gray-500">${escapeHtml(s.originText || '-')}</td>
+	          <td class="py-3 px-2 text-xs text-gray-500">${(s.dimensions || []).length} 项</td>
+	          <td class="py-3 px-2 text-xs text-gray-500">${formatTime(s.createdAt)}</td>
+	          <td class="py-3 px-2">
+	            <button onclick="editScorecard(${s.id})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fa fa-edit"></i></button>
+	            <button onclick="deleteScorecard(${s.id},'${String(s.productName || '').replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 text-xs"><i class="fa fa-trash"></i></button>
+	          </td>
+	        </tr>`).join('');
+	    }
+
+	    document.getElementById('score-pagination').innerHTML = page.pages > 1
+	      ? `<button onclick="loadScorecards(${page.current - 1})" ${page.current <= 1 ? 'disabled' : ''} class="px-3 py-1 border rounded-l ${page.current <= 1 ? 'text-gray-300' : 'hover:bg-gray-100'}">上一页</button>
+	         <span class="px-3 py-1 border-t border-b text-sm">${page.current} / ${page.pages}（共 ${page.total} 张）</span>
+	         <button onclick="loadScorecards(${page.current + 1})" ${page.current >= page.pages ? 'disabled' : ''} class="px-3 py-1 border rounded-r ${page.current >= page.pages ? 'text-gray-300' : 'hover:bg-gray-100'}">下一页</button>`
+	      : '';
+	  }
+
+	  async function renderScorecardProductOptions(selectedId = '') {
+	    const products = await api('/admin/products?page=1&size=500');
+	    const options = (products.records || []).map(p =>
+	      `<option value="${p.id}" ${String(p.id) === String(selectedId) ? 'selected' : ''}>${escapeHtml(p.name)} #${p.id}</option>`
+	    ).join('');
+	    document.getElementById('score-productId').innerHTML = options || '<option value="">暂无商品</option>';
+	  }
+
+	  async function openAddScorecardModal() {
+	    document.getElementById('score-modal-title').textContent = '新增评分卡';
+	    document.getElementById('score-form').reset();
+	    document.getElementById('score-id').value = '';
+	    document.getElementById('score-dimensions').value = defaultScorecardDimensions();
+	    await renderScorecardProductOptions();
+	    document.getElementById('score-modal').classList.remove('hidden');
+	  }
+
+	  async function editScorecard(id) {
+	    try {
+	      const s = await api(`/admin/scorecards/${id}`);
+	      document.getElementById('score-modal-title').textContent = '编辑评分卡';
+	      document.getElementById('score-id').value = s.id;
+	      await renderScorecardProductOptions(s.productId);
+	      document.getElementById('score-totalScore').value = s.totalScore || '';
+	      document.getElementById('score-image').value = s.image || '';
+	      document.getElementById('score-originText').value = s.originText || '';
+	      document.getElementById('score-ingredientText').value = s.ingredientText || '';
+	      document.getElementById('score-dimensions').value = (s.dimensions || [])
+	        .map(d => `${d.label} ${d.score} ${d.pct || ''}`.trim())
+	        .join('\n');
+	      document.getElementById('score-modal').classList.remove('hidden');
+	    } catch (e) { toast('获取评分卡失败: ' + e.message, false); }
+	  }
+
+	  function closeScorecardModal() { document.getElementById('score-modal').classList.add('hidden'); }
+
+	  function defaultScorecardDimensions() {
+	    return ['产地透明 6.0 100', '颗粒均匀 5.6 93', '干湿适口 5.5 92', '洁净免洗 5.7 95', '口感稳定 5.8 97', '配料纯净 6.0 100'].join('\n');
+	  }
+
+	  function parseScorecardDimensions(text) {
+	    return text.split(/\n+/)
+	      .map(line => line.trim())
+	      .filter(Boolean)
+	      .map((line, index) => {
+	        const parts = line.split(/\s+/);
+	        const pctRaw = parts.length > 2 ? parts.pop() : '';
+	        const scoreRaw = parts.length > 1 ? parts.pop() : '';
+	        const score = parseFloat(scoreRaw);
+	        const pct = pctRaw === '' ? Math.round((score || 0) / 6 * 100) : parseInt(pctRaw);
+	        return {
+	          label: parts.join(' '),
+	          score,
+	          pct,
+	          sortOrder: index + 1
+	        };
+	      })
+	      .filter(d => d.label && !Number.isNaN(d.score));
+	  }
+
+	  async function saveScorecard() {
+	    const id = document.getElementById('score-id').value;
+	    const body = {
+	      productId: parseInt(document.getElementById('score-productId').value),
+	      totalScore: parseFloat(document.getElementById('score-totalScore').value),
+	      image: document.getElementById('score-image').value.trim(),
+	      originText: document.getElementById('score-originText').value.trim(),
+	      ingredientText: document.getElementById('score-ingredientText').value.trim(),
+	      dimensions: parseScorecardDimensions(document.getElementById('score-dimensions').value)
+	    };
+	    if (!body.productId || Number.isNaN(body.totalScore)) return toast('请选择商品并填写综合评分', false);
+
+	    try {
+	      if (id) {
+	        await api(`/admin/scorecards/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+	        toast('评分卡已更新');
+	      } else {
+	        await api('/admin/scorecards', { method: 'POST', body: JSON.stringify(body) });
+	        toast('评分卡已新增');
+	      }
+	      closeScorecardModal();
+	      loadScorecards(scorecardPage);
+	    } catch (e) { toast('保存评分卡失败: ' + e.message, false); }
+	  }
+
+	  async function deleteScorecard(id, productName) {
+	    if (!confirm(`确定要删除「${productName || id}」的评分卡吗？此操作不可撤销。`)) return;
+	    try {
+	      await api(`/admin/scorecards/${id}`, { method: 'DELETE' });
+	      toast('评分卡已删除');
+	      loadScorecards(scorecardPage);
+	    } catch (e) { toast('删除评分卡失败: ' + e.message, false); }
+	  }
+
+	  // ==================== 订单管理 ====================
 
   let orderPage = 1, orderStatus = '';
 
@@ -849,12 +995,15 @@
       <button id="nav-categories" onclick="switchTab('categories')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
         <i class="fa fa-tags"></i> 分类管理
       </button>
-      <button id="nav-packages" onclick="switchTab('packages')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
-        <i class="fa fa-gift"></i> 套餐管理
-      </button>
-      <button id="nav-orders" onclick="switchTab('orders')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
-        <i class="fa fa-list-alt"></i> 订单管理
-      </button>
+	      <button id="nav-packages" onclick="switchTab('packages')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
+	        <i class="fa fa-gift"></i> 套餐管理
+	      </button>
+	      <button id="nav-scorecards" onclick="switchTab('scorecards')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
+	        <i class="fa fa-star-half-o"></i> 评分卡
+	      </button>
+	      <button id="nav-orders" onclick="switchTab('orders')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm transition flex items-center gap-3">
+	        <i class="fa fa-list-alt"></i> 订单管理
+	      </button>
     </nav>
     <div class="p-3 border-t border-gray-700">
       <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-lg text-sm text-gray-400 hover:bg-white/5 transition flex items-center gap-3">
@@ -953,7 +1102,7 @@
       </div>
     </div>
 
-    <div id="tab-packages" class="tab-content hidden">
+	    <div id="tab-packages" class="tab-content hidden">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold">套餐管理</h2>
         <button onclick="openAddPackageModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold transition">
@@ -975,9 +1124,33 @@
         </table>
         <div id="pkg-pagination" class="flex justify-center p-4 text-sm"></div>
       </div>
-    </div>
+	    </div>
 
-    <!-- ===== 订单管理 ===== -->
+	    <div id="tab-scorecards" class="tab-content hidden">
+	      <div class="flex items-center justify-between mb-6">
+	        <h2 class="text-xl font-bold">评分卡管理</h2>
+	        <button onclick="openAddScorecardModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold transition">
+	          <i class="fa fa-plus mr-1"></i> 新增评分卡
+	        </button>
+	      </div>
+
+	      <div class="flex gap-3 mb-4">
+	        <input id="score-search" type="text" placeholder="搜索商品名..." oninput="searchScorecards()"
+	          class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+	      </div>
+
+	      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+	        <table class="w-full text-sm">
+	          <thead><tr class="bg-gray-50 text-gray-400 text-xs uppercase">
+	            <th class="py-3 px-2 text-left">ID</th><th class="py-3 px-2 text-left">商品</th><th class="py-3 px-2 text-left">综合评分</th><th class="py-3 px-2 text-left">产地</th><th class="py-3 px-2 text-left">维度</th><th class="py-3 px-2 text-left">创建时间</th><th class="py-3 px-2 text-left">操作</th>
+	          </tr></thead>
+	          <tbody id="score-tbody"></tbody>
+	        </table>
+	        <div id="score-pagination" class="flex justify-center p-4 text-sm"></div>
+	      </div>
+	    </div>
+
+	    <!-- ===== 订单管理 ===== -->
     <div id="tab-orders" class="tab-content hidden">
       <h2 class="text-xl font-bold mb-6">订单管理</h2>
 
@@ -1151,7 +1324,38 @@
       <button onclick="savePackage()" class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold">保存</button>
     </div>
   </div>
-</div>
+	</div>
 
-</body>
-</html>
+	<!-- ==================== 评分卡 Modal ==================== -->
+	<div id="score-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+	  <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+	    <div class="flex items-center justify-between mb-6">
+	      <h2 id="score-modal-title" class="text-xl font-bold">评分卡信息</h2>
+	      <button onclick="closeScorecardModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+	    </div>
+	    <form id="score-form">
+	      <input type="hidden" id="score-id">
+	      <div class="grid grid-cols-2 gap-4 text-sm">
+	        <div class="col-span-2">
+	          <label class="text-gray-500 text-xs">商品 *</label>
+	          <select id="score-productId" class="w-full border rounded-lg px-3 py-2 mt-1"></select>
+	        </div>
+	        <div><label class="text-gray-500 text-xs">综合评分 *</label><input id="score-totalScore" type="number" step="0.1" min="0" max="6" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="5.8"></div>
+	        <div><label class="text-gray-500 text-xs">图片路径</label><input id="score-image" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="images/walnut.png"></div>
+	        <div class="col-span-2"><label class="text-gray-500 text-xs">产地描述</label><input id="score-originText" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="阿克苏温宿县 · 手选大果"></div>
+	        <div class="col-span-2"><label class="text-gray-500 text-xs">配料说明</label><input id="score-ingredientText" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="配料：纸皮核桃"></div>
+	        <div class="col-span-2">
+	          <label class="text-gray-500 text-xs">评分维度（每行：维度名 分数 百分比）</label>
+	          <textarea id="score-dimensions" rows="7" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="产地透明 6.0 100&#10;颗粒均匀 5.6 93"></textarea>
+	        </div>
+	      </div>
+	    </form>
+	    <div class="flex justify-end gap-3 mt-6">
+	      <button onclick="closeScorecardModal()" class="px-6 py-2 border rounded-lg text-sm hover:bg-gray-50">取消</button>
+	      <button onclick="saveScorecard()" class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-bold">保存</button>
+	    </div>
+	  </div>
+	</div>
+
+	</body>
+	</html>

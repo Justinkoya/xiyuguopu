@@ -1,4 +1,4 @@
-const ENV = 'prod'
+const ENV = 'dev'
 const CFG = {
   dev: {
     baseUrl: 'http://localhost/api',
