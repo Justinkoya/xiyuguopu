@@ -68,4 +68,19 @@ public class InventoryService {
                             .eq(Product::getId, item.getProductId()));
         }
     }
+
+    public void decrementSale(OrderItem item) {
+        int qty = item.getQuantity();
+        if ("PACKAGE".equals(item.getItemType())) {
+            packageDefMapper.update(null,
+                    new LambdaUpdateWrapper<PackageDef>()
+                            .setSql("sale = GREATEST(COALESCE(sale,0) - " + qty + ", 0)")
+                            .eq(PackageDef::getCode, item.getPackageCode()));
+        } else if (item.getProductId() != null) {
+            productMapper.update(null,
+                    new LambdaUpdateWrapper<Product>()
+                            .setSql("sale = GREATEST(COALESCE(sale,0) - " + qty + ", 0)")
+                            .eq(Product::getId, item.getProductId()));
+        }
+    }
 }

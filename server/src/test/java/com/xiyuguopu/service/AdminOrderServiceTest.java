@@ -31,7 +31,7 @@ class AdminOrderServiceTest {
     );
 
     @Test
-    void restoresInventoryWhenAdminCancelsPaidOrder() {
+    void restoresInventoryAndSalesWhenAdminCancelsPaidOrder() {
         OrderHead head = new OrderHead();
         head.setId(10L);
         head.setStatus(OrderStatusService.PAID);
@@ -54,6 +54,9 @@ class AdminOrderServiceTest {
         verify(inventoryService).restore(product);
         verify(inventoryService).restore(pkg);
         verify(inventoryService, times(2)).restore(any(OrderItem.class));
+        verify(inventoryService).decrementSale(product);
+        verify(inventoryService).decrementSale(pkg);
+        verify(inventoryService, times(2)).decrementSale(any(OrderItem.class));
         verify(orderHeadMapper).updateById(head);
     }
 

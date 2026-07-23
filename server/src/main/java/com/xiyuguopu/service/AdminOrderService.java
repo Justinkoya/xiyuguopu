@@ -68,7 +68,7 @@ public class AdminOrderService {
             case OrderStatusService.COMPLETED:
                 break;
             case OrderStatusService.CANCELLED:
-                restoreInventory(id);
+                restoreInventoryAndSales(id);
                 break;
             default:
                 throw BusinessException.badRequest("不支持的状态: " + status);
@@ -78,11 +78,12 @@ public class AdminOrderService {
         orderHeadMapper.updateById(head);
     }
 
-    private void restoreInventory(Long orderId) {
+    private void restoreInventoryAndSales(Long orderId) {
         List<OrderItem> items = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
         for (OrderItem item : items) {
             inventoryService.restore(item);
+            inventoryService.decrementSale(item);
         }
     }
 }

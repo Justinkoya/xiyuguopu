@@ -70,6 +70,30 @@ class InventoryServiceTest {
     }
 
     @Test
+    void decrementsPackageSale() {
+        OrderItem item = new OrderItem();
+        item.setItemType("PACKAGE");
+        item.setPackageCode("gift");
+        item.setQuantity(1);
+
+        service.decrementSale(item);
+
+        verify(packageDefMapper).update(isNull(), any());
+    }
+
+    @Test
+    void decrementsProductSale() {
+        OrderItem item = new OrderItem();
+        item.setItemType("PRODUCT");
+        item.setProductId(1L);
+        item.setQuantity(2);
+
+        service.decrementSale(item);
+
+        verify(productMapper).update(isNull(), any());
+    }
+
+    @Test
     void deductsPackageStock() {
         PackageDef pkg = new PackageDef();
         pkg.setCode("gift");
